@@ -35,7 +35,6 @@ const menuItems = [
 </script>
 
 <style lang="scss" scoped>
-@use '@/assets/styles/variables' as *;
 
 .navbar {
   position: fixed;
@@ -85,6 +84,7 @@ const menuItems = [
     background: none;
     border: none;
   }
+
 
   .nav-menu {
     display: flex;
