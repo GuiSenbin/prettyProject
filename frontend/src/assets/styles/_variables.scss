@@ -1,0 +1,33 @@
+// ====== 深薄荷绿主题变量 ======
+
+// 主色系
+$mint-dark: #1a7a5c;
+$mint-primary: #2d8f6f;
+$mint-medium: #3caa85;
+$mint-light: #5fc4a0;
+$mint-pale: #b8e6d4;
+$mint-bg: #e8f5ee;
+$mint-bg-dark: #d0ebe0;
+
+// 文字
+$text-primary: #1a2e2a;
+$text-secondary: #3d5a52;
+$text-light: #6b8a82;
+
+// 背景
+$white: #ffffff;
+$bg-light: #f0faf5;
+
+// 阴影
+$shadow: 0 4px 20px rgba(26, 122, 92, 0.12);
+$shadow-hover: 0 8px 30px rgba(26, 122, 92, 0.2);
+
+// 圆角
+$radius: 16px;
+$radius-sm: 10px;
+
+// 过渡
+$transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+// 按钮渐变
+$gradient-primary: linear-gradient(135deg, $mint-dark, $mint-medium);

@@ -1,0 +1,77 @@
+import { defineStore } from 'pinia'
+import api from '@/api'
+
+export const useUserStore = defineStore('user', {
+  state: () => ({
+    userId: null,
+    profile: null,
+    loading: false,
+  }),
+
+  getters: {
+    hasProfile: (state) => !!state.profile?.skin_type,
+    summary: (state) => {
+      if (!state.profile) return null
+      const map = {
+        skin_type: { dry: '干性肌肤', oily: '油性肌肤', combination: '混合性肌肤', normal: '中性肌肤', sensitive: '敏感性肌肤' },
+        face_shape: { round: '圆脸', square: '方脸', oval: '鹅蛋脸', heart: '心形脸', diamond: '菱形脸' },
+      }
+      return {
+        name: state.profile.name,
+        skin_type: state.profile.skin_type,
+        skin_type_label: map.skin_type[state.profile.skin_type] || '',
+        face_shape: state.profile.face_shape,
+        concerns: state.profile.concerns || [],
+      }
+    },
+  },
+
+  actions: {
+    async fetchLatest() {
+      this.loading = true
+      try {
+        const data = await api.get('/users/latest')
+        if (data) {
+          this.profile = data
+          this.userId = data.id
+        }
+      } catch (e) {
+        console.warn('加载用户资料失败', e)
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async save(form) {
+      const payload = {
+        name: form.name || '用户',
+        age: form.age || '',
+        gender: form.gender || '',
+        skin_type: form.skin_type || '',
+        face_shape: form.face_shape || '',
+        skin_tone: form.skin_tone || '',
+        concerns: form.concerns || [],
+      }
+      try {
+        const data = await api.post('/users/', payload)
+        this.profile = data
+        this.userId = data.id
+        return { ok: true }
+      } catch (e) {
+        return { ok: false, error: e.message }
+      }
+    },
+
+    async reset() {
+      if (!this.userId) return { ok: true }
+      try {
+        await api.delete(`/users/${this.userId}`)
+        this.profile = null
+        this.userId = null
+        return { ok: true }
+      } catch (e) {
+        return { ok: false, error: e.message }
+      }
+    },
+  },
+})

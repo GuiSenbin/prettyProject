@@ -1,0 +1,87 @@
+// ====== 全局通用样式 ======
+@use 'variables' as *;
+
+// 按钮
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 28px;
+  border-radius: 50px;
+  font-size: 15px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: $transition;
+  gap: 8px;
+  font-family: inherit;
+
+  &-primary {
+    background: $gradient-primary;
+    color: $white;
+    box-shadow: 0 4px 15px rgba(26, 122, 92, 0.3);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(26, 122, 92, 0.4);
+    }
+  }
+
+  &-secondary {
+    background: $white;
+    color: $mint-primary;
+    border: 2px solid $mint-primary;
+  }
+
+  &-outline {
+    background: transparent;
+    color: $text-secondary;
+    border: 1.5px solid $mint-pale;
+  }
+
+  &-sm {
+    padding: 6px 16px;
+    font-size: 13px;
+    border-radius: 20px;
+    background: $mint-bg;
+    color: $mint-dark;
+    border: 1px solid $mint-pale;
+    font-family: inherit;
+    cursor: pointer;
+  }
+}
+
+// 标签
+.tag {
+  display: inline-block;
+  padding: 4px 12px;
+  background: $white;
+  border-radius: 12px;
+  font-size: 12px;
+  color: $mint-primary;
+  border: 1px solid $mint-pale;
+}
+
+// 页面标题
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: $text-primary;
+  margin-bottom: 8px;
+}
+
+.page-desc {
+  color: $text-light;
+  font-size: 15px;
+  margin-bottom: 28px;
+}
+
+// 滚动条
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: $mint-pale;
+  border-radius: 4px;
+}
