@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia'
 import api from '@/api'
 
+const STORAGE_KEY = 'beauty_user_id'
+
 export const useUserStore = defineStore('user', {
   state: () => ({
     userId: null,
@@ -28,15 +30,23 @@ export const useUserStore = defineStore('user', {
 
   actions: {
     async fetchLatest() {
+      const storedUserId = localStorage.getItem(STORAGE_KEY)
+      if (!storedUserId) {
+        this.profile = null
+        this.userId = null
+        return
+      }
+
       this.loading = true
       try {
-        const data = await api.get('/users/latest')
-        if (data) {
-          this.profile = data
-          this.userId = data.id
-        }
+        const data = await api.get(`/users/${storedUserId}`)
+        this.profile = data
+        this.userId = data.id
       } catch (e) {
         console.warn('加载用户资料失败', e)
+        localStorage.removeItem(STORAGE_KEY)
+        this.profile = null
+        this.userId = null
       } finally {
         this.loading = false
       }
@@ -53,11 +63,25 @@ export const useUserStore = defineStore('user', {
         concerns: form.concerns || [],
       }
       try {
-        const data = await api.post('/users/', payload)
+        const data = this.userId
+          ? await api.put(`/users/${this.userId}`, payload)
+          : await api.post('/users/', payload)
         this.profile = data
         this.userId = data.id
+        localStorage.setItem(STORAGE_KEY, String(data.id))
         return { ok: true }
       } catch (e) {
+        if (this.userId) {
+          try {
+            const data = await api.post('/users/', payload)
+            this.profile = data
+            this.userId = data.id
+            localStorage.setItem(STORAGE_KEY, String(data.id))
+            return { ok: true }
+          } catch (retryError) {
+            return { ok: false, error: retryError.message }
+          }
+        }
         return { ok: false, error: e.message }
       }
     },
@@ -68,6 +92,7 @@ export const useUserStore = defineStore('user', {
         await api.delete(`/users/${this.userId}`)
         this.profile = null
         this.userId = null
+        localStorage.removeItem(STORAGE_KEY)
         return { ok: true }
       } catch (e) {
         return { ok: false, error: e.message }

@@ -12,7 +12,7 @@ router = APIRouter(prefix="/users", tags=["用户"])
 
 @router.get("/latest", response_model=UserResponse | None)
 def get_latest_user(db: Session = Depends(get_db)):
-    """获取最新的用户"""
+    """获取最新的用户（兼容旧版单人演示入口）"""
     user = db.execute(
         select(User).order_by(User.id.desc()).limit(1)
     ).scalar_one_or_none()
@@ -20,21 +20,24 @@ def get_latest_user(db: Session = Depends(get_db)):
 
 
 @router.post("/", response_model=UserResponse)
-def create_or_update_user(data: UserCreate, db: Session = Depends(get_db)):
-    """创建或更新用户（暂只保留一条）"""
-    existing = db.execute(
-        select(User).order_by(User.id.desc()).limit(1)
-    ).scalar_one_or_none()
-
-    if existing:
-        for key, val in data.model_dump().items():
-            setattr(existing, key, val)
-        db.commit()
-        db.refresh(existing)
-        return existing.to_dict()
-
+def create_user(data: UserCreate, db: Session = Depends(get_db)):
+    """创建游客/新用户档案"""
     user = User(**data.model_dump())
     db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user.to_dict()
+
+
+@router.put("/{user_id}", response_model=UserResponse)
+def update_user(user_id: int, data: UserCreate, db: Session = Depends(get_db)):
+    """更新当前用户档案"""
+    user = db.get(User, user_id)
+    if not user:
+        raise HTTPException(404, "用户不存在")
+
+    for key, val in data.model_dump().items():
+        setattr(user, key, val)
     db.commit()
     db.refresh(user)
     return user.to_dict()

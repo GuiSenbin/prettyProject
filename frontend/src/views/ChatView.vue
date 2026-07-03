@@ -65,6 +65,7 @@ import { ref, onMounted, watch, nextTick } from 'vue'
 import ChatMessage from '@/components/ChatMessage.vue'
 import { useChatStore } from '@/stores/chat'
 import { useUserStore } from '@/stores/user'
+import { getCabinetProductNames } from '@/utils/cabinet'
 
 const chatStore = useChatStore()
 const userStore = useUserStore()
@@ -104,7 +105,10 @@ async function handleSend() {
   if (inputEl.value) {
     inputEl.value.style.height = 'auto'
   }
-  await chatStore.send(text, userStore.userId)
+  
+  const userProducts = getCabinetProductNames(userStore.userId)
+
+  await chatStore.send(text, userStore.userId, userProducts)
 }
 
 async function quickSend(text) {

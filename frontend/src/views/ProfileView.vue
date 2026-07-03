@@ -1,14 +1,14 @@
 <template>
   <div class="profile-page">
     <h2 class="page-title">个人美妆档案</h2>
-    <p class="page-desc">填写以下信息，AI 助手将为你提供个性化的护肤与妆容推荐</p>
+    <p class="page-desc">这是你的可编辑美妆画像，AI 会据此判断产品、妆容和护肤方案是否适合你</p>
 
     <div class="profile-card">
       <div class="form-section">
         <ProfileForm v-model="formData" />
         <div class="form-actions">
           <button class="btn btn-primary" @click="handleSave" :disabled="saving">
-            {{ saving ? '保存中...' : '保存档案' }}
+            {{ saving ? '保存中...' : userStore.profile ? '更新档案' : '创建档案' }}
           </button>
           <button class="btn btn-outline" @click="handleReset">重置</button>
         </div>
@@ -21,7 +21,8 @@
           <div class="preview-tags">
             <span v-if="skinTag" class="tag">🧴 {{ skinTag }}</span>
             <span v-if="faceTag" class="tag">👤 {{ faceTag }}</span>
-            <span v-if="userStore.profile.age" class="tag">🎂 {{ ageLabels[userStore.profile.age] || userStore.profile.age }}</span>
+            <span v-if="toneTag" class="tag">🎨 {{ toneTag }}</span>
+            <span v-if="displayAge" class="tag">🎂 {{ displayAge }}</span>
           </div>
           <p class="preview-status">✅ 档案已保存，AI 助手将根据你的资料提供个性化推荐</p>
           <router-link to="/chat" class="btn btn-primary">去咨询 AI 助手 →</router-link>
@@ -48,9 +49,17 @@ const ageLabels = {
 
 const skinLabels = { dry: '干性', oily: '油性', combination: '混合性', normal: '中性', sensitive: '敏感性' }
 const faceLabels = { round: '圆脸', square: '方脸', oval: '鹅蛋脸', heart: '心形脸', diamond: '菱形脸' }
+const toneLabels = { fair: '白皙', light: '自然偏白', medium: '自然肤色', tan: '小麦色', dark: '深色' }
 
 const skinTag = computed(() => userStore.profile?.skin_type ? skinLabels[userStore.profile.skin_type] : '')
 const faceTag = computed(() => userStore.profile?.face_shape ? faceLabels[userStore.profile.face_shape] : '')
+const toneTag = computed(() => userStore.profile?.skin_tone ? toneLabels[userStore.profile.skin_tone] : '')
+const displayAge = computed(() => {
+  const age = userStore.profile?.age
+  if (!age) return ''
+  if (ageLabels[age]) return ageLabels[age]
+  return /^\d+$/.test(age) ? `${age}岁` : age
+})
 
 const formData = reactive({
   name: '', age: '', gender: '', skin_type: '',

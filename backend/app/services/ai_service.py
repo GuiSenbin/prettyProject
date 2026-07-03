@@ -74,6 +74,11 @@ class BeautyAIService:
             if user_summary.get("concerns"):
                 cs = [CONCERN_MAP.get(c, c) for c in user_summary["concerns"]]
                 parts.append(f"护肤关注点：{'、'.join(cs)}")
+            if user_summary.get("user_products"):
+                parts.append(f"用户已拥有的产品：{'、'.join(user_summary['user_products'])}")
+                prompt += """\n\n## 重要设定：优先使用已拥有产品
+用户现在已经提供了一份他们手头拥有的护肤/美妆产品列表。当你在为用户定制妆容、提供夜间/日间护肤流步骤设计、或者推荐解决皮肤问题的产品时，**你必须优先从用户已拥有的产品中挑选和进行步骤配对**。仅当用户已有的产品库中没有任何适合该步骤的产品、或者完全不推荐在此时使用时，你才可以顺带向用户建议其他市场上的补充产品。在回答中要提及：使用的是他们已有的某款产品。"""
+            
             prompt += "\n\n## 当前用户\n" + "\n".join(f"- {p}" for p in parts)
             prompt += "\n\n请根据以上信息提供个性化建议。"
         return prompt
@@ -120,16 +125,17 @@ class BeautyAIService:
 
         # —— 妆容 ——
         if any(kw in msg for kw in ["约会", "淡妆", "化妆", "妆容"]):
-            return self._makeup_reply(effective_skin, skin_info, fs)
+            return self._makeup_reply(effective_skin, skin_info, fs, user_summary)
 
         # —— 护肤 ——
         if any(kw in msg for kw in ["护肤", "routine", "步骤", "流程", "怎么护"]):
             return self._skincare_reply(effective_skin, skin_info,
-                                        user_summary.get("concerns", []) if user_summary else [])
+                                        user_summary.get("concerns", []) if user_summary else [],
+                                        user_summary)
 
         # —— 产品推荐 ——
         if any(kw in msg for kw in ["产品", "推荐", "买什么", "好用"]):
-            return self._product_reply(effective_skin, skin_info)
+            return self._product_reply(effective_skin, skin_info, user_summary)
 
         # —— 纯告知肤质 ——
         if inline_skin and not any(kw in msg for kw in
@@ -196,7 +202,7 @@ class BeautyAIService:
             reply += "还有什么我可以帮你的吗？😊"
         return reply
 
-    def _makeup_reply(self, skin_type, skin_info, face_shape):
+    def _makeup_reply(self, skin_type, skin_info, face_shape, user_summary=None):
         reply = "💄 **约会淡妆步骤** 💄\n\n"
         if skin_info:
             reply += f"根据你的 **{skin_info['name']}肌肤**，我来为你定制妆容：\n\n"
@@ -228,13 +234,18 @@ class BeautyAIService:
         reply += "\n**Step 6 — 定妆**\n• 定妆喷雾全脸定妆\n"
 
         products = self._get_products(skin_type)
+        owned_products = (user_summary or {}).get("user_products") or []
+        if owned_products:
+            reply += "\n🧰 **优先使用你已有的产品**\n"
+            for name in owned_products[:5]:
+                reply += f"• {name}\n"
         if products:
             reply += "\n📦 **推荐产品**\n"
             for p in products[:5]:
                 reply += f"• {p.get('icon', '📦')} {p['name']}\n"
         return reply
 
-    def _skincare_reply(self, skin_type, skin_info, concerns):
+    def _skincare_reply(self, skin_type, skin_info, concerns, user_summary=None):
         if not skin_info:
             return "🧴 在定制方案前，我需要先了解你的肤质哦！\n\n去「个人档案」填写信息，或者告诉我你的肤质~"
         reply = f"🧴 **{skin_info['name']}肌肤专属方案**\n\n"
@@ -254,6 +265,11 @@ class BeautyAIService:
         reply += "\n**推荐流程**\n🌅 日间：洁面→爽肤水→精华→乳液/面霜→防晒\n"
         reply += "🌙 夜间：卸妆→洁面→爽肤水→精华→面霜\n"
 
+        owned_products = (user_summary or {}).get("user_products") or []
+        if owned_products:
+            reply += "\n🧰 **先从你的产品库里选**\n"
+            reply += "你已经登记了：" + "、".join(owned_products[:6]) + "。建议先把这些产品按洁面、精华、保湿、防晒归位，缺哪一步再补买，避免重复消费。\n"
+
         products = self._get_products(skin_type)
         if products:
             reply += "\n📦 **为你推荐**\n"
@@ -261,10 +277,15 @@ class BeautyAIService:
                 reply += f"• {p.get('icon', '📦')} {p['name']}\n"
         return reply
 
-    def _product_reply(self, skin_type, skin_info):
+    def _product_reply(self, skin_type, skin_info, user_summary=None):
         if not skin_info:
             return "想推荐产品，但我需要先了解你的肤质哦！💁\n\n去「个人档案」填写信息，或者告诉我你的肤质~"
         reply = f"根据你的 **{skin_info['name']}肌肤**，推荐以下产品：\n\n"
+        owned_products = (user_summary or {}).get("user_products") or []
+        if owned_products:
+            reply += "🧰 **你已有产品优先**\n"
+            reply += "你已经登记了：" + "、".join(owned_products[:6]) + "。\n"
+            reply += "如果它们能覆盖当前需求，建议先用好已有产品，再决定是否补买。\n\n"
         products = self._get_products(skin_type)
         cats = {}
         for p in products:

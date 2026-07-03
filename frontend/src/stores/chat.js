@@ -18,7 +18,7 @@ export const useChatStore = defineStore('chat', {
       }
     },
 
-    async send(text, userId) {
+    async send(text, userId, userProducts = []) {
       this.loading = true
       // 添加用户消息到本地
       this.messages.push({ role: 'user', content: text, id: Date.now() })
@@ -28,6 +28,7 @@ export const useChatStore = defineStore('chat', {
           message: text,
           user_id: userId,
           session_id: this.sessionId,
+          user_products: userProducts,
         })
         this.messages.push({ role: 'assistant', content: data.reply, id: Date.now() + 1 })
         return { ok: true, reply: data.reply }

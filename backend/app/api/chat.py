@@ -56,6 +56,11 @@ def chat(request: ChatRequest, db: Session = Depends(get_db)):
 
     # 调用 AI
     user_summary = _get_user_summary(request.user_id, db)
+    if user_summary is None:
+        user_summary = {}
+    if request.user_products:
+        user_summary["user_products"] = request.user_products
+
     ai = BeautyAIService(db_session=db)
     reply = ai.chat(message, history_dicts, user_summary)
 

@@ -6,6 +6,7 @@ class ChatRequest(BaseModel):
     message: str
     user_id: int | None = None
     session_id: str = "default"
+    user_products: list[str] | None = None
 
 
 class ChatResponse(BaseModel):
