@@ -149,11 +149,11 @@ function maskPhone(value) {
   z-index: 1;
   height: 100%;
   box-sizing: border-box;
-  padding: calc(max(6vh, 45px) + env(safe-area-inset-top)) 30px calc(24px + env(safe-area-inset-bottom));
+  padding: calc(30px + env(safe-area-inset-top)) 30px calc(24px + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  gap: min(8vh, 60px); /* 使用弹性 gap 控制 Logo 与输入区域的间距 */
+  justify-content: center; /* 垂直方向上整体居中对齐，保证极佳的视觉中心 */
+  gap: min(6vh, 42px); /* 精确缩短中间多余的空位，在高矮屏幕下均保持合理的紧凑度 */
 }
 
 .brand-area {
@@ -183,8 +183,10 @@ function maskPhone(value) {
 }
 
 .login-form {
+  flex: 1;
   display: flex;
   flex-direction: column;
+  justify-content: flex-end;
   align-self: center;
 }
 
