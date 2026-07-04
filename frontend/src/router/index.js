@@ -4,9 +4,13 @@ import { useUserStore } from '@/stores/user'
 const routes = [
   {
     path: '/',
+    redirect: '/chat',
+  },
+  {
+    path: '/home',
     name: 'Home',
     component: () => import('@/views/HomeView.vue'),
-    meta: { label: '首页', showInMenu: true }
+    meta: { label: '首页', showInMenu: false }
   },
   {
     path: '/influencers',
@@ -48,18 +52,15 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const userStore = useUserStore()
   
-  // 优先加载用户资料以核对身份状态
+  // 登录态和档案态分离：AI 可直接使用，档案只增强推荐精度
   if (userStore.userId === null && !userStore.loading) {
     await userStore.fetchLatest()
   }
 
-  const isLoggedIn = !!userStore.profile
+  const isLoggedIn = userStore.isAuthenticated
 
   if (to.meta.requiresAuth && !isLoggedIn) {
-    const { useAppStore } = await import('@/stores/app')
-    const appStore = useAppStore()
-    appStore.showToast('请先建立个人美妆档案，以开启专属特权功能 ✨', 'warning')
-    next({ name: 'Profile' })
+    next(false)
   } else {
     next()
   }

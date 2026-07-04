@@ -429,7 +429,7 @@ function handleFeedback(id, feedbackValue) {
 .cabinet-page {
   max-width: 1000px;
   margin: 0 auto;
-  padding: 24px 0;
+  padding: calc(78px + env(safe-area-inset-top)) 18px 34px;
 }
 
 .page-header {
@@ -1090,7 +1090,7 @@ function handleFeedback(id, feedbackValue) {
 
 @media (max-width: 768px) {
   .cabinet-page {
-    padding: 0;
+    padding: calc(78px + env(safe-area-inset-top)) 14px 34px;
   }
 
   .page-header {

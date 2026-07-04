@@ -1,7 +1,17 @@
 <template>
-  <div id="app-container">
-    <NavBar />
-    <main class="main-container">
+  <div id="app-container" :class="{ 'auth-mode': !userStore.isAuthenticated }">
+    <SplashScreen v-if="showSplash" />
+    <LoginGate v-else-if="!userStore.isAuthenticated" @logged-in="handleLoggedIn" />
+    <main v-else class="main-container">
+      <button
+        v-if="$route.name !== 'Chat'"
+        class="page-menu-trigger"
+        type="button"
+        aria-label="打开菜单"
+        @click="openDrawer"
+      >
+        <span></span><span></span><span></span>
+      </button>
       <router-view v-slot="{ Component }">
         <transition name="fade" mode="out-in">
           <component :is="Component" />
@@ -9,16 +19,65 @@
       </router-view>
     </main>
     <ToastMessage />
-    <footer class="footer">
-      <p>智颜 v1.0 — 用算力解析肌理状态，以光影重塑面部轮廓</p>
-      <p class="footer-sub">本平台建议仅供参考，严重皮肤问题请咨询专业医生</p>
-    </footer>
+    <AppDrawer
+      :open="drawerOpen"
+      @close="drawerOpen = false"
+      @logout="handleLogout"
+      @new-chat="handleNewChat"
+    />
   </div>
 </template>
 
 <script setup>
-import NavBar from '@/components/NavBar.vue'
+import { onMounted, onBeforeUnmount, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import AppDrawer from '@/components/AppDrawer.vue'
+import LoginGate from '@/components/LoginGate.vue'
+import SplashScreen from '@/components/SplashScreen.vue'
 import ToastMessage from '@/components/ToastMessage.vue'
+import { useChatStore } from '@/stores/chat'
+import { useUserStore } from '@/stores/user'
+
+const drawerOpen = ref(false)
+const showSplash = ref(true)
+const router = useRouter()
+const userStore = useUserStore()
+const chatStore = useChatStore()
+
+function openDrawer() {
+  drawerOpen.value = true
+}
+
+function handleLoggedIn() {
+  router.replace('/chat')
+}
+
+function handleLogout() {
+  userStore.logout()
+  drawerOpen.value = false
+  router.replace('/chat')
+}
+
+async function handleNewChat() {
+  await chatStore.newSession()
+  drawerOpen.value = false
+  router.push('/chat')
+}
+
+onMounted(() => {
+  window.addEventListener('open-app-drawer', openDrawer)
+  const splashDuration = userStore.isAuthenticated ? 800 : 1600
+  window.setTimeout(() => {
+    showSplash.value = false
+    if (userStore.isAuthenticated && router.currentRoute.value.path === '/') {
+      router.replace('/chat')
+    }
+  }, splashDuration)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('open-app-drawer', openDrawer)
+})
 </script>
 
 <style lang="scss">
@@ -45,6 +104,7 @@ body {
   min-height: 100vh;
   min-height: 100dvh;
   overflow-x: hidden;
+  overscroll-behavior-y: none;
 }
 
 a {
@@ -66,56 +126,71 @@ a {
 }
 
 .main-container {
-  max-width: 1200px;
+  position: relative;
+  max-width: none;
   margin: 0 auto;
-  padding: 80px 24px 40px;
-  min-height: calc(100vh - 100px);
+  padding: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
   width: 100%;
+}
+
+.page-menu-trigger {
+  position: fixed;
+  top: calc(16px + env(safe-area-inset-top));
+  left: 16px;
+  z-index: 900;
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.84);
+  color: $text-primary;
+  box-shadow: 0 12px 28px rgba(10, 166, 194, 0.12);
+
+  span {
+    width: 20px;
+    height: 3px;
+    border-radius: 999px;
+    background: currentColor;
+  }
+}
+
+.products-page,
+.influencers-page,
+.cabinet-page,
+.profile-page {
+  min-height: 100dvh;
+  padding: calc(78px + env(safe-area-inset-top)) 18px 34px;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(207, 238, 241, 0.9), transparent 32%),
+    radial-gradient(circle at 86% 14%, rgba(240, 251, 252, 0.95), transparent 34%),
+    linear-gradient(180deg, #f8feff, #ffffff);
 }
 
 #app-container {
   min-height: 100vh;
   min-height: 100dvh;
-  background:
-    linear-gradient(90deg, rgba(10, 166, 194, 0.035) 1px, transparent 1px),
-    linear-gradient(180deg, rgba(10, 166, 194, 0.035) 1px, transparent 1px);
-  background-size: 42px 42px;
-}
-
-.footer {
-  text-align: center;
-  padding: 24px;
-  color: $text-light;
-  font-size: 14px;
-  border-top: 1px solid $mint-pale;
-
-  .footer-sub {
-    font-size: 12px;
-    margin-top: 4px;
-    opacity: 0.7;
-  }
+  background: #f6fbfc;
 }
 
 @media (max-width: 768px) {
-  body {
-    background: #f8fcfd;
-  }
-
   .main-container {
     max-width: none;
-    padding: 72px 14px calc(86px + env(safe-area-inset-bottom));
+    padding: 0;
     min-height: 100dvh;
   }
 
-  .footer {
-    display: none;
+  .products-page,
+  .influencers-page,
+  .cabinet-page,
+  .profile-page {
+    padding-left: 14px;
+    padding-right: 14px;
   }
 }
 
 @media (max-width: 380px) {
-  .main-container {
-    padding-left: 10px;
-    padding-right: 10px;
-  }
 }
 </style>

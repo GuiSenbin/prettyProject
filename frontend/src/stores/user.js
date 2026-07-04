@@ -2,15 +2,28 @@ import { defineStore } from 'pinia'
 import api from '@/api'
 
 const STORAGE_KEY = 'beauty_user_id'
+const SESSION_KEY = 'beauty_login_session'
+
+function loadSession() {
+  try {
+    return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null')
+  } catch {
+    localStorage.removeItem(SESSION_KEY)
+    return null
+  }
+}
 
 export const useUserStore = defineStore('user', {
   state: () => ({
+    session: loadSession(),
     userId: null,
     profile: null,
     loading: false,
   }),
 
   getters: {
+    isAuthenticated: (state) => !!state.session?.token,
+    displayPhone: (state) => state.session?.phone || '',
     hasProfile: (state) => !!state.profile?.skin_type,
     summary: (state) => {
       if (!state.profile) return null
@@ -29,6 +42,23 @@ export const useUserStore = defineStore('user', {
   },
 
   actions: {
+    login(phone = '186****0905') {
+      const normalizedPhone = phone || '186****0905'
+      this.session = {
+        token: `mock-${Date.now()}`,
+        phone: normalizedPhone,
+        createdAt: new Date().toISOString(),
+      }
+      localStorage.setItem(SESSION_KEY, JSON.stringify(this.session))
+      return { ok: true }
+    },
+
+    logout() {
+      this.session = null
+      localStorage.removeItem(SESSION_KEY)
+      return { ok: true }
+    },
+
     async fetchLatest() {
       const storedUserId = localStorage.getItem(STORAGE_KEY)
       if (!storedUserId) {
