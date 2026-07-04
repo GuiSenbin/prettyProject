@@ -152,18 +152,19 @@ function maskPhone(value) {
   padding: calc(max(6vh, 45px) + env(safe-area-inset-top)) 30px calc(24px + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
+  gap: min(8vh, 60px); /* 使用弹性 gap 控制 Logo 与输入区域的间距 */
 }
 
 .brand-area {
   display: flex;
-  align-items: center;
-  gap: 16px;
+  align-items: end;
+  gap: 4px;
   margin-left: 10px;
   flex: 0 0 auto;
 
   .brand-logo {
-    width: clamp(72px, 10vh, 92px);
+    width: clamp(80px, 10vh, 92px);
     height: auto;
     filter: drop-shadow(0 16px 24px rgba(10, 166, 194, 0.18));
   }
@@ -174,30 +175,25 @@ function maskPhone(value) {
     color: rgba(31, 41, 43, 0.88);
   }
   p {
-    margin-top: 4px;
     color: rgba(77, 85, 88, 0.74);
     font-size: clamp(12px, 1.5vh, 14px);
     letter-spacing: 0.28em;
+    margin-bottom: 8px;
   }
 }
 
 .login-form {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
   align-self: center;
-  margin-top: 2vh;
-  transform: translateY(-8vh) scale(0.9);
-  transform-origin: bottom center;
 }
 
 .glass-input {
   box-sizing: border-box;
   width: 106%;
   align-self: center;
-  aspect-ratio: 2.65 / 1;
-  padding: 26px 34px 22px;
+  aspect-ratio: 3 / 1;
+  padding: 20px 34px;
   border: 0;
   border-radius: 24px;
   background: url('/images/登录页-input.png') center / 100% 100% no-repeat;
@@ -374,43 +370,6 @@ function maskPhone(value) {
     background:
       linear-gradient(135deg, transparent 42%, $white 43% 55%, transparent 56%),
       $mint-primary;
-  }
-}
-
-@media (min-width: 769px) {
-  .login-gate {
-    max-width: 430px;
-    margin: 0 auto;
-    box-shadow: 0 28px 80px rgba(17, 24, 39, 0.14);
-  }
-}
-
-@media (max-height: 700px) {
-  .login-content {
-    padding-top: calc(max(4vh, 30px) + env(safe-area-inset-top));
-    padding-bottom: calc(14px + env(safe-area-inset-bottom));
-  }
-  .brand-area {
-    gap: 12px;
-    .brand-logo {
-      width: 68px;
-    }
-  }
-  .login-button {
-    margin-top: 18px;
-  }
-  .divider {
-    margin: 18px 0 10px;
-  }
-  .social-logins {
-    gap: 16px;
-    .social-icon {
-      width: 42px;
-      height: 42px;
-    }
-  }
-  .agreement {
-    margin-top: 12px;
   }
 }
 </style>
