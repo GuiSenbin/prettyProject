@@ -194,24 +194,24 @@ function maskPhone(value) {
 
 .glass-input {
   box-sizing: border-box;
-  padding: 6px 24px;
-  border: 1px solid rgba(255, 255, 255, 0.82);
-  border-radius: 20px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.68), rgba(255, 255, 255, 0.42)),
-    rgba(255, 255, 255, 0.44);
-  box-shadow:
-    inset 0 0 0 1px rgba(146, 218, 214, 0.22),
-    0 18px 42px rgba(72, 135, 136, 0.12);
-  backdrop-filter: blur(18px);
+  width: 100%;
+  aspect-ratio: 2.5 / 1;
+  padding: 28px 34px;
+  border: 0;
+  border-radius: 24px;
+  background: url('/images/登录页- input.png') center / 100% 100% no-repeat;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .phone-row,
 .code-row {
-  height: clamp(44px, 6vh, 52px);
+  flex: 1;
+  min-height: 0;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 18px;
 }
 
 .phone-row {
@@ -219,7 +219,7 @@ function maskPhone(value) {
 
   span {
     color: rgba(25, 39, 42, 0.82);
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
   }
 }
@@ -230,7 +230,7 @@ function maskPhone(value) {
   border: 0;
   background: transparent;
   color: $text-primary;
-  font-size: 16px;
+  font-size: 15px;
   outline: none;
 
   &::placeholder {
@@ -241,7 +241,7 @@ function maskPhone(value) {
 .code-row button {
   flex: 0 0 auto;
   color: $mint-primary;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   background: transparent;
   border: 0;
