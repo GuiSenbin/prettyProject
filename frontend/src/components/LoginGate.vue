@@ -147,13 +147,11 @@ function maskPhone(value) {
 .login-content {
   position: relative;
   z-index: 1;
-  height: 100%;
+  height: 100dvh;
   box-sizing: border-box;
-  padding: calc(30px + env(safe-area-inset-top)) 30px calc(24px + env(safe-area-inset-bottom));
+  padding: 0 30px; /* 只保留左右边距，上下位置交由百分比 margin 精确自适应控制 */
   display: flex;
   flex-direction: column;
-  justify-content: center; /* 垂直方向上整体居中对齐，保证极佳的视觉中心 */
-  gap: min(6vh, 42px); /* 精确缩短中间多余的空位，在高矮屏幕下均保持合理的紧凑度 */
 }
 
 .brand-area {
@@ -162,6 +160,7 @@ function maskPhone(value) {
   gap: 4px;
   margin-left: 10px;
   flex: 0 0 auto;
+  margin-top: 23vh; /* 【Logo整体向下】：距离顶部占屏幕高度的 16%，留出上方呼吸感 */
 
   .brand-logo {
     width: clamp(80px, 10vh, 92px);
@@ -183,11 +182,11 @@ function maskPhone(value) {
 }
 
 .login-form {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
   align-self: center;
+  width: 100%;
+  margin-top: 5vh; /* 【表单整体向上】：缩短与 Logo 之间的空隙，使输入框和表单紧凑靠拢 */
 }
 
 .glass-input {
@@ -342,12 +341,14 @@ function maskPhone(value) {
   }
 
   > span {
+    position: relative;
     width: 16px;
     height: 16px;
     border: 1.5px solid rgba(78, 105, 108, 0.34);
     border-radius: 3px;
     background: rgba(255, 255, 255, 0.42);
     flex: 0 0 auto;
+    transition: $transition;
   }
 
   em {
@@ -369,9 +370,20 @@ function maskPhone(value) {
 
   &.checked > span {
     border-color: $mint-primary;
-    background:
-      linear-gradient(135deg, transparent 42%, $white 43% 55%, transparent 56%),
-      $mint-primary;
+    background: $mint-primary;
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 4.5px;
+      top: 1px;
+      width: 4px;
+      height: 8px;
+      border: 2px solid $white;
+      border-left: 0;
+      border-top: 0;
+      transform: rotate(45deg);
+    }
   }
 }
 </style>
