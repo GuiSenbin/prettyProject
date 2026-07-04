@@ -188,18 +188,19 @@ function maskPhone(value) {
   justify-content: flex-end;
   align-self: center;
   margin-top: 2vh;
-  transform: translateY(-15vh) scale(0.9);
+  transform: translateY(-8vh) scale(0.9);
   transform-origin: bottom center;
 }
 
 .glass-input {
   box-sizing: border-box;
-  width: 100%;
-  aspect-ratio: 2.5 / 1;
-  padding: 28px 34px;
+  width: 106%;
+  align-self: center;
+  aspect-ratio: 2.65 / 1;
+  padding: 26px 34px 22px;
   border: 0;
   border-radius: 24px;
-  background: url('/images/登录页- input.png') center / 100% 100% no-repeat;
+  background: url('/images/登录页-input.png') center / 100% 100% no-repeat;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -251,7 +252,7 @@ function maskPhone(value) {
 .login-button {
   width: 100%;
   height: clamp(48px, 7vh, 60px);
-  margin-top: min(4vh, 28px);
+  margin-top: min(2vh, 14px);
   border-radius: 999px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.36), transparent), linear-gradient(135deg, #9ccfe8, #319d98 52%, #b7f2ea);
   color: $white;
@@ -324,7 +325,7 @@ function maskPhone(value) {
   .alipay svg {
     width: 58%;
     height: 58%;
-    transform: translateX(3px);
+    transform: translateX(1px);
   }
 }
 
