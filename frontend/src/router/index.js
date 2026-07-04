@@ -12,31 +12,31 @@ const routes = [
     path: '/influencers',
     name: 'Influencers',
     component: () => import('@/views/InfluencersView.vue'),
-    meta: { label: '美妆达人', showInMenu: true }
+    meta: { label: '灵感', showInMenu: true }
   },
   {
     path: '/products',
     name: 'Products',
     component: () => import('@/views/ProductsView.vue'),
-    meta: { label: '产品百科', showInMenu: true }
+    meta: { label: '百科', showInMenu: true }
   },
   {
     path: '/chat',
     name: 'Chat',
     component: () => import('@/views/ChatView.vue'),
-    meta: { label: 'AI 助手', showInMenu: true, requiresAuth: true }
+    meta: { label: 'AI', showInMenu: true, requiresAuth: true }
   },
   {
     path: '/cabinet',
     name: 'Cabinet',
     component: () => import('@/views/CabinetView.vue'),
-    meta: { label: '我的产品库', showInMenu: true, requiresAuth: true }
+    meta: { label: '产品库', showInMenu: true, requiresAuth: true }
   },
   {
     path: '/profile',
     name: 'Profile',
     component: () => import('@/views/ProfileView.vue'),
-    meta: { label: '个人档案', showInMenu: true }
+    meta: { label: '我的', showInMenu: true }
   },
 ]
 
@@ -66,4 +66,3 @@ router.beforeEach(async (to, from, next) => {
 })
 
 export default router
-

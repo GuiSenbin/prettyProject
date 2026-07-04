@@ -1,7 +1,9 @@
 <template>
   <div class="profile-page">
-    <h2 class="page-title">个人美妆档案</h2>
-    <p class="page-desc">这是你的可编辑美妆画像，AI 会据此判断产品、妆容和护肤方案是否适合你</p>
+    <header class="section-hero">
+      <h2 class="page-title">个人美妆档案</h2>
+      <p class="page-desc">这是你的可编辑美妆画像，AI 会据此判断产品、妆容和护肤方案是否适合你。</p>
+    </header>
 
     <div class="profile-card">
       <div class="form-section">
@@ -153,8 +155,30 @@ async function handleReset() {
 @media (max-width: 768px) {
   .profile-card {
     flex-direction: column;
-    padding: 24px;
+    gap: 22px;
+    padding: 18px;
+    border-radius: 14px;
+    box-shadow: none;
+    border: 1px solid $mint-pale;
+
     .preview-section { flex: 1; }
+
+    .form-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .preview-card {
+      padding: 22px 18px;
+    }
+  }
+}
+
+@media (max-width: 380px) {
+  .profile-card .form-actions {
+    grid-template-columns: 1fr;
   }
 }
 </style>

@@ -32,14 +32,19 @@ import ToastMessage from '@/components/ToastMessage.vue'
 
 html {
   scroll-behavior: smooth;
+  min-height: 100%;
 }
 
 body {
   font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: $bg-light;
+  background:
+    linear-gradient(180deg, #fbfeff 0%, #f1f8fa 48%, #ffffff 100%),
+    $bg-light;
   color: $text-primary;
   line-height: 1.6;
   min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
 }
 
 a {
@@ -65,6 +70,16 @@ a {
   margin: 0 auto;
   padding: 80px 24px 40px;
   min-height: calc(100vh - 100px);
+  width: 100%;
+}
+
+#app-container {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background:
+    linear-gradient(90deg, rgba(10, 166, 194, 0.035) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(10, 166, 194, 0.035) 1px, transparent 1px);
+  background-size: 42px 42px;
 }
 
 .footer {
@@ -78,6 +93,29 @@ a {
     font-size: 12px;
     margin-top: 4px;
     opacity: 0.7;
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    background: #f8fcfd;
+  }
+
+  .main-container {
+    max-width: none;
+    padding: 72px 14px calc(86px + env(safe-area-inset-bottom));
+    min-height: 100dvh;
+  }
+
+  .footer {
+    display: none;
+  }
+}
+
+@media (max-width: 380px) {
+  .main-container {
+    padding-left: 10px;
+    padding-right: 10px;
   }
 }
 </style>

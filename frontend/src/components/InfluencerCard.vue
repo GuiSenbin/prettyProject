@@ -27,12 +27,12 @@ defineProps({
 @use '@/assets/styles/variables' as *;
 
 .influencer-card {
-  background: $white;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 252, 253, 0.9));
   border-radius: $radius;
   overflow: hidden;
   box-shadow: $shadow;
   transition: $transition;
-  border: 1px solid transparent;
+  border: 1px solid rgba(207, 238, 241, 0.78);
 
   &:hover {
     transform: translateY(-3px);
@@ -41,15 +41,16 @@ defineProps({
   }
 
   .influencer-banner {
-    height: 120px;
+    height: 112px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 48px;
+    font-size: 42px;
+    border-bottom: 1px solid rgba(207, 238, 241, 0.68);
   }
 
   .influencer-body {
-    padding: 20px;
+    padding: 0 20px 20px;
 
     .influencer-avatar {
       width: 48px;
@@ -59,8 +60,9 @@ defineProps({
       align-items: center;
       justify-content: center;
       font-size: 24px;
-      margin-bottom: 12px;
-      border: 3px solid $mint-pale;
+      margin: -24px 0 14px;
+      border: 3px solid $white;
+      box-shadow: 0 8px 18px rgba(17, 24, 39, 0.08);
     }
 
     h3 {
@@ -72,9 +74,10 @@ defineProps({
 
     .influencer-tag {
       display: inline-block;
-      padding: 2px 10px;
+      padding: 4px 10px;
       background: $mint-bg;
-      border-radius: 10px;
+      border: 1px solid rgba(207, 238, 241, 0.9);
+      border-radius: 999px;
       font-size: 12px;
       color: $mint-primary;
       margin-bottom: 10px;
@@ -100,6 +103,16 @@ defineProps({
         color: $mint-primary;
         background: $bg-light;
       }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .influencer-card {
+    box-shadow: none;
+
+    &:hover {
+      transform: none;
     }
   }
 }

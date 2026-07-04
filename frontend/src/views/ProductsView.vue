@@ -1,7 +1,9 @@
 <template>
   <div class="products-page">
-    <h2 class="page-title">产品百科</h2>
-    <p class="page-desc">了解各类美妆护肤产品，找到适合你的那一款</p>
+    <header class="section-hero">
+      <h2 class="page-title">产品百科</h2>
+      <p class="page-desc">从肤质、功效与风险三层维度，判断一款产品是否值得进入你的日常流程。</p>
+    </header>
 
     <div class="product-toolbar">
       <input type="text" v-model="searchQuery" placeholder="搜索产品名称或功效..."
@@ -473,17 +475,63 @@ onMounted(async () => {
 }
 
 @media (max-width: 640px) {
+  .product-toolbar {
+    margin-bottom: 18px;
+
+    .search-input {
+      min-height: 46px;
+      padding: 12px 16px;
+      border-radius: 14px;
+      font-size: 14px;
+    }
+
+    .category-chips {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      margin-left: -14px;
+      margin-right: -14px;
+      padding: 0 14px 6px;
+
+      .category-chip {
+        flex: 0 0 auto;
+        padding: 7px 13px;
+      }
+    }
+  }
+
+  .products-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .profile-nudge {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
+
+    a {
+      margin-left: 0;
+    }
+  }
+
   .product-modal-backdrop {
     align-items: flex-end;
-    padding: 12px;
+    padding: 10px;
   }
 
   .product-modal {
-    max-height: calc(100vh - 24px);
-    padding: 22px;
+    max-height: calc(100dvh - 20px);
+    padding: 22px 18px calc(18px + env(safe-area-inset-bottom));
+    border-radius: 18px 18px 14px 14px;
 
     .modal-heading {
       flex-direction: column;
+      gap: 12px;
+
+      h3 {
+        font-size: 20px;
+      }
     }
 
     .modal-score {
@@ -501,6 +549,11 @@ onMounted(async () => {
     .modal-actions {
       flex-direction: column;
     }
+  }
+
+  .loading-state,
+  .empty-state {
+    padding: 42px 16px;
   }
 }
 </style>

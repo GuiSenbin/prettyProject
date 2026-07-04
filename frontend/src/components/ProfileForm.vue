@@ -449,8 +449,49 @@ watch(form, () => {
 @media (max-width: 768px) {
   .form-row { grid-template-columns: 1fr; }
   .form-group.full-width-group { grid-column: span 1; }
+
+  .form-group {
+    margin-bottom: 18px;
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      min-height: 46px;
+      border-radius: 12px;
+      background: $white;
+    }
+  }
+
   .image-select-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+
+    .image-select-card {
+      min-height: 116px;
+      padding: 10px 8px;
+
+      .card-img-wrapper {
+        width: 64px;
+        height: 64px;
+      }
+    }
+  }
+
+  .radio-group,
+  .checkbox-group {
+    gap: 8px;
+  }
+
+  .radio-label,
+  .checkbox-label {
+    min-height: 42px;
+    padding: 8px 13px;
+  }
+}
+
+@media (max-width: 380px) {
+  .image-select-grid {
+    grid-template-columns: 1fr;
   }
 }
 </style>

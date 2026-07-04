@@ -27,6 +27,7 @@ html {
   box-sizing: border-box;
   -webkit-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
+  overflow-x: hidden;
 }
 
 *,
@@ -43,7 +44,10 @@ body {
   text-rendering: optimizeLegibility;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, PingFang SC, "Lantinghei SC", "Microsoft YaHei", sans-serif;
   color: $text-primary;
-  background-color: $bg-light;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(239, 248, 250, 0.92)),
+    $bg-light;
+  overflow-x: hidden;
 }
 
 #app {
@@ -156,22 +160,24 @@ div, button, input, textarea, select {
   transition: $transition;
   gap: 8px;
   font-family: inherit;
+  min-height: 44px;
 
   &-primary {
     background: $gradient-primary;
     color: $white;
-    box-shadow: 0 4px 15px rgba(26, 122, 92, 0.3);
+    box-shadow: 0 12px 24px rgba(10, 166, 194, 0.22);
 
     &:hover {
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(26, 122, 92, 0.4);
+      box-shadow: 0 16px 30px rgba(10, 166, 194, 0.26);
     }
   }
 
   &-secondary {
     background: $white;
     color: $mint-primary;
-    border: 2px solid $mint-primary;
+    border: 1.5px solid $mint-pale;
+    box-shadow: 0 8px 20px rgba(17, 24, 39, 0.06);
   }
 
   &-outline {
@@ -205,16 +211,37 @@ div, button, input, textarea, select {
 
 // 页面标题
 .page-title {
-  font-size: 28px;
-  font-weight: 700;
+  font-size: 30px;
+  font-weight: 800;
   color: $text-primary;
   margin-bottom: 8px;
+  letter-spacing: 0;
 }
 
 .page-desc {
   color: $text-light;
   font-size: 15px;
   margin-bottom: 28px;
+}
+
+.section-hero {
+  margin-bottom: 24px;
+  padding: 24px 28px;
+  border: 1px solid rgba(207, 238, 241, 0.9);
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(240, 251, 252, 0.76));
+  box-shadow: $shadow;
+
+  .page-title,
+  .page-desc {
+    margin-bottom: 0;
+  }
+
+  .page-desc {
+    margin-top: 8px;
+    max-width: 680px;
+  }
 }
 
 // 滚动条
@@ -225,4 +252,43 @@ div, button, input, textarea, select {
 ::-webkit-scrollbar-thumb {
   background: $mint-pale;
   border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+  .btn {
+    width: 100%;
+    min-height: 46px;
+    padding: 11px 18px;
+    border-radius: 14px;
+    font-size: 14px;
+  }
+
+  .btn-sm {
+    width: auto;
+    min-height: 36px;
+  }
+
+  .page-title {
+    font-size: 23px;
+    line-height: 1.25;
+    margin-bottom: 6px;
+  }
+
+  .page-desc {
+    font-size: 14px;
+    line-height: 1.55;
+    margin-bottom: 18px;
+  }
+
+  .section-hero {
+    margin: -2px 0 18px;
+    padding: 18px;
+    border-radius: 16px;
+    box-shadow: none;
+
+    .page-desc {
+      margin-top: 7px;
+      margin-bottom: 0;
+    }
+  }
 }

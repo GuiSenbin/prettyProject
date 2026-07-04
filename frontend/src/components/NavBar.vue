@@ -2,7 +2,7 @@
   <nav class="navbar">
     <div class="nav-container">
       <router-link to="/" class="nav-brand">
-        <span class="brand-icon">✦</span>
+        <span class="brand-icon">AI</span>
         <span class="brand-text">智颜</span>
       </router-link>
       
@@ -12,7 +12,8 @@
           <li v-for="item in menuItems" :key="item.path">
             <router-link :to="item.path" class="nav-link" :class="{ active: $route.path === item.path }"
                          @click="menuOpen = false">
-              {{ item.label }}
+              <span class="nav-icon">{{ item.icon }}</span>
+              <span class="nav-label">{{ item.label }}</span>
               <span v-if="item.requiresAuth && !isLoggedIn" class="lock-icon" title="建档后开启">🔒</span>
             </router-link>
           </li>
@@ -51,11 +52,21 @@ const router = useRouter()
 
 // 动态从路由表中提取并结构化菜单
 const menuItems = computed(() => {
+  const icons = {
+    Home: '⌂',
+    Influencers: '★',
+    Products: '⌕',
+    Chat: '✦',
+    Cabinet: '▣',
+    Profile: '◉',
+  }
+
   return router.options.routes
     .filter(r => r.meta && r.meta.showInMenu)
     .map(r => ({
       path: r.path,
       label: r.meta.label,
+      icon: icons[r.name] || '•',
       requiresAuth: r.meta.requiresAuth || false
     }))
 })
@@ -87,7 +98,8 @@ async function handleLogout() {
   z-index: 1000;
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(16px);
-  border-bottom: 1px solid $mint-pale;
+  border-bottom: 1px solid rgba(207, 238, 241, 0.82);
+  box-shadow: 0 10px 34px rgba(17, 24, 39, 0.04);
 
   .nav-container {
     max-width: 1200px;
@@ -105,17 +117,23 @@ async function handleLogout() {
     gap: 8px;
 
     .brand-icon {
-      font-size: 28px;
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(10, 166, 194, 0.22);
+      border-radius: 12px;
+      background: linear-gradient(180deg, $white, $mint-bg);
+      font-size: 13px;
+      font-weight: 900;
       color: $mint-primary;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 8px 18px rgba(10, 166, 194, 0.12);
     }
 
     .brand-text {
       font-size: 22px;
       font-weight: 900;
-      background: $gradient-primary;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: $text-primary;
     }
   }
 
@@ -147,11 +165,18 @@ async function handleLogout() {
       font-weight: 500;
       transition: $transition;
       position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+
+      .nav-icon {
+        display: none;
+      }
 
       &:hover,
       &.active {
         color: $mint-primary;
-        background: $mint-bg;
+        background: rgba(240, 251, 252, 0.9);
       }
 
       &.active::after {
@@ -187,7 +212,8 @@ async function handleLogout() {
     .user-name {
       color: $mint-dark;
       font-weight: 600;
-      background: $mint-bg;
+      background: rgba(240, 251, 252, 0.86);
+      border: 1px solid rgba(207, 238, 241, 0.88);
       padding: 4px 10px;
       border-radius: 20px;
       white-space: nowrap;
@@ -210,7 +236,8 @@ async function handleLogout() {
 
     .guest-badge {
       color: $text-light;
-      background: #f0f0f0;
+      background: #f4f7f8;
+      border: 1px solid rgba(207, 238, 241, 0.72);
       padding: 4px 10px;
       border-radius: 20px;
       white-space: nowrap;
@@ -223,13 +250,13 @@ async function handleLogout() {
       border-radius: 20px;
       font-size: 12px;
       font-weight: 500;
-      box-shadow: 0 2px 8px rgba(26, 122, 92, 0.2);
+      box-shadow: 0 8px 18px rgba(10, 166, 194, 0.16);
       transition: $transition;
       white-space: nowrap;
 
       &:hover {
         transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(26, 122, 92, 0.3);
+        box-shadow: 0 12px 22px rgba(10, 166, 194, 0.22);
       }
     }
   }
@@ -237,34 +264,125 @@ async function handleLogout() {
 
 @media (max-width: 768px) {
   .navbar {
-    .nav-toggle {
-      display: block;
+    background: rgba(255, 255, 255, 0.96);
+
+    .nav-container {
+      height: 56px;
+      padding: 0 14px;
     }
-    .nav-menu {
+
+    .nav-brand {
+      .brand-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 10px;
+        font-size: 12px;
+      }
+
+      .brand-text {
+        font-size: 20px;
+      }
+    }
+
+    .nav-right {
+      gap: 8px;
+    }
+
+    .nav-toggle {
       display: none;
-      position: absolute;
-      top: 64px;
+    }
+
+    .nav-menu {
+      position: fixed;
       left: 0;
       right: 0;
-      background: $white;
-      flex-direction: column;
-      padding: 16px;
-      border-bottom: 1px solid $mint-pale;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+      top: auto;
+      bottom: 0;
+      z-index: 1001;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 0;
+      padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
+      background: rgba(255, 255, 255, 0.97);
+      border-top: 1px solid rgba(207, 238, 241, 0.9);
+      box-shadow: 0 -12px 30px rgba(17, 24, 39, 0.08);
+      backdrop-filter: blur(16px);
 
-      &.show {
-        display: flex;
+      li:first-child {
+        display: none;
       }
 
       .nav-link {
-        padding: 12px 18px;
+        min-height: 54px;
+        padding: 6px 3px;
+        border-radius: 12px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+        font-size: 11px;
+        line-height: 1.2;
+
+        .nav-icon {
+          display: block;
+          font-size: 18px;
+          line-height: 1;
+        }
+
+        .nav-label {
+          display: block;
+          white-space: nowrap;
+          transform: scale(0.92);
+        }
+
+        &.active::after {
+          display: none;
+        }
+
+        &.active {
+          background: linear-gradient(180deg, $white, $mint-bg);
+          box-shadow: inset 0 0 0 1px rgba(10, 166, 194, 0.16);
+        }
       }
     }
+
     .user-status {
       border-left: none;
       padding-left: 0;
+      gap: 8px;
+      height: auto;
+
+      .user-name,
+      .guest-badge {
+        max-width: 112px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding: 4px 9px;
+        font-size: 12px;
+      }
+
+      .btn-login-guide,
+      .btn-logout {
+        display: none;
+      }
+    }
+  }
+}
+
+@media (max-width: 380px) {
+  .navbar .nav-menu {
+    padding-left: 4px;
+    padding-right: 4px;
+
+    .nav-link {
+      font-size: 10px;
+
+      .nav-icon {
+        font-size: 17px;
+      }
     }
   }
 }
 </style>
-

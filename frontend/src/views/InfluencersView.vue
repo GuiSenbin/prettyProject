@@ -1,7 +1,9 @@
 <template>
   <div class="influencers-page">
-    <h2 class="page-title">美妆达人推荐</h2>
-    <p class="page-desc">精选美妆达人的护肤心得与妆容教程</p>
+    <header class="section-hero">
+      <h2 class="page-title">灵感精选</h2>
+      <p class="page-desc">保留真正有参考价值的妆容、护肤与产品测评，减少被种草时的信息噪音。</p>
+    </header>
 
     <div class="tabs">
       <button v-for="tab in tabs" :key="tab.key" class="tab-btn"
@@ -95,5 +97,30 @@ onMounted(fetchData)
   padding: 60px 20px;
   color: $text-light;
   font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  .tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin: 0 -14px 18px;
+    padding: 0 14px 6px;
+
+    .tab-btn {
+      flex: 0 0 auto;
+      min-height: 40px;
+      padding: 8px 16px;
+    }
+  }
+
+  .influencer-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .loading-state,
+  .empty-state {
+    padding: 42px 16px;
+  }
 }
 </style>

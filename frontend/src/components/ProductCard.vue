@@ -1,12 +1,15 @@
 <template>
   <button class="product-card" type="button" @click="$emit('select', product)">
-    <div class="product-icon">{{ product.icon || '📦' }}</div>
     <div class="product-card-head">
-      <div>
+      <div class="product-title-group">
+        <div class="product-icon">{{ product.icon || 'P' }}</div>
         <h4>{{ product.name }}</h4>
         <div class="product-category-tag">{{ product.category_name }}</div>
       </div>
-      <div v-if="analysis" class="fit-score" :class="analysis.level">{{ analysis.score }}</div>
+      <div v-if="analysis" class="fit-score" :class="analysis.level">
+        <strong>{{ analysis.score }}</strong>
+        <span>AI分</span>
+      </div>
     </div>
     <p>{{ product.desc }}</p>
     <div v-if="analysis" class="fit-summary">
@@ -68,12 +71,12 @@ const analysis = computed(() => {
 @use '@/assets/styles/variables' as *;
 
 .product-card {
-  background: $white;
-  border-radius: $radius-sm;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 252, 253, 0.9));
+  border-radius: 16px;
   padding: 20px;
   box-shadow: $shadow;
   transition: $transition;
-  border: 1px solid transparent;
+  border: 1px solid rgba(207, 238, 241, 0.78);
   text-align: left;
   cursor: pointer;
   width: 100%;
@@ -85,16 +88,24 @@ const analysis = computed(() => {
     border-color: $mint-pale;
   }
 
-  .product-icon {
-    width: 48px;
-    height: 48px;
-    background: $mint-bg;
-    border-radius: 12px;
+  .product-title-group {
     display: flex;
     align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    margin-bottom: 12px;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .product-icon {
+    width: 42px;
+    height: 42px;
+    background: linear-gradient(180deg, $white, $mint-bg);
+    border: 1px solid rgba(207, 238, 241, 0.88);
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    color: $mint-primary;
+    font-size: 20px;
+    flex: 0 0 auto;
   }
 
   .product-card-head {
@@ -124,14 +135,26 @@ const analysis = computed(() => {
   }
 
   .fit-score {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    display: grid;
-    place-items: center;
+    width: 54px;
+    height: 54px;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     flex: 0 0 auto;
-    font-size: 14px;
-    font-weight: 800;
+
+    strong {
+      font-size: 17px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    span {
+      margin-top: 3px;
+      font-size: 10px;
+      font-weight: 700;
+    }
 
     &.high {
       background: #e2f4ed;
@@ -171,6 +194,27 @@ const analysis = computed(() => {
       border-radius: 8px;
       font-size: 11px;
       color: $mint-medium;
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .product-card {
+    padding: 16px;
+    box-shadow: none;
+    border-color: $mint-pale;
+
+    &:hover {
+      transform: none;
+    }
+
+    .product-icon {
+      font-size: 22px;
+    }
+
+    .fit-score {
+      width: 50px;
+      height: 50px;
     }
   }
 }

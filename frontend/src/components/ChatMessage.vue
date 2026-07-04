@@ -68,4 +68,25 @@ const renderedContent = computed(() => renderMarkdown(props.msg.content))
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+@media (max-width: 640px) {
+  .message {
+    max-width: 94%;
+    gap: 8px;
+
+    .message-avatar {
+      width: 30px;
+      height: 30px;
+      font-size: 15px;
+    }
+
+    .message-content {
+      padding: 11px 13px;
+      border-radius: 14px;
+      font-size: 14px;
+      line-height: 1.65;
+      overflow-wrap: anywhere;
+    }
+  }
+}
 </style>

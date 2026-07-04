@@ -16,15 +16,15 @@
           <div v-if="chatStore.messages.length === 0 && !chatStore.loading" class="message bot-message">
             <div class="message-avatar">🤖</div>
             <div class="message-content welcome-content">
-              <p>你好呀！我是蜜漾 AI 美妆助手 <strong>小蜜</strong> 🌸</p>
-              <p>我能帮你：</p>
+              <p>我是 <strong>智颜 AI 美妆决策助手</strong>，会结合你的肤质档案、已有产品和使用目标给出建议。</p>
+              <p>你可以让我判断：</p>
               <ul>
-                <li>💄 根据肤质推荐妆容</li>
-                <li>🧴 推荐适合你的护肤品</li>
-                <li>✨ 解答美妆护肤疑问</li>
-                <li>🎨 教你化妆技巧</li>
+                <li>某个产品是否适合当前肤质</li>
+                <li>一套护肤流程是否存在冲突</li>
+                <li>不同场景下适合的妆容方向</li>
+                <li>已有产品应该如何搭配使用</li>
               </ul>
-              <p>试试问我：<em>"我今天要去约会想画一个淡妆"</em></p>
+              <p>试试问我：<em>"我今天要见客户，想要干净但有气色的妆容"</em></p>
               <div class="suggestion-chips">
                 <span v-for="chip in chips" :key="chip.text" class="chip"
                       @click="quickSend(chip.text)">{{ chip.label }}</span>
@@ -264,11 +264,80 @@ async function handleNewSession() {
 }
 
 @media (max-width: 768px) {
+  .chat-page {
+    margin: -8px -14px calc(-86px - env(safe-area-inset-bottom));
+  }
+
   .chat-container {
     flex-direction: column;
-    height: calc(100vh - 160px);
+    height: calc(100dvh - 56px);
+    min-height: 0;
+    border-radius: 0;
+    box-shadow: none;
 
-    .chat-sidebar { flex: 0 0 auto; }
+    .chat-sidebar {
+      display: none;
+    }
+
+    .chat-main {
+      min-height: 0;
+      background: $white;
+    }
+
+    .chat-messages {
+      padding: 16px 14px calc(94px + env(safe-area-inset-bottom));
+      gap: 12px;
+      -webkit-overflow-scrolling: touch;
+
+      .welcome-content ul {
+        padding-left: 18px;
+      }
+    }
+
+    .suggestion-chips {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      margin-right: -14px;
+      padding-bottom: 4px;
+
+      .chip {
+        flex: 0 0 auto;
+      }
+    }
+
+    .chat-input-area {
+      position: sticky;
+      bottom: 0;
+      z-index: 5;
+      padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+      box-shadow: 0 -8px 18px rgba(26, 122, 92, 0.08);
+
+      .input-wrapper {
+        gap: 8px;
+
+        textarea {
+          min-height: 44px;
+          padding: 11px 14px;
+          border-radius: 18px;
+          font-size: 16px;
+          max-height: 108px;
+        }
+
+        .btn-send {
+          min-width: 64px;
+          min-height: 44px;
+          padding: 0 15px;
+          border-radius: 18px;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 380px) {
+  .chat-page {
+    margin-left: -10px;
+    margin-right: -10px;
   }
 }
 </style>

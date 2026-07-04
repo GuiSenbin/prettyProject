@@ -1,7 +1,7 @@
 <template>
   <div class="cabinet-page">
     <div class="page-header">
-      <div>
+      <div class="section-hero">
         <h2 class="page-title">我的美妆产品库</h2>
         <p class="page-desc">登记你的护肤与美妆囤货，AI 助手将优先从你的产品库中搭配推荐，并提供智能避雷建议。</p>
       </div>
@@ -437,6 +437,11 @@ function handleFeedback(id, feedbackValue) {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 28px;
+
+  .section-hero {
+    flex: 1;
+    margin-bottom: 0;
+  }
 
   .btn-add {
     display: flex;
@@ -1084,36 +1089,135 @@ function handleFeedback(id, feedbackValue) {
 }
 
 @media (max-width: 768px) {
+  .cabinet-page {
+    padding: 0;
+  }
+
   .page-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 16px;
-    .btn-add { width: 100%; justify-content: center; }
+    gap: 14px;
+    margin-bottom: 18px;
+
+    .btn-add {
+      width: 100%;
+      justify-content: center;
+    }
   }
 
   .smart-panel {
-    padding: 18px;
+    padding: 16px;
+    margin-bottom: 20px;
+    border-radius: 14px;
+    box-shadow: none;
   }
 
   .smart-summary {
     align-items: flex-start;
+    gap: 14px;
+
+    h3 {
+      font-size: 18px;
+    }
+  }
+
+  .score-ring {
+    width: 66px;
+    height: 66px;
+
+    strong {
+      font-size: 21px;
+    }
   }
 
   .routine-grid,
   .insight-grid {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
 
   .routine-step {
-    grid-template-columns: 68px 1fr;
+    grid-template-columns: 64px 1fr;
+    padding: 10px;
   }
 
   .category-tabs {
+    margin: 0 -14px 18px;
     overflow-x: auto;
-    padding-bottom: 10px;
+    padding: 0 14px 10px;
+    gap: 8px;
 
     .tab-item {
+      flex: 0 0 auto;
       white-space: nowrap;
+      padding: 8px 14px;
+    }
+  }
+
+  .product-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .product-card {
+    padding: 18px;
+    border-radius: 14px;
+    box-shadow: none;
+
+    &:hover {
+      transform: none;
+    }
+
+    .product-name {
+      font-size: 17px;
+      margin-bottom: 12px;
+    }
+  }
+
+  .empty-state {
+    padding: 42px 18px;
+    box-shadow: none;
+
+    .empty-icon {
+      font-size: 48px;
+    }
+  }
+
+  .modal-backdrop {
+    align-items: flex-end;
+    padding: 10px;
+  }
+
+  .modal-card {
+    max-width: none;
+    max-height: calc(100dvh - 20px);
+    border-radius: 18px 18px 14px 14px;
+
+    .modal-header {
+      padding: 18px;
+    }
+
+    .modal-body {
+      padding: 18px;
+      max-height: min(62dvh, 520px);
+    }
+
+    .modal-footer {
+      display: grid;
+      grid-template-columns: 1fr;
+      padding: 14px 18px calc(14px + env(safe-area-inset-bottom));
+    }
+  }
+
+  .category-options {
+    grid-template-columns: 1fr;
+  }
+
+  .custom-ing-input {
+    flex-direction: column;
+
+    .btn-add-ing {
+      min-height: 42px;
     }
   }
 }
