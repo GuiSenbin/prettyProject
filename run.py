@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""蜜漾美妆 - 一键启动脚本"""
+"""本地启动脚本：启动智颜 FastAPI 后端服务。"""
 import uvicorn
-from backend.app.config import get_settings
+from backend.app.core.config import get_settings
 
 if __name__ == "__main__":
     settings = get_settings()

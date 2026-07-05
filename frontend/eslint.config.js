@@ -4,9 +4,11 @@ import pluginVue from 'eslint-plugin-vue'
 
 export default [
   { ignores: ['dist/**', 'node_modules/**'] },
+  pluginJs.configs.recommended,
+  ...pluginVue.configs['flat/essential'],
   {
     languageOptions: {
-      globals: { ...globals.browser, ...globals.es2021 },
+      globals: { ...globals.browser, ...globals.es2021, ...globals.node },
       ecmaVersion: 'latest',
       sourceType: 'module',
     },
@@ -16,6 +18,4 @@ export default [
       'vue/multi-word-component-names': 'off',
     },
   },
-  pluginJs.configs.recommended,
-  ...pluginVue.configs['flat/essential'],
 ]

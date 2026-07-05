@@ -1,4 +1,4 @@
-// ====== 冷白科技美妆主题变量 ======
+// 冷白科技美妆主题变量、断点和响应式工具。
 
 // 主色系
 $mint-dark: #183a43;
@@ -30,4 +30,45 @@ $radius-sm: 12px;
 $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
 // 按钮渐变
-$gradient-primary: linear-gradient(135deg, #111827, $mint-primary);
+$gradient-primary: linear-gradient(180deg, rgba(207, 237, 249, 0.96), rgba(40, 167, 156, 0.9));
+
+// 响应式断点
+$breakpoint-phone-sm: 380px;
+$breakpoint-phone: 767px;
+$breakpoint-tablet-portrait-min: 768px;
+$breakpoint-tablet-portrait-max: 1023px;
+$breakpoint-tablet-landscape-min: 1024px;
+$breakpoint-tablet-landscape-max: 1279px;
+$breakpoint-desktop: 1280px;
+
+@mixin respond($range) {
+  @if $range ==phone-sm {
+    @media (max-width: $breakpoint-phone-sm) {
+      @content;
+    }
+  }
+
+  @else if $range ==phone {
+    @media (max-width: $breakpoint-phone) {
+      @content;
+    }
+  }
+
+  @else if $range ==tablet-portrait {
+    @media (min-width: $breakpoint-tablet-portrait-min) and (max-width: $breakpoint-tablet-portrait-max) {
+      @content;
+    }
+  }
+
+  @else if $range ==tablet-landscape {
+    @media (min-width: $breakpoint-tablet-landscape-min) and (max-width: $breakpoint-tablet-landscape-max) {
+      @content;
+    }
+  }
+
+  @else if $range ==desktop {
+    @media (min-width: $breakpoint-desktop) {
+      @content;
+    }
+  }
+}

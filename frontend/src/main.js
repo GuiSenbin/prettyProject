@@ -1,3 +1,4 @@
+// 前端入口：挂载 Vue、Pinia、Router 和全局样式。
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from './App.vue'

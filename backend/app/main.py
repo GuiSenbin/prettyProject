@@ -1,13 +1,12 @@
-"""蜜漾美妆 - FastAPI 应用入口"""
+"""FastAPI 应用入口：注册中间件、生命周期和全局健康检查。"""
 import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.app.config import get_settings
-from backend.app.database import init_db
-from backend.app.seed import seed_database
 from backend.app.api import api_router
+from backend.app.core.config import get_settings
+from backend.app.core.database import init_db
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger(__name__)
@@ -19,7 +18,6 @@ settings = get_settings()
 async def lifespan(app: FastAPI):
     logger.info("🚀 智颜后端启动中...")
     init_db()
-    seed_database()
     logger.info("✅ 数据库就绪")
     yield
     logger.info("👋 服务关闭")

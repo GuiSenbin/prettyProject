@@ -1,0 +1,49 @@
+# 前端工程规范
+
+## 目录
+
+- 页面：`frontend/src/views/<Module>/index.vue`
+- 模块组件：`frontend/src/views/<Module>/components/`
+- 全局组件：`frontend/src/components/`
+- 状态：`frontend/src/stores/`
+- API：`frontend/src/api/`
+- 工具：`frontend/src/utils/`
+
+## 组件归属
+
+模块专属组件不进入全局 `components/`。当前业务模块处于空状态，不保留旧产品弹窗、聊天消息或档案表单组件。
+
+## 样式
+
+SCSS 变量由 `vite.config.js` 全局注入，Vue 文件不要重复写 `@use '@/assets/styles/variables' as *;`。响应式必须使用 `_variables.scss` 中的 `respond()` mixin。
+
+所有按钮必须使用全局按钮体系：`.btn`、`.btn-primary`、`.btn-secondary`、`.btn-ghost`、`.btn-icon`。业务页面不允许单独定义深色主按钮、重复渐变或重复阴影。
+
+## 断点
+
+- `phone-sm`：小屏手机，最大 380px。
+- `phone`：移动手机，最大 767px。
+- `tablet-portrait`：iPad 竖屏，768px 到 1023px。
+- `tablet-landscape`：iPad 横屏，1024px 到 1279px。
+- `desktop`：桌面，1280px 及以上。
+
+## 图标
+
+通用操作图标使用 `lucide-vue-next`。微信、支付宝等品牌图标用本地 SVG 组件封装。
+
+## API 调用
+
+`frontend/src/api/request.js` 只负责 axios 实例、baseURL、fallback 和错误处理。每个业务模块恢复后必须有自己的 API 文件，例如 `user.js`、`product.js`。
+
+业务层不要直接拼后端 URL，也不要在 store 或组件里直接调用 `request.get('/xxx')`。store 应该调用模块 API，例如 `userApi.getUser(id)`。后端路径变化时，只允许优先改对应 API 文件。
+
+## 环境配置
+
+前端环境变量按 Vite mode 区分：
+
+- `frontend/.env.development`：本地开发环境，默认通过 Vite 代理访问本地后端。
+- `frontend/.env.staging`：测试/预发环境，用于上线前联调。
+- `frontend/.env.production`：正式环境，只配置生产 API，不允许 fallback 到 localhost。
+- `frontend/.env.example`：示例文件，用于说明必填变量。
+
+业务代码只读取 `import.meta.env`，不要在组件、store 或模块 API 里写死正式/测试 API 域名。

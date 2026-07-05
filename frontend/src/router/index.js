@@ -1,3 +1,4 @@
+// 前端路由：注册核心业务模块入口和登录保护。
 import { createRouter, createWebHistory } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 
@@ -7,40 +8,22 @@ const routes = [
     redirect: '/chat',
   },
   {
-    path: '/home',
-    name: 'Home',
-    component: () => import('@/views/HomeView.vue'),
-    meta: { label: '首页', showInMenu: false }
-  },
-  {
-    path: '/influencers',
-    name: 'Influencers',
-    component: () => import('@/views/InfluencersView.vue'),
-    meta: { label: '灵感', showInMenu: true }
-  },
-  {
-    path: '/products',
-    name: 'Products',
-    component: () => import('@/views/ProductsView.vue'),
-    meta: { label: '百科', showInMenu: true }
-  },
-  {
-    path: '/chat',
-    name: 'Chat',
-    component: () => import('@/views/ChatView.vue'),
-    meta: { label: 'AI', showInMenu: true, requiresAuth: true }
+    path: '/profile',
+    name: 'Profile',
+    component: () => import('@/views/Profile/index.vue'),
+    meta: { label: '个人档案', title: '个人档案', showInMenu: true, requiresAuth: true }
   },
   {
     path: '/cabinet',
     name: 'Cabinet',
-    component: () => import('@/views/CabinetView.vue'),
-    meta: { label: '产品库', showInMenu: true, requiresAuth: true }
+    component: () => import('@/views/Product/index.vue'),
+    meta: { label: '产品库', title: '产品库', showInMenu: true, requiresAuth: true }
   },
   {
-    path: '/profile',
-    name: 'Profile',
-    component: () => import('@/views/ProfileView.vue'),
-    meta: { label: '我的', showInMenu: true }
+    path: '/chat',
+    name: 'Chat',
+    component: () => import('@/views/Chat/index.vue'),
+    meta: { label: 'AI问答', title: 'AI问答', showInMenu: false, requiresAuth: true }
   },
 ]
 
@@ -51,9 +34,8 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   const userStore = useUserStore()
-  
-  // 登录态和档案态分离：AI 可直接使用，档案只增强推荐精度
-  if (userStore.userId === null && !userStore.loading) {
+
+  if (!userStore.loading) {
     await userStore.fetchLatest()
   }
 

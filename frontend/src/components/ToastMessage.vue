@@ -1,3 +1,4 @@
+<!-- 全局 Toast：展示轻量状态反馈。 -->
 <template>
   <Teleport to="body">
     <div v-if="store.toast.show" class="toast-msg" :class="'toast-' + store.toast.type">
@@ -24,8 +25,6 @@ const toastIcon = computed(() => {
 </script>
 
 <style lang="scss" scoped>
-@use '@/assets/styles/variables' as *;
-
 .toast-msg {
   position: fixed;
   top: max(34px, calc(4.2vh + env(safe-area-inset-top)));
@@ -53,7 +52,6 @@ const toastIcon = computed(() => {
     inset 0 -1px 0 rgba(24, 58, 67, 0.12),
     0 12px 26px rgba(8, 132, 148, 0.22);
   backdrop-filter: blur(18px);
-
   &.toast-warning,
   &.toast-error,
   &.toast-info,
@@ -63,7 +61,6 @@ const toastIcon = computed(() => {
       linear-gradient(135deg, rgba(8, 132, 148, 0.96), rgba(18, 156, 132, 0.94));
   }
 }
-
 .toast-icon {
   width: 15px;
   height: 15px;
@@ -76,18 +73,15 @@ const toastIcon = computed(() => {
   font-size: 10px;
   font-weight: 900;
 }
-
 .toast-text {
   min-width: 0;
   flex: 1;
 }
-
 @keyframes toastIn {
   from { opacity: 0; transform: translateX(-50%) translateY(-10px) scale(0.98); }
   to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
 }
-
-@media (max-width: 480px) {
+@include respond(phone) {
   .toast-msg {
     width: min(64vw, 270px);
     min-height: 36px;

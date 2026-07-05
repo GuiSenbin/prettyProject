@@ -1,3 +1,4 @@
+// 应用全局状态：管理 Toast 等跨模块轻量反馈。
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
