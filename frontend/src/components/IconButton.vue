@@ -20,17 +20,17 @@ const variantClass = computed(() => `btn-icon-${props.variant}`)
 <style lang="scss" scoped>
 .btn-icon {
   flex: 0 0 auto;
-}
-.btn-icon-solid {
-  background: $mint-primary;
-  color: $white;
-}
-.btn-icon-outline {
-  background: rgba(255, 255, 255, 0.68);
-  border: 2px solid $text-primary;
-}
-.btn-icon:disabled {
-  cursor: not-allowed;
-  opacity: 0.4;
+  &-solid {
+    background: $mint-primary;
+    color: $white;
+  }
+  &-outline {
+    background: rgba(255, 255, 255, 0.68);
+    border: 2px solid $text-primary;
+  }
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+  }
 }
 </style>

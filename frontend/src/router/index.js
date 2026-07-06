@@ -25,6 +25,12 @@ const routes = [
     component: () => import('@/views/Chat/index.vue'),
     meta: { label: 'AI问答', title: 'AI问答', showInMenu: false, requiresAuth: true }
   },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: () => import('@/views/NotFound/index.vue'),
+    meta: { label: '404', title: '404', showInMenu: false, requiresAuth: false, hideHeader: true }
+  },
 ]
 
 const router = createRouter({

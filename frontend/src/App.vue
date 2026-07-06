@@ -3,8 +3,8 @@
   <div id="app-container" :class="{ 'auth-mode': !userStore.isAuthenticated }">
     <SplashScreen v-if="showSplash" />
     <LoginView v-else-if="!userStore.isAuthenticated" @logged-in="handleLoggedIn" />
-    <main v-else class="main-container">
-      <header class="app-page-header">
+    <main v-else class="main-container" :class="{ 'no-header': route.meta.hideHeader }">
+      <header v-if="!route.meta.hideHeader" class="app-page-header">
         <button class="btn-icon" type="button" aria-label="返回" @click="handleBack">
           <ChevronLeft :size="24" stroke-width="2.6" />
         </button>
@@ -67,15 +67,14 @@ function handleLogout() {
   router.replace('/chat')
 }
 
-onMounted(() => {
-  // 初始化时强制清空登录态，确保每次重新进入或刷新都能在开屏页后展示登录页
-  userStore.logout()
-
+onMounted(async () => {
+  // 初始化时从本地 localStorage 复原登录态，免除刷新重复登录的故障
+  await userStore.fetchLatest()
   window.addEventListener('open-app-drawer', openDrawer)
   const splashDuration = userStore.isAuthenticated ? 800 : 1600
   window.setTimeout(() => {
     showSplash.value = false
-    if (userStore.isAuthenticated && router.currentRoute.value.path === '/') {
+    if (userStore.isAuthenticated && (router.currentRoute.value.path === '/' || router.currentRoute.value.path === '/login')) {
       router.replace('/chat')
     }
   }, splashDuration)
@@ -166,5 +165,8 @@ a {
     padding: calc(78px + env(safe-area-inset-top)) 14px 28px;
     min-height: 100dvh;
   }
+}
+.main-container.no-header {
+  padding: 0;
 }
 </style>

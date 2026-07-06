@@ -1,7 +1,15 @@
-// 用户 API：封装纯净版基础身份的读取、创建、更新和删除接口。
+// 用户 API：封装企业级账号注册、登录以及基础 CRUD。
 import request from '@/utils/request'
 
 export const userApi = {
+  login(payload) {
+    return request.post('/users/login', payload)
+  },
+
+  register(payload) {
+    return request.post('/users/register', payload)
+  },
+
   getUser(id) {
     return request.get(`/users/${id}`)
   },

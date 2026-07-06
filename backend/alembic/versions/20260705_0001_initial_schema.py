@@ -26,7 +26,7 @@ def upgrade() -> None:
     if not _has_table(bind, "users"):
         op.create_table(
             "users",
-            sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
+            sa.Column("id", sa.String(length=36), nullable=False),
             sa.Column("phone", sa.String(length=32), nullable=False),
             sa.Column("display_name", sa.String(length=50), nullable=False),
             sa.Column("login_type", sa.String(length=20), nullable=False),

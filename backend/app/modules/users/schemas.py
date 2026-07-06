@@ -1,19 +1,31 @@
-"""用户模块 Schema：定义纯净版最小用户入参和出参。"""
+"""用户模块 Schema：定义企业级用户入参和出参。"""
 from pydantic import BaseModel
 
 
 class UserCreate(BaseModel):
-    phone: str = ""
+    phone: str | None = None
     display_name: str = "智颜用户"
-    login_type: str = "phone"
+    login_type: str = "username"
+
+
+class UserRegister(BaseModel):
+    username: str
+    password: str
+    display_name: str = "智颜用户"
+
+
+class UserLogin(BaseModel):
+    username: str
+    password: str
 
 
 class UserResponse(BaseModel):
-    id: int
-    phone: str
+    id: str
+    phone: str | None = None
     display_name: str
     login_type: str
     created_at: str | None = None
     updated_at: str | None = None
 
     model_config = {"from_attributes": True}
+

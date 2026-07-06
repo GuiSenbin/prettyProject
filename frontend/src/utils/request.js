@@ -31,7 +31,9 @@ request.interceptors.response.use(
       ? '无法连接后端服务，请确认后端已启动，默认端口 8000 可访问'
       : err.response?.data?.detail || err.message || '请求失败'
     console.error('API Error:', msg)
-    return Promise.reject(new Error(msg))
+    const errorObj = new Error(msg)
+    errorObj.response = err.response
+    return Promise.reject(errorObj)
   },
 )
 
