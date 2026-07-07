@@ -5,7 +5,15 @@ const SESSION_KEY = 'beauty_login_session'
 
 function loadSession() {
   try {
-    return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null')
+    const session = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null')
+    if (session?.token && !session.userId) {
+      const tokenParts = session.token.split('-')
+      if (tokenParts.length > 2) {
+        session.userId = tokenParts.slice(1, -1).join('-')
+        localStorage.setItem(SESSION_KEY, JSON.stringify(session))
+      }
+    }
+    return session
   } catch {
     localStorage.removeItem(SESSION_KEY)
     return null
@@ -20,6 +28,7 @@ export const useUserStore = defineStore('user', {
 
   getters: {
     isAuthenticated: (state) => !!state.session?.token,
+    userId: (state) => state.session?.userId || '',
     displayPhone: (state) => state.session?.phone || '',
     displayName: (state) => state.session?.name || '智颜用户',
   },
@@ -49,6 +58,7 @@ export const useUserStore = defineStore('user', {
         // 3. 登录成功，本地状态持久化
         this.session = {
           token: `token-${user.id}-${Date.now()}`,
+          userId: user.id,
           phone: user.phone || username,
           name: user.display_name || '智颜用户',
           createdAt: user.created_at || new Date().toISOString(),

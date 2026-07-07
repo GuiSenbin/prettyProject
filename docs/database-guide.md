@@ -18,6 +18,7 @@
 - `20260705_0002_chat_user_fk.py`：兼容旧迁移链的 no-op，不创建聊天表。
 - `20260705_0003_clean_users_baseline.py`：把旧用户档案表迁成最小用户身份表。
 - `20260705_0004_auth_table_split.py`：分离出用户授权凭证表 `user_social_auths` 以解耦多端登录映射，并使 `users.phone` 设为可空。
+- `20260706_0005_user_profiles.py`：新增个人护肤档案表 `user_profiles`，与 `users.id` 一对一关联。
 
 ## 当前表与企业级账号体系
 
@@ -48,3 +49,11 @@
 产品库、AI 问答、个人档案详情都必须通过新 migration 单独建表。应用启动时禁止隐式 `DROP TABLE`。废弃表、字段清理必须通过 migration 明确执行。
 
 产品库、AI 问答、个人档案详情都必须通过新 migration 单独建表。应用启动时禁止隐式 `DROP TABLE`。废弃表、字段清理必须通过 migration 明确执行。
+
+### 4. `user_profiles`（个人护肤档案表）
+存放护肤推荐所需的结构化档案，与账号体系解耦：
+* `user_id`：关联 `users.id`，每个用户最多一份档案。
+* `gender`、`age`：基础画像，用于条件展示和推荐分层。
+* `skin_type`、`skin_tone`、`face_shape`、`skin_concerns`：肤况和脸型信息。
+* `known_allergies`、`pregnancy_status`、`period_acne`、`last_period_start`、`cycle_length_days`：安全避雷和女性条件字段。
+* `preference_notes`：偏好、禁忌和生活习惯等自由文本。

@@ -11,7 +11,7 @@ const routes = [
     path: '/profile',
     name: 'Profile',
     component: () => import('@/views/Profile/index.vue'),
-    meta: { label: '个人档案', title: '个人档案', showInMenu: true, requiresAuth: true }
+    meta: { label: '个人档案', title: '个人档案', showInMenu: true, requiresAuth: true, hideHeader: true }
   },
   {
     path: '/cabinet',

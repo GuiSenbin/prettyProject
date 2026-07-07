@@ -42,5 +42,6 @@ def get_db():
 
 def init_db():
     """开发环境兼容初始化；结构变更必须通过 Alembic 管理。"""
+    import backend.app.modules.profiles.models  # noqa
     import backend.app.modules.users.models  # noqa
     Base.metadata.create_all(bind=engine)
