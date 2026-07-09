@@ -36,7 +36,7 @@
         </div>
         <label class="range-field">
           <span>年龄</span>
-          <strong>{{ form.age }} 岁</strong>
+          <strong>{{ form.age ? form.age + ' 岁' : '未设置' }}</strong>
           <input v-model.number="form.age" type="range" min="12" max="60" :style="ageRangeStyle" />
           <small>
             <em
@@ -225,12 +225,22 @@
         </footer>
       </div>
     </div>
+    <ConfirmModal 
+      v-model="showIncompleteModal" 
+      title="确定要离开吗" 
+      :content="'您还未填写必填项(性别/年龄)\n现在离开将不会保存任何数据'" 
+      confirmText="去完善" 
+      cancelText="放弃并离开"
+      :showCancel="true"
+      @cancel="handleModalCancel"
+    />
   </section>
 </template>
 
 <script setup>
 import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
+import ConfirmModal from '@/components/confirm-modal.vue'
 import { CalendarDays, Check, ChevronLeft, HelpCircle, NotebookPen, ShieldAlert, ShieldCheck, Sparkles, UserRound } from 'lucide-vue-next'
 import { profileApi } from '@/api/profile'
 import defaultAvatar from '@/assets/images/头像-默认.png'
@@ -293,7 +303,7 @@ const concernOptions = ['痘痘', '闭口', '黑头', '泛红', '敏感', '干�
 const pregnancyOptions = ['不方便透露', '未怀孕', '备孕中', '怀孕中', '哺乳期']
 const form = reactive({
   gender: '',
-  age: 24,
+  age: null,
   skin_type: '',
   skin_tone: '',
   face_shape: '',
@@ -338,7 +348,7 @@ const selectedSkinTypeDescription = computed(() => {
 watch(() => form.gender, (gender, oldGender) => {
   if (oldGender && gender !== oldGender) {
     Object.assign(form, {
-      age: 24,
+      age: null,
       skin_type: '',
       skin_tone: '',
       face_shape: '',
@@ -401,16 +411,17 @@ function selectSkinTone(item) {
   form.skin_tone = item.label
 }
 function handleBack() {
+  // 意图：将路由退出的拦截器统一收口在 onBeforeRouteLeave，此处仅需触发常规回退动作，降低状态管理的复杂度。
   if (window.history.length > 1) {
     router.back()
-    return
+  } else {
+    router.replace('/chat')
   }
-  router.replace('/chat')
 }
 function assignProfile(profile) {
   Object.assign(form, {
     gender: profile?.gender || '',
-    age: profile?.age || 24,
+    age: profile?.age || null,
     skin_type: profile?.skin_type || '',
     skin_tone: profile?.skin_tone || '',
     face_shape: profile?.face_shape || '',
@@ -454,13 +465,23 @@ async function loadProfile() {
     takeSnapshot()
   }
 }
-async function handleSubmit() {
-  if (!form.gender) {
-    appStore.showToast('请选择您的性别', 'warning')
-    return
+const showIncompleteModal = ref(false)
+const targetRoute = ref(null)
+const isForceLeaving = ref(false)
+
+function handleModalCancel() {
+  isForceLeaving.value = true
+  if (targetRoute.value) {
+    router.push(targetRoute.value)
+  } else {
+    router.back()
   }
-  if (form.age === undefined || form.age === null || form.age === '') {
-    appStore.showToast('请选择或填写您的年龄', 'warning')
+}
+
+async function handleSubmit() {
+  const isNotCompleted = !form.gender || form.age === null || form.age === undefined || form.age === ''
+  if (isNotCompleted) {
+    appStore.showToast('请选择或填写您的性别与年龄', 'warning')
     return
   }
   if (!userStore.userId) {
@@ -472,7 +493,14 @@ async function handleSubmit() {
     const profile = await profileApi.saveProfile(userStore.userId, buildPayload())
     assignProfile(profile)
     takeSnapshot()
-    appStore.showToast('个人档案已保存', 'success')
+    
+    // 意图：采用渐进式信息收集策略。只要核心依赖（必填项）满足即可入库持久化，边缘信息通过弱提示引导逐步完善，降低表单提交门槛。
+    const allFilled = form.skin_type && form.skin_tone && form.face_shape
+    if (allFilled) {
+      appStore.showToast('个人档案保存成功', 'success')
+    } else {
+      appStore.showToast('已保存，部分信息可随时完善', 'success')
+    }
   } catch (err) {
     appStore.showToast(err.message || '保存失败，请稍后再试', 'error')
   } finally {
@@ -550,35 +578,42 @@ const calendarDays = computed(() => {
   }
   return days
 })
-onBeforeRouteLeave((to, from, next) => {
+const isNavigatingAway = ref(false)
+
+onBeforeRouteLeave(async (to, from, next) => {
+  if (isNavigatingAway.value || isForceLeaving.value) {
+    next()
+    return
+  }
   const hasChanges = JSON.stringify(form) !== originalFormData.value
-  const isNotCompleted = !form.gender
-  const isDirty = hasChanges || isNotCompleted
-  if (isDirty) {
-    const confirmLeave = window.confirm('个人档案还未填写完成，确定离开吗？')
-    if (confirmLeave) {
-      next()
-    } else {
+  const isNotCompleted = !form.gender || form.age === null || form.age === undefined || form.age === ''
+
+  if (isNotCompleted) {
+    targetRoute.value = to.fullPath
+    showIncompleteModal.value = true
+    next(false)
+  } else if (hasChanges) {
+    // 意图：挂起 Vue Router 的原生退出行为，等待异步状态持久化流转完毕后再安全放行。
+    next(false)
+    saving.value = true
+    try {
+      if (userStore.userId) {
+        await profileApi.saveProfile(userStore.userId, buildPayload())
+        takeSnapshot()
+        appStore.showToast('档案已自动保存', 'success')
+      }
+      isNavigatingAway.value = true
+      router.push(to.fullPath)
+    } catch (err) {
+      appStore.showToast(err.message || '自动保存失败', 'error')
+      saving.value = false
       next(false)
     }
   } else {
     next()
   }
 })
-function handleBeforeUnload(e) {
-  const hasChanges = JSON.stringify(form) !== originalFormData.value
-  const isNotCompleted = !form.gender
-  const isDirty = hasChanges || isNotCompleted
-  if (isDirty) {
-    e.preventDefault()
-    e.returnValue = '个人档案还未填写完成，确定离开吗？'
-    return e.returnValue
-  }
-}
-window.addEventListener('beforeunload', handleBeforeUnload)
-onUnmounted(() => {
-  window.removeEventListener('beforeunload', handleBeforeUnload)
-})
+// 移除 beforeunload 的原生弹框逻辑
 </script>
 
 <style lang="scss" scoped>

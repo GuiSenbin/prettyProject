@@ -1,12 +1,16 @@
 @use 'variables' as *;
 // 按钮
 .btn {
+  --btn-height: 46px;
+  --btn-padding-x: 28px;
+  --btn-padding-y: 12px;
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 46px;
-  padding: 12px 28px;
+  min-height: var(--btn-height);
+  padding: var(--btn-padding-y) var(--btn-padding-x);
   border: none;
   border-radius: 999px;
   font-family: inherit;
@@ -16,8 +20,8 @@
   cursor: pointer;
   transition: $transition;
   &-primary {
-    height: 46px;
-    padding: 0 28px;
+    height: var(--btn-height);
+    padding: 0 var(--btn-padding-x);
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.36), transparent), linear-gradient(135deg, #9ccfe8, #319d98 52%, #b7f2ea);
     color: $white;
     border: 0;
