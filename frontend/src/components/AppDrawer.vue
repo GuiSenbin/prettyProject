@@ -4,12 +4,16 @@
     <transition name="drawer-fade">
       <div v-if="open" class="drawer-mask" @click.self="$emit('close')">
         <aside class="app-drawer">
-          <header class="drawer-profile">
-            <div class="avatar">{{ initials }}</div>
+          <header class="drawer-profile" @click="$emit('close'); $router.push('/settings')" style="cursor: pointer;">
+            <div class="avatar">
+              <img v-if="userStore.session?.avatar_url" :src="userStore.session.avatar_url" alt="avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />
+              <span v-else>{{ initials }}</span>
+            </div>
             <div>
               <h2>{{ userStore.displayName }}</h2>
               <p>{{ userStore.displayPhone || '已登录' }}</p>
             </div>
+            <ChevronRight :size="20" color="#cbd5e1" style="margin-left: auto;" />
           </header>
 
           <nav class="drawer-nav">
@@ -32,6 +36,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import { ChevronRight } from 'lucide-vue-next'
 import { Boxes, UserRound } from 'lucide-vue-next'
 import { useUserStore } from '@/stores/user'
 
@@ -61,20 +66,20 @@ const initials = computed(() => userStore.displayName.slice(0, 1))
   justify-content: flex-start;
 }
 .app-drawer {
-  width: min(86vw, 390px);
+  width: min(64vw, 390px);
   min-height: 100dvh;
-  padding: calc(34px + env(safe-area-inset-top)) 22px 22px;
+  padding: calc(15px + env(safe-area-inset-top)) 10px 21px;
   background:
     radial-gradient(circle at 20% 0%, rgba(207, 238, 241, 0.96), transparent 34%),
     linear-gradient(180deg, #f8feff, #f1fbfc 44%, #ffffff 100%);
-  border-radius: 0 30px 30px 0;
+  border-radius: 0 23px 23px 0;
   box-shadow: 20px 0 50px rgba(17, 24, 39, 0.14);
   overflow-y: auto;
 }
 .drawer-profile {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 6px;
   .avatar {
     width: 68px;
     height: 68px;
@@ -89,8 +94,8 @@ const initials = computed(() => userStore.displayName.slice(0, 1))
   }
   h2 {
     color: $text-primary;
-    font-size: 22px;
-    line-height: 1.2;
+    font-size: 18px;
+    line-height: 1;
   }
   p {
     margin-top: 4px;

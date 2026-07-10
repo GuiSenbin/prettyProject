@@ -8,6 +8,13 @@ class UserCreate(BaseModel):
     login_type: str = "username"
 
 
+class UserUpdate(BaseModel):
+    phone: str | None = None
+    display_name: str | None = None
+    login_type: str | None = None
+    avatar_url: str | None = None
+
+
 class UserRegister(BaseModel):
     username: str
     password: str
@@ -23,6 +30,7 @@ class UserResponse(BaseModel):
     id: str
     phone: str | None = None
     display_name: str
+    avatar_url: str | None = None
     login_type: str
     created_at: str | None = None
     updated_at: str | None = None

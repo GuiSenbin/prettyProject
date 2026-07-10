@@ -28,6 +28,10 @@ export default defineConfig(({ mode }) => {
           target: apiProxyTarget,
           changeOrigin: true,
         },
+        '/static': {
+          target: apiProxyTarget,
+          changeOrigin: true,
+        },
       },
     },
   }

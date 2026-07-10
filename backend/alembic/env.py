@@ -5,6 +5,7 @@ from sqlalchemy import engine_from_config, pool
 from backend.app.core.config import get_settings
 from backend.app.core.database import Base
 import backend.app.modules.users.models  # noqa
+import backend.app.modules.profiles.models  # noqa
 
 config = context.config
 config.set_main_option("sqlalchemy.url", get_settings().DATABASE_URL)

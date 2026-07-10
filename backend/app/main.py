@@ -3,6 +3,8 @@ import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+import os
 
 from backend.app.api import api_router
 from backend.app.core.config import get_settings
@@ -40,6 +42,9 @@ app.add_middleware(
 )
 
 app.include_router(api_router)
+
+os.makedirs("backend/static/avatars", exist_ok=True)
+app.mount("/static", StaticFiles(directory="backend/static"), name="static")
 
 
 @app.get("/")

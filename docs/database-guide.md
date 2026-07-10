@@ -29,6 +29,7 @@
 * `id` (INTEGER, PK)：系统全局唯一用户标识。
 * `phone` (VARCHAR, Unique, Nullable)：绑定手机号（实名合规基础，可空支持先体验再绑定）。
 * `display_name` (VARCHAR)：展示昵称。
+* `avatar_url` (VARCHAR, Nullable)：头像静态访问链接，支持本地 static 目录或 OSS 访问。
 * `login_type` (VARCHAR)：最近一次的登录方式（如 username, phone 等）。
 
 ### 2. `user_social_auths`（用户授权凭证表）

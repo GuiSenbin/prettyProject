@@ -42,9 +42,9 @@ export const useUserStore = defineStore('user', {
           // 1. 尝试以账号密码登录
           user = await userApi.login({ username, password })
         } catch (err) {
-          // 2. 如果账号不存在 (401 且含有账号不存在关键字)，则为用户提供静默注册体验
+          // 2. 如果账号不存在 (404)，则为用户提供静默注册体验
           const detail = err.response?.data?.detail
-          if (err.response?.status === 401 && detail && (detail.includes('不存在') || detail.includes('not exist'))) {
+          if (err.response?.status === 404) {
             // 静默创建新账户
             await userApi.register({ username, password, display_name: '智颜用户' })
             // 注册成功后重新登录
@@ -59,8 +59,9 @@ export const useUserStore = defineStore('user', {
         this.session = {
           token: `token-${user.id}-${Date.now()}`,
           userId: user.id,
-          phone: user.phone || username,
+          phone: user.phone || '',
           name: user.display_name || '智颜用户',
+          avatar_url: user.avatar_url || '',
           createdAt: user.created_at || new Date().toISOString(),
         }
         localStorage.setItem(SESSION_KEY, JSON.stringify(this.session))
@@ -81,6 +82,12 @@ export const useUserStore = defineStore('user', {
 
     async fetchLatest() {
       this.session = loadSession()
+    },
+
+    saveSession() {
+      if (this.session) {
+        localStorage.setItem(SESSION_KEY, JSON.stringify(this.session))
+      }
     },
   },
 })

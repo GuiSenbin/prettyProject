@@ -41,10 +41,19 @@ class UserRepository:
             )
         ).scalar_one_or_none()
 
-    def create_auth(self, user_id: int, identity_type: str, identifier: str, credential: str | None = None) -> UserAuth:
+    def create_auth(self, user_id: str, identity_type: str, identifier: str, credential: str | None = None) -> UserAuth:
         """新建一条关联的登录凭证映射"""
         auth = UserAuth(user_id=user_id, identity_type=identity_type, identifier=identifier, credential=credential)
         self.db.add(auth)
+        self.db.commit()
+        self.db.refresh(auth)
+        return auth
+
+    def get_auths_by_user(self, user_id: str) -> list[UserAuth]:
+        return self.db.execute(select(UserAuth).where(UserAuth.user_id == user_id)).scalars().all()
+
+    def update_auth_identifier(self, auth: UserAuth, new_identifier: str) -> UserAuth:
+        auth.identifier = new_identifier
         self.db.commit()
         self.db.refresh(auth)
         return auth

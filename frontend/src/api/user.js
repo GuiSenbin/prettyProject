@@ -25,4 +25,10 @@ export const userApi = {
   deleteUser(id) {
     return request.delete(`/users/${id}`)
   },
+
+  uploadAvatar(id, file) {
+    const formData = new FormData()
+    formData.append('file', file)
+    return request.post(`/users/${id}/avatar`, formData)
+  },
 }

@@ -26,6 +26,12 @@ const routes = [
     meta: { label: 'AI问答', title: 'AI问答', showInMenu: false, requiresAuth: true }
   },
   {
+    path: '/settings',
+    name: 'Settings',
+    component: () => import('@/views/Settings/index.vue'),
+    meta: { label: '设置中心', title: '设置中心', showInMenu: false, requiresAuth: true, hideHeader: true }
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: () => import('@/views/NotFound/index.vue'),

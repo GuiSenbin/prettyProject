@@ -17,9 +17,10 @@ class User(Base):
     id = Column(String(36), primary_key=True, default=generate_uuid)
     phone = Column(String(32), unique=True, nullable=True)  # 实名手机号可空以实现免密体验
     display_name = Column(String(50), nullable=False, default="智颜用户")
+    avatar_url = Column(String(255), nullable=True)
     login_type = Column(String(20), nullable=False, default="username")
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.datetime.now)
+    updated_at = Column(DateTime, default=datetime.datetime.now, onupdate=datetime.datetime.now)
 
     # 关联授权凭证
     auths = relationship("UserAuth", back_populates="user", cascade="all, delete-orphan")
@@ -29,6 +30,7 @@ class User(Base):
             "id": self.id,
             "phone": self.phone,
             "display_name": self.display_name,
+            "avatar_url": self.avatar_url,
             "login_type": self.login_type,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
@@ -44,8 +46,8 @@ class UserAuth(Base):
     identifier = Column(String(100), nullable=False)  # 账号名、手机号、微信unionid等
     credential = Column(String(255), nullable=True)  # 散列密码或AccessToken
 
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.datetime.now)
+    updated_at = Column(DateTime, default=datetime.datetime.now, onupdate=datetime.datetime.now)
 
     user = relationship("User", back_populates="auths")
 

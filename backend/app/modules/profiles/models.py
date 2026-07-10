@@ -22,8 +22,8 @@ class UserProfile(Base):
     cycle_length_days = Column(Integer, nullable=True)
     pregnancy_status = Column(String(32), nullable=True)
     preference_notes = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.datetime.now)
+    updated_at = Column(DateTime, default=datetime.datetime.now, onupdate=datetime.datetime.now)
 
     user = relationship("User")
 
