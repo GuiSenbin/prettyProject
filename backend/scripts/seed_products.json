@@ -1,0 +1,879 @@
+[
+  {
+    "category": "洁面",
+    "products": [
+      {
+        "name": "理肤泉净化舒缓洁面啫喱",
+        "brand": "理肤泉",
+        "image_url": "https://via.placeholder.com/300x400?text=理肤泉特安洁面",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿", "溶剂"]},
+          {"inci_name": "COCO-BETAINE", "zh_name": "椰油基甜菜碱", "safety_level": "绿色安全", "purposes": ["清洁", "表面活性剂"]},
+          {"inci_name": "PROPYLENE GLYCOL", "zh_name": "丙二醇", "safety_level": "中等风险", "purposes": ["保湿", "溶剂"]},
+          {"inci_name": "PEG-120 METHYL GLUCOSE DIOLEATE", "zh_name": "PEG-120 甲基葡糖二油酸酯", "safety_level": "绿色安全", "purposes": ["乳化剂", "清洁"]},
+          {"inci_name": "SODIUM CHLORIDE", "zh_name": "氯化钠", "safety_level": "绿色安全", "purposes": ["增稠剂"]}
+        ]
+      },
+      {
+        "name": "芙丽芳丝净润洗面霜",
+        "brand": "芙丽芳丝",
+        "image_url": "https://via.placeholder.com/300x400?text=芙丽芳丝洗面霜",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "POTASSIUM COCOYL GLYCINATE", "zh_name": "椰油酰甘氨酸钾", "safety_level": "绿色安全", "purposes": ["清洁", "起泡"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿", "溶剂"]},
+          {"inci_name": "BUTYLENE GLYCOL", "zh_name": "丁二醇", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "CITRIC ACID", "zh_name": "柠檬酸", "safety_level": "绿色安全", "purposes": ["酸碱调节"]},
+          {"inci_name": "NIACINAMIDE", "zh_name": "烟酰胺", "safety_level": "绿色安全", "purposes": ["美白", "抗氧化"]}
+        ]
+      },
+      {
+        "name": "宝拉珍选大地之源洁面凝胶",
+        "brand": "宝拉珍选",
+        "image_url": "https://via.placeholder.com/300x400?text=宝拉珍选大地洁面",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "DECYL GLUCOSIDE", "zh_name": "癸基葡糖苷", "safety_level": "绿色安全", "purposes": ["表面活性剂", "清洁"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "ALOE BARBADENSIS LEAF JUICE", "zh_name": "库拉索芦荟叶汁", "safety_level": "绿色安全", "purposes": ["舒缓", "抗炎"]},
+          {"inci_name": "COCO-GLUCOSIDE", "zh_name": "椰油基葡糖苷", "safety_level": "绿色安全", "purposes": ["表面活性剂"]}
+        ]
+      },
+      {
+        "name": "香奈儿山茶花洁面乳",
+        "brand": "香奈儿",
+        "image_url": "https://via.placeholder.com/300x400?text=香奈儿山茶花",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "MYRISTIC ACID", "zh_name": "肉豆蔻酸", "safety_level": "中等风险", "purposes": ["清洁", "乳化"]},
+          {"inci_name": "PALMITIC ACID", "zh_name": "棕榈酸", "safety_level": "中等风险", "purposes": ["乳化剂"]},
+          {"inci_name": "POTASSIUM HYDROXIDE", "zh_name": "氢氧化钾", "safety_level": "中等风险", "purposes": ["酸碱调节"]},
+          {"inci_name": "STEARIC ACID", "zh_name": "硬脂酸", "safety_level": "绿色安全", "purposes": ["乳化", "稳定"]},
+          {"inci_name": "PARFUM", "zh_name": "香精", "safety_level": "高风险", "purposes": ["香精"]}
+        ]
+      },
+      {
+        "name": "CPB肌肤之钥光采洗面膏",
+        "brand": "CPB肌肤之钥",
+        "image_url": "https://via.placeholder.com/300x400?text=CPB洗面膏",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "MYRISTIC ACID", "zh_name": "肉豆蔻酸", "safety_level": "中等风险", "purposes": ["清洁"]},
+          {"inci_name": "SORBITOL", "zh_name": "山梨（糖）醇", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "SODIUM HYALURONATE", "zh_name": "透明质酸钠", "safety_level": "绿色安全", "purposes": ["保湿"]}
+        ]
+      },
+      {
+        "name": "适乐肤水杨酸洁面",
+        "brand": "适乐肤",
+        "image_url": "https://via.placeholder.com/300x400?text=适乐肤水杨酸",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "SALICYLIC ACID", "zh_name": "水杨酸", "safety_level": "中等风险", "purposes": ["控油", "去角质"]},
+          {"inci_name": "CERAMIDE NP", "zh_name": "神经酰胺 NP", "safety_level": "绿色安全", "purposes": ["屏障修护"]},
+          {"inci_name": "CERAMIDE AP", "zh_name": "神经酰胺 AP", "safety_level": "绿色安全", "purposes": ["屏障修护"]},
+          {"inci_name": "NIACINAMIDE", "zh_name": "烟酰胺", "safety_level": "绿色安全", "purposes": ["美白"]}
+        ]
+      },
+      {
+        "name": "至本舒颜修护洁面乳",
+        "brand": "至本",
+        "image_url": "https://via.placeholder.com/300x400?text=至本洁面",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "SODIUM COCOYL ISETHIONATE", "zh_name": "椰油酰羟乙磺酸酯钠", "safety_level": "绿色安全", "purposes": ["表面活性剂", "清洁"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "PANTHENOL", "zh_name": "泛醇", "safety_level": "绿色安全", "purposes": ["保湿", "修护"]}
+        ]
+      },
+      {
+        "name": "优色林舒安清润洁面乳",
+        "brand": "优色林",
+        "image_url": "https://via.placeholder.com/300x400?text=优色林洁面",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "SQUALANE", "zh_name": "角鲨烷", "safety_level": "绿色安全", "purposes": ["保湿", "柔润"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "SODIUM COCOAMPHOACETATE", "zh_name": "椰油酰两性基乙酸钠", "safety_level": "绿色安全", "purposes": ["温和清洁"]}
+        ]
+      },
+      {
+        "name": "eltaMD氨基酸泡沫洁面",
+        "brand": "eltaMD",
+        "image_url": "https://via.placeholder.com/300x400?text=eltaMD洁面",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "SODIUM COCOYL GLYCINATE", "zh_name": "椰油酰甘氨酸钠", "safety_level": "绿色安全", "purposes": ["清洁"]},
+          {"inci_name": "BROMELAIN", "zh_name": "菠萝蛋白酶", "safety_level": "中等风险", "purposes": ["去角质", "抗炎"]},
+          {"inci_name": "ACRYLATES COPOLYMER", "zh_name": "丙烯酸（酯）类共聚物", "safety_level": "中等风险", "purposes": ["成膜剂"]}
+        ]
+      },
+      {
+        "name": "海蓝之谜璀璨净澈洁面泡沫",
+        "brand": "海蓝之谜",
+        "image_url": "https://via.placeholder.com/300x400?text=海蓝之谜洁面",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "ALGAE EXTRACT", "zh_name": "藻提取物", "safety_level": "绿色安全", "purposes": ["抗氧化", "保湿"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "MYRISTIC ACID", "zh_name": "肉豆蔻酸", "safety_level": "中等风险", "purposes": ["清洁"]},
+          {"inci_name": "PARFUM", "zh_name": "香精", "safety_level": "高风险", "purposes": ["香料"]}
+        ]
+      }
+    ]
+  },
+  {
+    "category": "精华",
+    "products": [
+      {
+        "name": "修丽可色修精华",
+        "brand": "修丽可",
+        "image_url": "https://via.placeholder.com/300x400?text=修丽可色修",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "ARBUTIN", "zh_name": "熊果苷", "safety_level": "绿色安全", "purposes": ["美白", "祛斑"]},
+          {"inci_name": "KOJIC ACID", "zh_name": "曲酸", "safety_level": "中等风险", "purposes": ["美白", "抗氧化"]},
+          {"inci_name": "THYMUS VULGARIS EXTRACT", "zh_name": "百里香提取物", "safety_level": "绿色安全", "purposes": ["抗炎", "舒缓"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "SODIUM HYALURONATE", "zh_name": "透明质酸钠", "safety_level": "绿色安全", "purposes": ["保湿"]}
+        ]
+      },
+      {
+        "name": "雅诗兰黛第七代小棕瓶",
+        "brand": "雅诗兰黛",
+        "image_url": "https://via.placeholder.com/300x400?text=雅诗兰黛小棕瓶",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "BIFIDA FERMENT LYSATE", "zh_name": "二裂酵母发酵产物溶胞物", "safety_level": "绿色安全", "purposes": ["抗衰", "修护"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "PROPANEDIOL", "zh_name": "1,3-丙二醇", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "ADANSONIA DIGITATA SEED EXTRACT", "zh_name": "猴面包树籽提取物", "safety_level": "绿色安全", "purposes": ["抗衰"]},
+          {"inci_name": "SODIUM HYALURONATE", "zh_name": "透明质酸钠", "safety_level": "绿色安全", "purposes": ["保湿"]}
+        ]
+      },
+      {
+        "name": "兰蔻第二代小黑瓶",
+        "brand": "兰蔻",
+        "image_url": "https://via.placeholder.com/300x400?text=兰蔻小黑瓶",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "BIFIDA FERMENT LYSATE", "zh_name": "二裂酵母发酵产物溶胞物", "safety_level": "绿色安全", "purposes": ["抗衰", "修护"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "ALCOHOL DENAT.", "zh_name": "变性乙醇", "safety_level": "中等风险", "purposes": ["溶剂", "促渗"]},
+          {"inci_name": "ASCORBYL GLUCOSIDE", "zh_name": "抗坏血酸葡糖苷", "safety_level": "绿色安全", "purposes": ["抗氧化", "美白"]}
+        ]
+      },
+      {
+        "name": "娇韵诗双萃精华",
+        "brand": "娇韵诗",
+        "image_url": "https://via.placeholder.com/300x400?text=娇韵诗双萃",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "SQUALANE", "zh_name": "角鲨烷", "safety_level": "绿色安全", "purposes": ["保湿", "柔润"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "CURCUMA LONGA EXTRACT", "zh_name": "姜黄根提取物", "safety_level": "绿色安全", "purposes": ["抗氧化"]},
+          {"inci_name": "AVENA SATIVA KERNEL EXTRACT", "zh_name": "燕麦仁提取物", "safety_level": "绿色安全", "purposes": ["抗氧化", "修护"]}
+        ]
+      },
+      {
+        "name": "海蓝之谜浓缩修护精华露",
+        "brand": "海蓝之谜",
+        "image_url": "https://via.placeholder.com/300x400?text=海蓝之谜修护精华",
+        "ingredients": [
+          {"inci_name": "CYCLOPENTASILOXANE", "zh_name": "环五聚二甲基硅氧烷", "safety_level": "中等风险", "purposes": ["成膜剂", "溶剂"]},
+          {"inci_name": "ALGAE EXTRACT", "zh_name": "藻提取物", "safety_level": "绿色安全", "purposes": ["修护", "保湿"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "DIMETHICONE", "zh_name": "聚二甲基硅氧烷", "safety_level": "中等风险", "purposes": ["柔润剂"]},
+          {"inci_name": "EUCALYPTUS GLOBULUS LEAF OIL", "zh_name": "蓝桉叶油", "safety_level": "中等风险", "purposes": ["抗菌", "香料"]}
+        ]
+      },
+      {
+        "name": "倩碧302美白镭射瓶",
+        "brand": "倩碧",
+        "image_url": "https://via.placeholder.com/300x400?text=倩碧镭射瓶",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "DIMETHOXYTOLYL PROPYLRESORCINOL", "zh_name": "二甲氧基甲苯基-4-丙基间苯二酚", "safety_level": "中等风险", "purposes": ["美白", "抗氧化"]},
+          {"inci_name": "ASCORBYL GLUCOSIDE", "zh_name": "抗坏血酸葡糖苷", "safety_level": "绿色安全", "purposes": ["抗氧化"]},
+          {"inci_name": "SALICYLIC ACID", "zh_name": "水杨酸", "safety_level": "中等风险", "purposes": ["控油", "促渗"]},
+          {"inci_name": "YEAST EXTRACT", "zh_name": "酵母提取物", "safety_level": "绿色安全", "purposes": ["保湿", "修护"]}
+        ]
+      },
+      {
+        "name": "资生堂红妍肌活精华露",
+        "brand": "资生堂",
+        "image_url": "https://via.placeholder.com/300x400?text=资生堂红腰子",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "ALCOHOL DENAT.", "zh_name": "变性乙醇", "safety_level": "中等风险", "purposes": ["溶剂"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "ROSA DAMASCENA FLOWER WATER", "zh_name": "突厥蔷薇花水", "safety_level": "绿色安全", "purposes": ["舒缓", "香料"]},
+          {"inci_name": "GINKGO BILOBA LEAF EXTRACT", "zh_name": "银杏叶提取物", "safety_level": "绿色安全", "purposes": ["抗氧化"]}
+        ]
+      },
+      {
+        "name": "修丽可CE经典抗氧精华",
+        "brand": "修丽可",
+        "image_url": "https://via.placeholder.com/300x400?text=修丽可CE",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "ASCORBIC ACID", "zh_name": "抗坏血酸 (维C)", "safety_level": "绿色安全", "purposes": ["抗氧化", "美白"]},
+          {"inci_name": "TOCOPHEROL", "zh_name": "生育酚 (维E)", "safety_level": "绿色安全", "purposes": ["抗氧化"]},
+          {"inci_name": "FERULIC ACID", "zh_name": "阿魏酸", "safety_level": "绿色安全", "purposes": ["抗氧化"]},
+          {"inci_name": "PROPYLENE GLYCOL", "zh_name": "丙二醇", "safety_level": "中等风险", "purposes": ["溶剂"]}
+        ]
+      },
+      {
+        "name": "理肤泉B5多效保湿精华",
+        "brand": "理肤泉",
+        "image_url": "https://via.placeholder.com/300x400?text=理肤泉B5精华",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "PANTHENOL", "zh_name": "泛醇", "safety_level": "绿色安全", "purposes": ["修护", "舒缓"]},
+          {"inci_name": "SODIUM HYALURONATE", "zh_name": "透明质酸钠", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "MADECASSOSIDE", "zh_name": "羟基积雪草甙", "safety_level": "绿色安全", "purposes": ["修护", "抗炎"]}
+        ]
+      },
+      {
+        "name": "赫莲娜绿宝瓶精华",
+        "brand": "赫莲娜",
+        "image_url": "https://via.placeholder.com/300x400?text=赫莲娜绿宝瓶",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "CRITHMUM MARITIMUM EXTRACT", "zh_name": "海茴香提取物", "safety_level": "绿色安全", "purposes": ["抗衰", "修护"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "ALCOHOL DENAT.", "zh_name": "变性乙醇", "safety_level": "中等风险", "purposes": ["溶剂", "清爽"]},
+          {"inci_name": "ECTOIN", "zh_name": "依克多因", "safety_level": "绿色安全", "purposes": ["防护", "保湿"]}
+        ]
+      }
+    ]
+  },
+  {
+    "category": "水乳面霜",
+    "products": [
+      {
+        "name": "科颜氏高保湿面霜",
+        "brand": "科颜氏",
+        "image_url": "https://via.placeholder.com/300x400?text=科颜氏高保湿",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "SQUALANE", "zh_name": "角鲨烷", "safety_level": "绿色安全", "purposes": ["保湿", "封闭"]},
+          {"inci_name": "CYCLOPENTASILOXANE", "zh_name": "环五聚二甲基硅氧烷", "safety_level": "中等风险", "purposes": ["柔润"]},
+          {"inci_name": "PSEUDOALTEROMONAS FERMENT EXTRACT", "zh_name": "假交替单胞菌发酵产物提取物", "safety_level": "绿色安全", "purposes": ["抗冻", "修护"]}
+        ]
+      },
+      {
+        "name": "海蓝之谜精华面霜",
+        "brand": "海蓝之谜",
+        "image_url": "https://via.placeholder.com/300x400?text=海蓝之谜面霜",
+        "ingredients": [
+          {"inci_name": "ALGAE EXTRACT", "zh_name": "藻提取物", "safety_level": "绿色安全", "purposes": ["抗氧化", "修护"]},
+          {"inci_name": "MINERAL OIL", "zh_name": "矿物油", "safety_level": "中等风险", "purposes": ["封闭剂", "柔润"]},
+          {"inci_name": "PETROLATUM", "zh_name": "矿脂", "safety_level": "中等风险", "purposes": ["强效封闭"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "SESAME SEED OIL", "zh_name": "芝麻籽油", "safety_level": "绿色安全", "purposes": ["柔润", "抗氧化"]}
+        ]
+      },
+      {
+        "name": "SK-II神仙水",
+        "brand": "SK-II",
+        "image_url": "https://via.placeholder.com/300x400?text=SK-II神仙水",
+        "ingredients": [
+          {"inci_name": "GALACTOMYCES FERMENT FILTRATE", "zh_name": "半乳糖酵母样菌发酵产物滤液", "safety_level": "绿色安全", "purposes": ["修护", "平衡", "抗衰"]},
+          {"inci_name": "BUTYLENE GLYCOL", "zh_name": "丁二醇", "safety_level": "绿色安全", "purposes": ["溶剂", "保湿"]},
+          {"inci_name": "PENTYLENE GLYCOL", "zh_name": "1,2-戊二醇", "safety_level": "绿色安全", "purposes": ["防腐辅助", "保湿"]},
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]}
+        ]
+      },
+      {
+        "name": "兰蔻极光水",
+        "brand": "兰蔻",
+        "image_url": "https://via.placeholder.com/300x400?text=兰蔻极光水",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "ISONONYL ISONONANOATE", "zh_name": "异壬酸异壬酯", "safety_level": "中等风险", "purposes": ["柔润剂"]},
+          {"inci_name": "ALCOHOL DENAT.", "zh_name": "变性乙醇", "safety_level": "中等风险", "purposes": ["溶剂", "控油"]},
+          {"inci_name": "FAGUS SYLVATICA BUD EXTRACT", "zh_name": "欧洲水青冈芽提取物", "safety_level": "绿色安全", "purposes": ["焕肤", "保湿"]},
+          {"inci_name": "GLYCOLIC ACID", "zh_name": "羟基乙酸", "safety_level": "中等风险", "purposes": ["去角质", "亮肤"]}
+        ]
+      },
+      {
+        "name": "赫莲娜黑绷带面霜",
+        "brand": "赫莲娜",
+        "image_url": "https://via.placeholder.com/300x400?text=赫莲娜黑绷带",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "PROXYLANE", "zh_name": "玻色因", "safety_level": "绿色安全", "purposes": ["抗衰", "修护"]},
+          {"inci_name": "ISOHEXADECANE", "zh_name": "异十六烷", "safety_level": "中等风险", "purposes": ["柔润剂"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "DIMETHICONE", "zh_name": "聚二甲基硅氧烷", "safety_level": "中等风险", "purposes": ["柔润剂"]}
+        ]
+      },
+      {
+        "name": "雅诗兰黛原生液",
+        "brand": "雅诗兰黛",
+        "image_url": "https://via.placeholder.com/300x400?text=雅诗兰黛原生液",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "BIFIDA FERMENT LYSATE", "zh_name": "二裂酵母发酵产物溶胞物", "safety_level": "绿色安全", "purposes": ["抗衰", "修护"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "BETAINE", "zh_name": "甜菜碱", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "SODIUM HYALURONATE", "zh_name": "透明质酸钠", "safety_level": "绿色安全", "purposes": ["保湿"]}
+        ]
+      },
+      {
+        "name": "娇兰复原蜜",
+        "brand": "娇兰",
+        "image_url": "https://via.placeholder.com/300x400?text=娇兰复原蜜",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "HONEY", "zh_name": "蜂蜜", "safety_level": "绿色安全", "purposes": ["修护", "保湿"]},
+          {"inci_name": "ROYAL JELLY", "zh_name": "蜂王浆", "safety_level": "绿色安全", "purposes": ["抗衰"]},
+          {"inci_name": "PROPANEDIOL", "zh_name": "1,3-丙二醇", "safety_level": "绿色安全", "purposes": ["溶剂", "保湿"]}
+        ]
+      },
+      {
+        "name": "理肤泉B5修复霜",
+        "brand": "理肤泉",
+        "image_url": "https://via.placeholder.com/300x400?text=理肤泉B5修复霜",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "HYDROGENATED POLYISOBUTENE", "zh_name": "氢化聚异丁烯", "safety_level": "中等风险", "purposes": ["柔润剂", "封闭"]},
+          {"inci_name": "DIMETHICONE", "zh_name": "聚二甲基硅氧烷", "safety_level": "中等风险", "purposes": ["柔润剂"]},
+          {"inci_name": "PANTHENOL", "zh_name": "泛醇", "safety_level": "绿色安全", "purposes": ["修护", "舒缓"]},
+          {"inci_name": "MADECASSOSIDE", "zh_name": "羟基积雪草甙", "safety_level": "绿色安全", "purposes": ["抗炎", "修护"]}
+        ]
+      },
+      {
+        "name": "IPSA茵芙莎流金水",
+        "brand": "IPSA",
+        "image_url": "https://via.placeholder.com/300x400?text=IPSA流金水",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "DIPROPYLENE GLYCOL", "zh_name": "双丙甘醇", "safety_level": "绿色安全", "purposes": ["溶剂", "保湿"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "TRANEXAMIC ACID", "zh_name": "凝血酸", "safety_level": "绿色安全", "purposes": ["美白", "抗炎"]},
+          {"inci_name": "DIPOTASSIUM GLYCYRRHIZATE", "zh_name": "甘草酸二钾", "safety_level": "绿色安全", "purposes": ["抗炎", "舒缓"]}
+        ]
+      },
+      {
+        "name": "资生堂悦薇水乳",
+        "brand": "资生堂",
+        "image_url": "https://via.placeholder.com/300x400?text=资生堂悦薇水乳",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "ALCOHOL DENAT.", "zh_name": "变性乙醇", "safety_level": "中等风险", "purposes": ["溶剂", "促渗"]},
+          {"inci_name": "POTASSIUM METHOXYSALICYLATE", "zh_name": "甲氧基水杨酸钾", "safety_level": "中等风险", "purposes": ["美白", "去角质"]},
+          {"inci_name": "ROYAL JELLY EXTRACT", "zh_name": "蜂王浆提取物", "safety_level": "绿色安全", "purposes": ["修护", "抗衰"]}
+        ]
+      }
+    ]
+  },
+  {
+    "category": "防晒",
+    "products": [
+      {
+        "name": "安热沙小金瓶防晒乳",
+        "brand": "安热沙",
+        "image_url": "https://via.placeholder.com/300x400?text=安热沙小金瓶",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "ZINC OXIDE", "zh_name": "氧化锌", "safety_level": "绿色安全", "purposes": ["物理防晒"]},
+          {"inci_name": "ETHYLHEXYL METHOXYCINNAMATE", "zh_name": "甲氧基肉桂酸乙基己酯", "safety_level": "高风险", "purposes": ["化学防晒"]},
+          {"inci_name": "CYCLOPENTASILOXANE", "zh_name": "环五聚二甲基硅氧烷", "safety_level": "中等风险", "purposes": ["溶剂", "柔润"]},
+          {"inci_name": "ALCOHOL", "zh_name": "乙醇", "safety_level": "中等风险", "purposes": ["溶剂", "清爽"]},
+          {"inci_name": "TITANIUM DIOXIDE", "zh_name": "二氧化钛", "safety_level": "绿色安全", "purposes": ["物理防晒"]}
+        ]
+      },
+      {
+        "name": "兰蔻菁纯防晒",
+        "brand": "兰蔻",
+        "image_url": "https://via.placeholder.com/300x400?text=兰蔻菁纯防晒",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "HOMOSALATE", "zh_name": "胡莫柳酯", "safety_level": "中等风险", "purposes": ["化学防晒"]},
+          {"inci_name": "OCTOCRYLENE", "zh_name": "奥克立林", "safety_level": "中等风险", "purposes": ["化学防晒"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "PROXYLANE", "zh_name": "玻色因", "safety_level": "绿色安全", "purposes": ["抗衰"]}
+        ]
+      },
+      {
+        "name": "理肤泉大哥大防晒",
+        "brand": "理肤泉",
+        "image_url": "https://via.placeholder.com/300x400?text=理肤泉大哥大",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "ALCOHOL DENAT.", "zh_name": "变性乙醇", "safety_level": "中等风险", "purposes": ["溶剂"]},
+          {"inci_name": "DROMETRIZOLE TRISILOXANE", "zh_name": "甲酚曲唑三硅氧烷", "safety_level": "中等风险", "purposes": ["化学防晒"]},
+          {"inci_name": "ISOPROPYL MYRISTATE", "zh_name": "肉豆蔻酸异丙酯", "safety_level": "中等风险", "purposes": ["柔润", "溶剂"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿"]}
+        ]
+      },
+      {
+        "name": "资生堂蓝胖子防晒",
+        "brand": "资生堂",
+        "image_url": "https://via.placeholder.com/300x400?text=资生堂蓝胖子",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "ZINC OXIDE", "zh_name": "氧化锌", "safety_level": "绿色安全", "purposes": ["物理防晒"]},
+          {"inci_name": "OCTOCRYLENE", "zh_name": "奥克立林", "safety_level": "中等风险", "purposes": ["化学防晒"]},
+          {"inci_name": "DIMETHICONE", "zh_name": "聚二甲基硅氧烷", "safety_level": "中等风险", "purposes": ["柔润"]},
+          {"inci_name": "ETHYLHEXYL METHOXYCINNAMATE", "zh_name": "甲氧基肉桂酸乙基己酯", "safety_level": "高风险", "purposes": ["化学防晒"]}
+        ]
+      },
+      {
+        "name": "嘉娜宝ALLIE防晒霜",
+        "brand": "嘉娜宝",
+        "image_url": "https://via.placeholder.com/300x400?text=嘉娜宝ALLIE",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "ZINC OXIDE", "zh_name": "氧化锌", "safety_level": "绿色安全", "purposes": ["物理防晒"]},
+          {"inci_name": "ETHYLHEXYL METHOXYCINNAMATE", "zh_name": "甲氧基肉桂酸乙基己酯", "safety_level": "高风险", "purposes": ["化学防晒"]},
+          {"inci_name": "ALCOHOL", "zh_name": "乙醇", "safety_level": "中等风险", "purposes": ["溶剂"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿"]}
+        ]
+      },
+      {
+        "name": "修丽可发光防晒",
+        "brand": "修丽可",
+        "image_url": "https://via.placeholder.com/300x400?text=修丽可防晒",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "ETHYLHEXYL METHOXYCINNAMATE", "zh_name": "甲氧基肉桂酸乙基己酯", "safety_level": "高风险", "purposes": ["化学防晒"]},
+          {"inci_name": "TITANIUM DIOXIDE", "zh_name": "二氧化钛", "safety_level": "绿色安全", "purposes": ["物理防晒"]},
+          {"inci_name": "TRANEXAMIC ACID", "zh_name": "凝血酸", "safety_level": "绿色安全", "purposes": ["美白", "抗炎"]},
+          {"inci_name": "NIACINAMIDE", "zh_name": "烟酰胺", "safety_level": "绿色安全", "purposes": ["美白"]}
+        ]
+      },
+      {
+        "name": "CPB御龄防晒乳霜",
+        "brand": "CPB肌肤之钥",
+        "image_url": "https://via.placeholder.com/300x400?text=CPB防晒",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "ETHYLHEXYL METHOXYCINNAMATE", "zh_name": "甲氧基肉桂酸乙基己酯", "safety_level": "高风险", "purposes": ["化学防晒"]},
+          {"inci_name": "BUTYLENE GLYCOL", "zh_name": "丁二醇", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "GINKGO BILOBA LEAF EXTRACT", "zh_name": "银杏叶提取物", "safety_level": "绿色安全", "purposes": ["抗氧化"]}
+        ]
+      },
+      {
+        "name": "黛珂多重防晒乳",
+        "brand": "黛珂",
+        "image_url": "https://via.placeholder.com/300x400?text=黛珂防晒",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "ETHYLHEXYL METHOXYCINNAMATE", "zh_name": "甲氧基肉桂酸乙基己酯", "safety_level": "高风险", "purposes": ["化学防晒"]},
+          {"inci_name": "ALCOHOL", "zh_name": "乙醇", "safety_level": "中等风险", "purposes": ["溶剂"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "DIMETHICONE", "zh_name": "聚二甲基硅氧烷", "safety_level": "中等风险", "purposes": ["柔润"]}
+        ]
+      },
+      {
+        "name": "EltaMD清透护肤防晒乳",
+        "brand": "EltaMD",
+        "image_url": "https://via.placeholder.com/300x400?text=EltaMD防晒",
+        "ingredients": [
+          {"inci_name": "PURIFIED WATER", "zh_name": "纯化水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "ZINC OXIDE", "zh_name": "氧化锌", "safety_level": "绿色安全", "purposes": ["物理防晒"]},
+          {"inci_name": "OCTINOXATE", "zh_name": "甲氧基肉桂酸乙基己酯", "safety_level": "高风险", "purposes": ["化学防晒"]},
+          {"inci_name": "NIACINAMIDE", "zh_name": "烟酰胺", "safety_level": "绿色安全", "purposes": ["美白", "抗炎"]},
+          {"inci_name": "HYALURONIC ACID", "zh_name": "透明质酸", "safety_level": "绿色安全", "purposes": ["保湿"]}
+        ]
+      },
+      {
+        "name": "自然哲理防晒面霜",
+        "brand": "自然哲理",
+        "image_url": "https://via.placeholder.com/300x400?text=自然哲理防晒",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "AVOBENZONE", "zh_name": "阿伏苯宗", "safety_level": "中等风险", "purposes": ["化学防晒"]},
+          {"inci_name": "OCTOCRYLENE", "zh_name": "奥克立林", "safety_level": "中等风险", "purposes": ["化学防晒"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "CETEARYL ALCOHOL", "zh_name": "鲸蜡硬脂醇", "safety_level": "绿色安全", "purposes": ["乳化", "稳定"]}
+        ]
+      }
+    ]
+  },
+  {
+    "category": "面膜",
+    "products": [
+      {
+        "name": "SK-II前男友面膜",
+        "brand": "SK-II",
+        "image_url": "https://via.placeholder.com/300x400?text=SK-II前男友面膜",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "GALACTOMYCES FERMENT FILTRATE", "zh_name": "半乳糖酵母样菌发酵产物滤液", "safety_level": "绿色安全", "purposes": ["修护", "平衡"]},
+          {"inci_name": "BUTYLENE GLYCOL", "zh_name": "丁二醇", "safety_level": "绿色安全", "purposes": ["保湿", "溶剂"]},
+          {"inci_name": "XANTHAN GUM", "zh_name": "黄原胶", "safety_level": "绿色安全", "purposes": ["增稠剂"]},
+          {"inci_name": "SODIUM SALICYLATE", "zh_name": "水杨酸钠", "safety_level": "中等风险", "purposes": ["防腐", "抗炎"]}
+        ]
+      },
+      {
+        "name": "香缇卡钻石面膜",
+        "brand": "香缇卡",
+        "image_url": "https://via.placeholder.com/300x400?text=香缇卡钻石面膜",
+        "ingredients": [
+          {"inci_name": "ROSA DAMASCENA FLOWER WATER", "zh_name": "突厥蔷薇花水", "safety_level": "绿色安全", "purposes": ["溶剂", "舒缓"]},
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "MACADAMIA TERNIFOLIA SEED OIL", "zh_name": "澳洲坚果籽油", "safety_level": "绿色安全", "purposes": ["柔润"]},
+          {"inci_name": "ACETYL HEXAPEPTIDE-8", "zh_name": "乙酰基六肽-8", "safety_level": "绿色安全", "purposes": ["抗皱", "紧致"]}
+        ]
+      },
+      {
+        "name": "菲洛嘉十全大补面膜",
+        "brand": "菲洛嘉",
+        "image_url": "https://via.placeholder.com/300x400?text=菲洛嘉面膜",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "PROPANEDIOL", "zh_name": "1,3-丙二醇", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "PENTYLENE GLYCOL", "zh_name": "1,2-戊二醇", "safety_level": "绿色安全", "purposes": ["保湿", "防腐辅剂"]},
+          {"inci_name": "HYALURONIC ACID", "zh_name": "透明质酸", "safety_level": "绿色安全", "purposes": ["保湿"]}
+        ]
+      },
+      {
+        "name": "复刻雅诗兰黛钢铁侠面膜",
+        "brand": "雅诗兰黛",
+        "image_url": "https://via.placeholder.com/300x400?text=钢铁侠面膜",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "BIFIDA FERMENT LYSATE", "zh_name": "二裂酵母发酵产物溶胞物", "safety_level": "绿色安全", "purposes": ["抗衰", "修护"]},
+          {"inci_name": "BUTYLENE GLYCOL", "zh_name": "丁二醇", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "PEG-8", "zh_name": "聚乙二醇-8", "safety_level": "中等风险", "purposes": ["溶剂", "保湿"]},
+          {"inci_name": "SQUALANE", "zh_name": "角鲨烷", "safety_level": "绿色安全", "purposes": ["保湿"]}
+        ]
+      },
+      {
+        "name": "理肤泉B5多效保湿面膜",
+        "brand": "理肤泉",
+        "image_url": "https://via.placeholder.com/300x400?text=理肤泉B5面膜",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "PROPANEDIOL", "zh_name": "1,3-丙二醇", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "PANTHENOL", "zh_name": "泛醇", "safety_level": "绿色安全", "purposes": ["修护", "舒缓"]},
+          {"inci_name": "MADECASSOSIDE", "zh_name": "羟基积雪草甙", "safety_level": "绿色安全", "purposes": ["抗炎", "修护"]}
+        ]
+      },
+      {
+        "name": "法尔曼幸福面膜",
+        "brand": "法尔曼",
+        "image_url": "https://via.placeholder.com/300x400?text=法尔曼幸福面膜",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "MINERAL OIL", "zh_name": "矿物油", "safety_level": "中等风险", "purposes": ["封闭", "柔润"]},
+          {"inci_name": "PROPYLENE GLYCOL", "zh_name": "丙二醇", "safety_level": "中等风险", "purposes": ["溶剂"]},
+          {"inci_name": "TITANIUM DIOXIDE", "zh_name": "二氧化钛", "safety_level": "绿色安全", "purposes": ["着色", "防晒"]},
+          {"inci_name": "DNA", "zh_name": "脱氧核糖核酸", "safety_level": "绿色安全", "purposes": ["修护", "抗衰"]}
+        ]
+      },
+      {
+        "name": "馥蕾诗玫瑰润泽保湿舒缓面膜",
+        "brand": "馥蕾诗",
+        "image_url": "https://via.placeholder.com/300x400?text=馥蕾诗玫瑰面膜",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "BUTYLENE GLYCOL", "zh_name": "丁二醇", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "ROSA CENTIFOLIA FLOWER", "zh_name": "洋蔷薇花", "safety_level": "绿色安全", "purposes": ["舒缓", "香料"]},
+          {"inci_name": "ALOE BARBADENSIS LEAF EXTRACT", "zh_name": "库拉索芦荟叶提取物", "safety_level": "绿色安全", "purposes": ["舒缓", "抗炎"]}
+        ]
+      },
+      {
+        "name": "蒂佳婷蓝丸面膜",
+        "brand": "蒂佳婷",
+        "image_url": "https://via.placeholder.com/300x400?text=蒂佳婷蓝丸",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "BUTYLENE GLYCOL", "zh_name": "丁二醇", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "ALCOHOL", "zh_name": "乙醇", "safety_level": "中等风险", "purposes": ["清爽", "溶剂"]},
+          {"inci_name": "SODIUM HYALURONATE", "zh_name": "透明质酸钠", "safety_level": "绿色安全", "purposes": ["保湿"]}
+        ]
+      },
+      {
+        "name": "科颜氏白泥净肤面膜",
+        "brand": "科颜氏",
+        "image_url": "https://via.placeholder.com/300x400?text=科颜氏白泥",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "KAOLIN", "zh_name": "高岭土", "safety_level": "绿色安全", "purposes": ["吸附", "控油"]},
+          {"inci_name": "BENTONITE", "zh_name": "膨润土", "safety_level": "绿色安全", "purposes": ["吸附", "增稠"]},
+          {"inci_name": "PROPANEDIOL", "zh_name": "1,3-丙二醇", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿"]}
+        ]
+      },
+      {
+        "name": "欧莱雅安瓶面膜",
+        "brand": "欧莱雅",
+        "image_url": "https://via.placeholder.com/300x400?text=欧莱雅安瓶",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "HYDROXYETHYLPIPERAZINE ETHANE SULFONIC ACID", "zh_name": "羟乙基哌嗪乙烷磺酸", "safety_level": "绿色安全", "purposes": ["缓冲", "去角质"]},
+          {"inci_name": "SODIUM HYALURONATE", "zh_name": "透明质酸钠", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "PEG-60 HYDROGENATED CASTOR OIL", "zh_name": "PEG-60 氢化蓖麻油", "safety_level": "中等风险", "purposes": ["增溶", "表面活性剂"]}
+        ]
+      }
+    ]
+  },
+  {
+    "category": "底妆",
+    "products": [
+      {
+        "name": "雅诗兰黛DW持妆粉底液",
+        "brand": "雅诗兰黛",
+        "image_url": "https://via.placeholder.com/300x400?text=DW持妆粉底",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "CYCLOPENTASILOXANE", "zh_name": "环五聚二甲基硅氧烷", "safety_level": "中等风险", "purposes": ["成膜", "溶剂"]},
+          {"inci_name": "TRIMETHYLSILOXYSILICATE", "zh_name": "三甲基硅烷氧基硅酸酯", "safety_level": "绿色安全", "purposes": ["成膜", "持妆"]},
+          {"inci_name": "TITANIUM DIOXIDE", "zh_name": "二氧化钛", "safety_level": "绿色安全", "purposes": ["着色", "遮瑕"]},
+          {"inci_name": "BUTYLENE GLYCOL", "zh_name": "丁二醇", "safety_level": "绿色安全", "purposes": ["保湿"]}
+        ]
+      },
+      {
+        "name": "阿玛尼权力粉底液",
+        "brand": "阿玛尼",
+        "image_url": "https://via.placeholder.com/300x400?text=阿玛尼权力粉底",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "CYCLOHEXASILOXANE", "zh_name": "环己硅氧烷", "safety_level": "中等风险", "purposes": ["成膜", "柔润"]},
+          {"inci_name": "TITANIUM DIOXIDE", "zh_name": "二氧化钛", "safety_level": "绿色安全", "purposes": ["着色", "防晒"]},
+          {"inci_name": "ALCOHOL DENAT.", "zh_name": "变性乙醇", "safety_level": "中等风险", "purposes": ["溶剂", "速干"]},
+          {"inci_name": "ISODODECANE", "zh_name": "异十二烷", "safety_level": "绿色安全", "purposes": ["溶剂"]}
+        ]
+      },
+      {
+        "name": "兰蔻菁纯粉底液",
+        "brand": "兰蔻",
+        "image_url": "https://via.placeholder.com/300x400?text=兰蔻菁纯粉底",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "CYCLOPENTASILOXANE", "zh_name": "环五聚二甲基硅氧烷", "safety_level": "中等风险", "purposes": ["溶剂", "柔润"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "TITANIUM DIOXIDE", "zh_name": "二氧化钛", "safety_level": "绿色安全", "purposes": ["着色"]},
+          {"inci_name": "ROSA DAMASCENA FLOWER OIL", "zh_name": "突厥蔷薇花油", "safety_level": "绿色安全", "purposes": ["香料", "柔润"]}
+        ]
+      },
+      {
+        "name": "YSL恒久粉底液",
+        "brand": "YSL圣罗兰",
+        "image_url": "https://via.placeholder.com/300x400?text=YSL恒久",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "DIMETHICONE", "zh_name": "聚二甲基硅氧烷", "safety_level": "中等风险", "purposes": ["成膜剂", "柔润"]},
+          {"inci_name": "ISODODECANE", "zh_name": "异十二烷", "safety_level": "绿色安全", "purposes": ["溶剂", "持妆"]},
+          {"inci_name": "ALCOHOL DENAT.", "zh_name": "变性乙醇", "safety_level": "中等风险", "purposes": ["速干", "溶剂"]},
+          {"inci_name": "TITANIUM DIOXIDE", "zh_name": "二氧化钛", "safety_level": "绿色安全", "purposes": ["着色"]}
+        ]
+      },
+      {
+        "name": "CPB光缎粉霜",
+        "brand": "CPB肌肤之钥",
+        "image_url": "https://via.placeholder.com/300x400?text=CPB粉霜",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "DIMETHICONE", "zh_name": "聚二甲基硅氧烷", "safety_level": "中等风险", "purposes": ["柔润"]},
+          {"inci_name": "TITANIUM DIOXIDE", "zh_name": "二氧化钛", "safety_level": "绿色安全", "purposes": ["着色"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "BUTYLENE GLYCOL", "zh_name": "丁二醇", "safety_level": "绿色安全", "purposes": ["保湿"]}
+        ]
+      },
+      {
+        "name": "NARS超模粉底液",
+        "brand": "NARS",
+        "image_url": "https://via.placeholder.com/300x400?text=NARS超模",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "CYCLOPENTASILOXANE", "zh_name": "环五聚二甲基硅氧烷", "safety_level": "中等风险", "purposes": ["溶剂", "柔润"]},
+          {"inci_name": "PEG-10 DIMETHICONE", "zh_name": "PEG-10 聚二甲基硅氧烷", "safety_level": "中等风险", "purposes": ["乳化", "稳定"]},
+          {"inci_name": "TITANIUM DIOXIDE", "zh_name": "二氧化钛", "safety_level": "绿色安全", "purposes": ["着色"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿"]}
+        ]
+      },
+      {
+        "name": "魅可定制无瑕粉底液",
+        "brand": "MAC",
+        "image_url": "https://via.placeholder.com/300x400?text=MAC定制无瑕",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "CYCLOPENTASILOXANE", "zh_name": "环五聚二甲基硅氧烷", "safety_level": "中等风险", "purposes": ["溶剂"]},
+          {"inci_name": "PEG-10 DIMETHICONE", "zh_name": "PEG-10 聚二甲基硅氧烷", "safety_level": "中等风险", "purposes": ["乳化剂"]},
+          {"inci_name": "TITANIUM DIOXIDE", "zh_name": "二氧化钛", "safety_level": "绿色安全", "purposes": ["着色"]},
+          {"inci_name": "IRON OXIDES", "zh_name": "氧化铁类", "safety_level": "绿色安全", "purposes": ["着色"]}
+        ]
+      },
+      {
+        "name": "植村秀小方瓶粉底液",
+        "brand": "植村秀",
+        "image_url": "https://via.placeholder.com/300x400?text=植村秀小方瓶",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "DIMETHICONE", "zh_name": "聚二甲基硅氧烷", "safety_level": "中等风险", "purposes": ["成膜", "柔润"]},
+          {"inci_name": "ISODODECANE", "zh_name": "异十二烷", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "TITANIUM DIOXIDE", "zh_name": "二氧化钛", "safety_level": "绿色安全", "purposes": ["着色"]},
+          {"inci_name": "ALCOHOL", "zh_name": "乙醇", "safety_level": "中等风险", "purposes": ["速干", "溶剂"]}
+        ]
+      },
+      {
+        "name": "SUQQU记忆塑形粉霜",
+        "brand": "SUQQU",
+        "image_url": "https://via.placeholder.com/300x400?text=SUQQU粉霜",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "CYCLOPENTASILOXANE", "zh_name": "环五聚二甲基硅氧烷", "safety_level": "中等风险", "purposes": ["溶剂", "柔润"]},
+          {"inci_name": "TITANIUM DIOXIDE", "zh_name": "二氧化钛", "safety_level": "绿色安全", "purposes": ["着色"]},
+          {"inci_name": "DIPROPYLENE GLYCOL", "zh_name": "双丙甘醇", "safety_level": "绿色安全", "purposes": ["保湿", "溶剂"]},
+          {"inci_name": "MINERAL OIL", "zh_name": "矿物油", "safety_level": "中等风险", "purposes": ["柔润", "封闭"]}
+        ]
+      },
+      {
+        "name": "芭比波朗虫草粉底液",
+        "brand": "Bobbi Brown",
+        "image_url": "https://via.placeholder.com/300x400?text=虫草粉底",
+        "ingredients": [
+          {"inci_name": "WATER", "zh_name": "水", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "CYCLOPENTASILOXANE", "zh_name": "环五聚二甲基硅氧烷", "safety_level": "中等风险", "purposes": ["溶剂"]},
+          {"inci_name": "GLYCERIN", "zh_name": "甘油", "safety_level": "绿色安全", "purposes": ["保湿"]},
+          {"inci_name": "CORDYCEPS SINENSIS EXTRACT", "zh_name": "冬虫夏草提取物", "safety_level": "绿色安全", "purposes": ["养肤", "抗氧化"]},
+          {"inci_name": "TITANIUM DIOXIDE", "zh_name": "二氧化钛", "safety_level": "绿色安全", "purposes": ["着色"]}
+        ]
+      }
+    ]
+  },
+  {
+    "category": "彩妆",
+    "products": [
+      {
+        "name": "迪奥999烈艳蓝金唇膏",
+        "brand": "Dior",
+        "image_url": "https://via.placeholder.com/300x400?text=迪奥999",
+        "ingredients": [
+          {"inci_name": "POLYGLYCERYL-2 TRIISOSTEARATE", "zh_name": "聚甘油-2 三异硬脂酸酯", "safety_level": "绿色安全", "purposes": ["柔润剂", "着色分散"]},
+          {"inci_name": "OCTYLDODECANOL", "zh_name": "辛基十二醇", "safety_level": "绿色安全", "purposes": ["柔润", "溶剂"]},
+          {"inci_name": "BEESWAX", "zh_name": "蜂蜡", "safety_level": "绿色安全", "purposes": ["成膜", "结构剂"]},
+          {"inci_name": "RED 7 LAKE", "zh_name": "红7色淀", "safety_level": "中等风险", "purposes": ["着色"]},
+          {"inci_name": "TITANIUM DIOXIDE", "zh_name": "二氧化钛", "safety_level": "绿色安全", "purposes": ["着色"]}
+        ]
+      },
+      {
+        "name": "香奈儿炫亮魅力唇膏",
+        "brand": "香奈儿",
+        "image_url": "https://via.placeholder.com/300x400?text=香奈儿唇膏",
+        "ingredients": [
+          {"inci_name": "OCTYLDODECANOL", "zh_name": "辛基十二醇", "safety_level": "绿色安全", "purposes": ["柔润"]},
+          {"inci_name": "POLYBUTENE", "zh_name": "聚丁烯", "safety_level": "绿色安全", "purposes": ["增粘剂"]},
+          {"inci_name": "BEESWAX", "zh_name": "蜂蜡", "safety_level": "绿色安全", "purposes": ["成膜", "增稠"]},
+          {"inci_name": "RED 7 LAKE", "zh_name": "红7色淀", "safety_level": "中等风险", "purposes": ["着色"]},
+          {"inci_name": "IRON OXIDES", "zh_name": "氧化铁类", "safety_level": "绿色安全", "purposes": ["着色"]}
+        ]
+      },
+      {
+        "name": "TF黑管唇膏",
+        "brand": "Tom Ford",
+        "image_url": "https://via.placeholder.com/300x400?text=TF黑管",
+        "ingredients": [
+          {"inci_name": "RICINUS COMMUNIS SEED OIL", "zh_name": "蓖麻籽油", "safety_level": "绿色安全", "purposes": ["柔润", "保湿"]},
+          {"inci_name": "DIISOSTEARYL MALATE", "zh_name": "二异硬脂醇苹果酸酯", "safety_level": "绿色安全", "purposes": ["柔润"]},
+          {"inci_name": "TRIOCTYLDODECYL CITRATE", "zh_name": "三辛基十二醇柠檬酸酯", "safety_level": "绿色安全", "purposes": ["柔润"]},
+          {"inci_name": "MICA", "zh_name": "云母", "safety_level": "绿色安全", "purposes": ["着色", "珠光"]},
+          {"inci_name": "RED 6", "zh_name": "红 6", "safety_level": "中等风险", "purposes": ["着色"]}
+        ]
+      },
+      {
+        "name": "YSL小金条口红",
+        "brand": "YSL圣罗兰",
+        "image_url": "https://via.placeholder.com/300x400?text=YSL小金条",
+        "ingredients": [
+          {"inci_name": "DIMETHICONE", "zh_name": "聚二甲基硅氧烷", "safety_level": "中等风险", "purposes": ["成膜", "柔润"]},
+          {"inci_name": "BIS-DIGLYCERYL POLYACYLADIPATE-2", "zh_name": "双-二甘油多酰基己二酸酯-2", "safety_level": "绿色安全", "purposes": ["柔润"]},
+          {"inci_name": "HYDROGENATED POLYISOBUTENE", "zh_name": "氢化聚异丁烯", "safety_level": "中等风险", "purposes": ["柔润", "封闭"]},
+          {"inci_name": "RED 7 LAKE", "zh_name": "红7色淀", "safety_level": "中等风险", "purposes": ["着色"]},
+          {"inci_name": "SILICA", "zh_name": "硅石", "safety_level": "绿色安全", "purposes": ["吸附", "控油"]}
+        ]
+      },
+      {
+        "name": "NARS腮红",
+        "brand": "NARS",
+        "image_url": "https://via.placeholder.com/300x400?text=NARS腮红",
+        "ingredients": [
+          {"inci_name": "TALC", "zh_name": "滑石粉", "safety_level": "中等风险", "purposes": ["吸附", "填充"]},
+          {"inci_name": "MICA", "zh_name": "云母", "safety_level": "绿色安全", "purposes": ["着色", "珠光"]},
+          {"inci_name": "ZINC STEARATE", "zh_name": "硬脂酸锌", "safety_level": "绿色安全", "purposes": ["着色", "抗结块"]},
+          {"inci_name": "TITANIUM DIOXIDE", "zh_name": "二氧化钛", "safety_level": "绿色安全", "purposes": ["着色"]},
+          {"inci_name": "IRON OXIDES", "zh_name": "氧化铁类", "safety_level": "绿色安全", "purposes": ["着色"]}
+        ]
+      },
+      {
+        "name": "MAC生姜高光",
+        "brand": "MAC",
+        "image_url": "https://via.placeholder.com/300x400?text=MAC生姜",
+        "ingredients": [
+          {"inci_name": "MICA", "zh_name": "云母", "safety_level": "绿色安全", "purposes": ["着色", "珠光"]},
+          {"inci_name": "TALC", "zh_name": "滑石粉", "safety_level": "中等风险", "purposes": ["填充", "吸附"]},
+          {"inci_name": "TITANIUM DIOXIDE", "zh_name": "二氧化钛", "safety_level": "绿色安全", "purposes": ["着色", "反光"]},
+          {"inci_name": "DIMETHICONE", "zh_name": "聚二甲基硅氧烷", "safety_level": "中等风险", "purposes": ["柔润"]},
+          {"inci_name": "NYLON-12", "zh_name": "锦纶-12", "safety_level": "中等风险", "purposes": ["填充", "滑爽"]}
+        ]
+      },
+      {
+        "name": "CT四色眼影盘",
+        "brand": "Charlotte Tilbury",
+        "image_url": "https://via.placeholder.com/300x400?text=CT眼影",
+        "ingredients": [
+          {"inci_name": "MICA", "zh_name": "云母", "safety_level": "绿色安全", "purposes": ["着色", "珠光"]},
+          {"inci_name": "SQUALANE", "zh_name": "角鲨烷", "safety_level": "绿色安全", "purposes": ["柔润", "保湿"]},
+          {"inci_name": "TALC", "zh_name": "滑石粉", "safety_level": "中等风险", "purposes": ["填充"]},
+          {"inci_name": "TITANIUM DIOXIDE", "zh_name": "二氧化钛", "safety_level": "绿色安全", "purposes": ["着色"]},
+          {"inci_name": "IRON OXIDES", "zh_name": "氧化铁类", "safety_level": "绿色安全", "purposes": ["着色"]}
+        ]
+      },
+      {
+        "name": "UD牛郎单色眼影",
+        "brand": "Urban Decay",
+        "image_url": "https://via.placeholder.com/300x400?text=UD牛郎",
+        "ingredients": [
+          {"inci_name": "MICA", "zh_name": "云母", "safety_level": "绿色安全", "purposes": ["珠光"]},
+          {"inci_name": "CALCIUM SODIUM BOROSILICATE", "zh_name": "钙钠硼硅酸盐", "safety_level": "绿色安全", "purposes": ["珠光", "亮片"]},
+          {"inci_name": "TITANIUM DIOXIDE", "zh_name": "二氧化钛", "safety_level": "绿色安全", "purposes": ["着色"]},
+          {"inci_name": "DIMETHICONE", "zh_name": "聚二甲基硅氧烷", "safety_level": "中等风险", "purposes": ["粘结", "成膜"]},
+          {"inci_name": "IRON OXIDES", "zh_name": "氧化铁类", "safety_level": "绿色安全", "purposes": ["着色"]}
+        ]
+      },
+      {
+        "name": "纪梵希四宫格散粉",
+        "brand": "纪梵希",
+        "image_url": "https://via.placeholder.com/300x400?text=四宫格散粉",
+        "ingredients": [
+          {"inci_name": "TALC", "zh_name": "滑石粉", "safety_level": "中等风险", "purposes": ["填充", "吸油"]},
+          {"inci_name": "SYNTHETIC FLUORPHLOGOPITE", "zh_name": "合成氟金云母", "safety_level": "绿色安全", "purposes": ["珠光", "柔焦"]},
+          {"inci_name": "SILICA", "zh_name": "硅石", "safety_level": "绿色安全", "purposes": ["吸附", "控油"]},
+          {"inci_name": "DIMETHICONE", "zh_name": "聚二甲基硅氧烷", "safety_level": "中等风险", "purposes": ["柔润"]},
+          {"inci_name": "TITANIUM DIOXIDE", "zh_name": "二氧化钛", "safety_level": "绿色安全", "purposes": ["着色"]}
+        ]
+      },
+      {
+        "name": "完美日记小细跟口红",
+        "brand": "完美日记",
+        "image_url": "https://via.placeholder.com/300x400?text=小细跟口红",
+        "ingredients": [
+          {"inci_name": "DIMETHICONE", "zh_name": "聚二甲基硅氧烷", "safety_level": "中等风险", "purposes": ["成膜", "柔润"]},
+          {"inci_name": "ISODODECANE", "zh_name": "异十二烷", "safety_level": "绿色安全", "purposes": ["溶剂"]},
+          {"inci_name": "POLYGLYCERYL-2 TRIISOSTEARATE", "zh_name": "聚甘油-2 三异硬脂酸酯", "safety_level": "绿色安全", "purposes": ["柔润"]},
+          {"inci_name": "RED 7 LAKE", "zh_name": "红7色淀", "safety_level": "中等风险", "purposes": ["着色"]},
+          {"inci_name": "IRON OXIDES", "zh_name": "氧化铁类", "safety_level": "绿色安全", "purposes": ["着色"]}
+        ]
+      }
+    ]
+  }
+]

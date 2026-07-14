@@ -5,13 +5,23 @@
     <LoginView v-else-if="!userStore.isAuthenticated" @logged-in="handleLoggedIn" />
     <main v-else class="main-container" :class="{ 'no-header': route.meta.hideHeader }">
       <header v-if="!route.meta.hideHeader" class="app-page-header">
-        <button class="btn-icon" type="button" aria-label="返回" @click="handleBack">
-          <ChevronLeft :size="24" stroke-width="2.6" />
+        <button
+          v-if="route.meta.backTo"
+          class="nav-btn left-btn"
+          type="button"
+          aria-label="返回"
+          @click="goRouteBack"
+        >
+          <ChevronLeft :size="28" stroke-width="2.6" />
+        </button>
+        <button v-else class="nav-btn left-btn" type="button" aria-label="打开菜单" @click="openDrawer">
+          <TextAlignStart :size="28" stroke-width="2.6" />
         </button>
         <h1>{{ routeTitle }}</h1>
-        <button class="btn-icon" type="button" aria-label="打开菜单" @click="openDrawer">
-          <TextAlignStart :size="24" stroke-width="2.6" />
+        <button v-if="route.path !== '/chat' && !route.meta.backTo" class="nav-btn right-btn" type="button" aria-label="返回AI问答" @click="goChat">
+          <MessageCircle :size="26" stroke-width="2.5" />
         </button>
+        <span v-else class="header-spacer" aria-hidden="true"></span>
       </header>
       <router-view v-slot="{ Component }">
         <transition name="fade" mode="out-in">
@@ -31,7 +41,7 @@
 <script setup>
 import { computed, onMounted, onBeforeUnmount, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ChevronLeft, TextAlignStart } from 'lucide-vue-next'
+import { ChevronLeft, MessageCircle, TextAlignStart } from 'lucide-vue-next'
 import AppDrawer from '@/components/AppDrawer.vue'
 import LoginView from '@/views/Login/index.vue'
 import SplashScreen from '@/views/Splash/index.vue'
@@ -53,12 +63,12 @@ function handleLoggedIn() {
   router.replace('/chat')
 }
 
-function handleBack() {
-  if (window.history.length > 1) {
-    router.back()
-    return
-  }
+function goChat() {
   router.replace('/chat')
+}
+
+function goRouteBack() {
+  router.replace(route.meta.backTo)
 }
 
 function handleLogout() {
@@ -127,7 +137,7 @@ a {
   position: relative;
   max-width: none;
   margin: 0 auto;
-  padding: calc(78px + env(safe-area-inset-top)) 18px 34px;
+  padding: calc(52px + env(safe-area-inset-top)) 18px 34px;
   min-height: 100vh;
   min-height: 100dvh;
   width: 100%;
@@ -138,20 +148,53 @@ a {
 }
 .app-page-header {
   position: fixed;
-  top: calc(16px + env(safe-area-inset-top));
-  left: 16px;
-  right: 16px;
+  top: 0;
+  left: 0;
+  right: 0;
   z-index: 900;
   display: grid;
-  grid-template-columns: 44px 1fr 44px;
+  grid-template-columns: 36px 1fr 36px;
   align-items: center;
-  gap: 10px;
+  min-height: 40px;
+  padding: calc(6px + env(safe-area-inset-top)) 20px 6px;
+  background: rgba(221, 247, 248, 0.65);
+  backdrop-filter: blur(12px);
   h1 {
-    color: $text-primary;
-    font-size: 18px;
-    font-weight: 900;
+    color: #111827;
+    font-size: 17px;
+    font-weight: 500;
     line-height: 1.2;
     text-align: center;
+    letter-spacing: 0.08em;
+    margin: 0;
+  }
+  .nav-btn {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: #111827;
+    cursor: pointer;
+    padding: 0;
+    svg {
+      display: block;
+    }
+    &.left-btn {
+      justify-content: flex-start;
+      margin-left: -8px;
+    }
+    &.right-btn {
+      justify-self: end;
+      justify-content: flex-end;
+      margin-right: -8px;
+    }
+  }
+  .header-spacer {
+    width: 28px;
+    height: 28px;
   }
 }
 #app-container {
@@ -162,8 +205,19 @@ a {
 @include respond(phone) {
   .main-container {
     max-width: none;
-    padding: calc(78px + env(safe-area-inset-top)) 14px 28px;
+    padding: calc(52px + env(safe-area-inset-top)) 14px 28px;
     min-height: 100dvh;
+  }
+}
+@include respond(phone-sm) {
+  .app-page-header {
+    h1 {
+      font-size: 21px;
+    }
+    .nav-btn, .header-spacer {
+      width: 36px;
+      height: 36px;
+    }
   }
 }
 .main-container.no-header {

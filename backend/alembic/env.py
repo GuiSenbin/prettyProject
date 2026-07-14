@@ -6,7 +6,7 @@ from backend.app.core.config import get_settings
 from backend.app.core.database import Base
 import backend.app.modules.users.models  # noqa
 import backend.app.modules.profiles.models  # noqa
-
+import backend.app.modules.products.models  # noqa
 config = context.config
 config.set_main_option("sqlalchemy.url", get_settings().DATABASE_URL)
 if config.config_file_name is not None:

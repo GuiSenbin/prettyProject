@@ -9,7 +9,16 @@ const request = axios.create({
 })
 
 request.interceptors.response.use(
-  (res) => res.data,
+  (res) => {
+    const responseData = res.data
+    if (responseData && typeof responseData === 'object' && 'code' in responseData && 'data' in responseData) {
+      if (responseData.code === 200) {
+        return responseData.data
+      }
+      return Promise.reject(new Error(responseData.message || '请求失败'))
+    }
+    return responseData
+  },
   async (err) => {
     const canRetryFallback = !!fallbackBaseURL
       && !err.config?._retryFallback

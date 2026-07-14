@@ -6,46 +6,71 @@ from sqlalchemy.orm import Session
 from backend.app.core.deps import get_db
 from backend.app.modules.users.schemas import UserCreate, UserResponse, UserRegister, UserLogin, UserUpdate
 from backend.app.modules.users.service import UserService
+from backend.app.core.schemas import StandardResponse
 
 router = APIRouter(prefix="/users", tags=["用户"])
 
 
-@router.post("/register", response_model=UserResponse)
+@router.post("/register", response_model=StandardResponse[UserResponse])
 def register(data: UserRegister, db: Session = Depends(get_db)):
     """账号密码注册"""
     user = UserService(db).register_user(data.username, data.password, data.display_name)
-    return user.to_dict()
+    return {
+        "code": 200,
+        "message": "success",
+        "data": user.to_dict()
+    }
 
 
-@router.post("/login", response_model=UserResponse)
+@router.post("/login", response_model=StandardResponse[UserResponse])
 def login(data: UserLogin, db: Session = Depends(get_db)):
     """账号密码登录（支持用户名/手机号）"""
     user = UserService(db).authenticate_user(data.username, data.password)
-    return user.to_dict()
+    return {
+        "code": 200,
+        "message": "success",
+        "data": user.to_dict()
+    }
 
 
-@router.get("/latest", response_model=UserResponse | None)
+@router.get("/latest", response_model=StandardResponse[UserResponse | None])
 def get_latest_user(db: Session = Depends(get_db)):
     user = UserService(db).latest()
-    return user.to_dict() if user else None
+    return {
+        "code": 200,
+        "message": "success",
+        "data": user.to_dict() if user else None
+    }
 
 
-@router.post("/", response_model=UserResponse)
+@router.post("/", response_model=StandardResponse[UserResponse])
 def create_user(data: UserCreate, db: Session = Depends(get_db)):
-    return UserService(db).create(data.model_dump()).to_dict()
+    return {
+        "code": 200,
+        "message": "success",
+        "data": UserService(db).create(data.model_dump()).to_dict()
+    }
 
 
-@router.put("/{user_id}", response_model=UserResponse)
+@router.put("/{user_id}", response_model=StandardResponse[UserResponse])
 def update_user(user_id: str, data: UserUpdate, db: Session = Depends(get_db)):
-    return UserService(db).update(user_id, data.model_dump(exclude_unset=True)).to_dict()
+    return {
+        "code": 200,
+        "message": "success",
+        "data": UserService(db).update(user_id, data.model_dump(exclude_unset=True)).to_dict()
+    }
 
 
-@router.get("/{user_id}", response_model=UserResponse)
+@router.get("/{user_id}", response_model=StandardResponse[UserResponse])
 def get_user(user_id: str, db: Session = Depends(get_db)):
-    return UserService(db).get_or_404(user_id).to_dict()
+    return {
+        "code": 200,
+        "message": "success",
+        "data": UserService(db).get_or_404(user_id).to_dict()
+    }
 
 
-@router.post("/{user_id}/avatar", response_model=UserResponse)
+@router.post("/{user_id}/avatar", response_model=StandardResponse[UserResponse])
 async def upload_avatar(user_id: str, file: UploadFile = File(...), db: Session = Depends(get_db)):
     service = UserService(db)
     user = service.get_or_404(user_id)
@@ -64,11 +89,20 @@ async def upload_avatar(user_id: str, file: UploadFile = File(...), db: Session 
         f.write(contents)
         
     avatar_url = f"/static/avatars/{filename}"
-    return service.update(user_id, {"avatar_url": avatar_url}).to_dict()
+    updated_user = service.update(user_id, {"avatar_url": avatar_url})
+    return {
+        "code": 200,
+        "message": "success",
+        "data": updated_user.to_dict()
+    }
 
 
-@router.delete("/{user_id}")
+@router.delete("/{user_id}", response_model=StandardResponse[dict])
 def delete_user(user_id: str, db: Session = Depends(get_db)):
     UserService(db).delete(user_id)
-    return {"ok": True}
+    return {
+        "code": 200,
+        "message": "success",
+        "data": {"ok": True}
+    }
 

@@ -20,6 +20,12 @@ const routes = [
     meta: { label: '产品库', title: '产品库', showInMenu: true, requiresAuth: true }
   },
   {
+    path: '/cabinet/products/:id',
+    name: 'ProductDetail',
+    component: () => import('@/views/Product/Detail.vue'),
+    meta: { label: '产品详情', title: '产品详情', showInMenu: false, requiresAuth: true, backTo: '/cabinet' }
+  },
+  {
     path: '/chat',
     name: 'Chat',
     component: () => import('@/views/Chat/index.vue'),

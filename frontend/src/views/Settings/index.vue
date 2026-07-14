@@ -113,7 +113,7 @@ const errorMessage = ref('')
 const initials = computed(() => userStore.displayName.slice(0, 1))
 
 function handleBack() {
-  router.back()
+  router.replace('/chat')
 }
 
 function triggerUpload() {
@@ -203,9 +203,10 @@ async function handleSave() {
     display: grid;
     grid-template-columns: 36px 1fr 36px;
     align-items: center;
-    min-height: 48px;
-    padding: calc(10px + env(safe-area-inset-top)) 20px 4px;
-    background: #f4f6f8;
+    min-height: 40px;
+    padding: calc(6px + env(safe-area-inset-top)) 20px 6px;
+    background: rgba(221, 247, 248, 0.65);
+    backdrop-filter: blur(12px);
     button {
       width: 28px;
       height: 28px;
@@ -225,7 +226,7 @@ async function handleSave() {
     }
     h1 {
       color: #111827;
-      font-size: 20px;
+      font-size: 17px;
       font-weight: 500;
       line-height: 1.2;
       text-align: center;
@@ -317,6 +318,18 @@ async function handleSave() {
           }
         }
       }
+    }
+  }
+}
+
+@include respond(phone-sm) {
+  .settings-page .settings-nav {
+    h1 {
+      font-size: 21px;
+    }
+    button {
+      width: 36px;
+      height: 36px;
     }
   }
 }

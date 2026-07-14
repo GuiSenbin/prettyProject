@@ -1,13 +1,13 @@
 <!-- 个人档案 -->
 <template>
   <section class="profile-page">
+    <header class="profile-nav">
+      <button type="button" aria-label="返回" @click="handleBack">
+        <ChevronLeft :size="28" stroke-width="2.6" />
+      </button>
+      <h1>个人档案</h1>
+    </header>
     <div class="profile-stage" :style="heroStyle">
-      <header class="profile-nav">
-        <button type="button" aria-label="返回" @click="handleBack">
-          <ChevronLeft :size="28" stroke-width="2.6" />
-        </button>
-        <h1>个人档案</h1>
-      </header>
       <div class="profile-hero">
         <article>
           <span>个性化档案</span>
@@ -411,12 +411,8 @@ function selectSkinTone(item) {
   form.skin_tone = item.label
 }
 function handleBack() {
-  // 意图：将路由退出的拦截器统一收口在 onBeforeRouteLeave，此处仅需触发常规回退动作，降低状态管理的复杂度。
-  if (window.history.length > 1) {
-    router.back()
-  } else {
-    router.replace('/chat')
-  }
+  // 意图：返回统一指向 AI 问答，同时继续交给 onBeforeRouteLeave 处理未完成提示与自动保存。
+  router.replace('/chat')
 }
 function assignProfile(profile) {
   Object.assign(form, {
@@ -474,7 +470,7 @@ function handleModalCancel() {
   if (targetRoute.value) {
     router.push(targetRoute.value)
   } else {
-    router.back()
+    router.replace('/chat')
   }
 }
 
@@ -624,7 +620,6 @@ onBeforeRouteLeave(async (to, from, next) => {
   margin: 0 auto;
   padding-bottom: 8px;
   min-height: 100dvh;
-  overflow-x: hidden;
   background:
     linear-gradient(180deg, rgba(218, 247, 248, 0.95) 0%, rgba(245, 253, 253, 0.94) 42%, #ffffff 100%),
     #f6fbfc;
@@ -634,33 +629,17 @@ onBeforeRouteLeave(async (to, from, next) => {
   *::after {
     box-sizing: border-box;
   }
-  .profile-stage {
-    position: relative;
-    min-height: 196px;
-    padding: calc(10px + env(safe-area-inset-top)) 20px 4px;
-    background-color: #ddf7f8;
-    background-repeat: no-repeat;
-    box-shadow: 0 16px 38px rgba(10, 166, 194, 0.08);
-    overflow: hidden;
-    isolation: isolate;
-    &::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      z-index: -1;
-      background:
-        linear-gradient(125deg, rgba(255, 255, 255, 0), rgba(114, 215, 220, 0.18), rgba(255, 255, 255, 0) 58%),
-        radial-gradient(circle at 14% 18%, rgba(255, 255, 255, 0.88) 0 2px, transparent 3px),
-        radial-gradient(circle at 25% 36%, rgba(255, 255, 255, 0.72) 0 1px, transparent 2px);
-    }
-  }
   .profile-nav {
-    position: relative;
-    z-index: 2;
+    position: sticky;
+    top: 0;
+    z-index: 100;
     display: grid;
     grid-template-columns: 36px 1fr 36px;
     align-items: center;
-    min-height: 38px;
+    min-height: 40px;
+    padding: calc(6px + env(safe-area-inset-top)) 20px 6px;
+    background: rgba(221, 247, 248, 0.65);
+    backdrop-filter: blur(12px);
     button {
       width: 28px;
       height: 28px;
@@ -680,17 +659,37 @@ onBeforeRouteLeave(async (to, from, next) => {
     }
     h1 {
       color: #111827;
-      font-size: 20px;
+      font-size: 17px;
       font-weight: 500;
       line-height: 1.2;
       text-align: center;
       letter-spacing: 0.08em;
+      margin: 0;
+    }
+  }
+  .profile-stage {
+    position: relative;
+    margin-top: calc(-40px - env(safe-area-inset-top));
+    padding: calc(40px + env(safe-area-inset-top)) 20px 10px;
+    background-color: #ddf7f8;
+    background-repeat: no-repeat;
+    box-shadow: 0 16px 38px rgba(10, 166, 194, 0.08);
+    overflow: hidden;
+    isolation: isolate;
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background:
+        linear-gradient(125deg, rgba(255, 255, 255, 0), rgba(114, 215, 220, 0.18), rgba(255, 255, 255, 0) 58%),
+        radial-gradient(circle at 14% 18%, rgba(255, 255, 255, 0.88) 0 2px, transparent 3px),
+        radial-gradient(circle at 25% 36%, rgba(255, 255, 255, 0.72) 0 1px, transparent 2px);
     }
   }
   .profile-hero {
     position: relative;
     z-index: 1;
-    min-height: 112px;
     display: flex;
     align-items: center;
     article {
@@ -723,7 +722,7 @@ onBeforeRouteLeave(async (to, from, next) => {
   .profile-form {
     display: grid;
     gap: 14px;
-    margin-top: -18px;
+    margin-top: -36px;
     padding: 0 14px 28px;
     width: 100%;
     max-width: 100%;

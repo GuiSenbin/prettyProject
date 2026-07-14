@@ -22,6 +22,12 @@
 - 后端编译：`./.venv/bin/python -m compileall backend/app`
 - 数据库迁移：`./.venv/bin/alembic -c backend/alembic.ini upgrade head`
 - 旧模块残留搜索：确认没有无关旧路由、旧页面和旧表操作。
+- 上传前文件审查：确认不提交 `.DS_Store`、`__pycache__/`、`*.pyc`、`.env`、`.venv/`、`node_modules/`、`frontend/dist/` 等本地缓存、敏感配置、依赖目录和构建产物。
+- 分支上传：上传前确认当前工作分支、目标分支和环境分支，避免把业务改动推到错误分支。
+
+## 变更归档
+
+- 2026-07-14：新增产品库主库、个人产品库、产品详情、成分分析、产品静态图、统一接口响应封装及相关迁移和测试；同步调整顶部导航与设置/档案返回逻辑。
 
 ## 文档归档
 
