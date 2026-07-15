@@ -4,7 +4,14 @@ import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
-  const apiProxyTarget = env.VITE_API_PROXY_TARGET || 'http://localhost:8000'
+  const apiProxyTarget = env.VITE_API_PROXY_TARGET || 'http://127.0.0.1:8000'
+  const proxyErrorHandler = (proxy) => {
+    proxy.on('error', (_err, _req, res) => {
+      if (res.headersSent) return
+      res.writeHead(503, { 'Content-Type': 'application/json; charset=utf-8' })
+      res.end(JSON.stringify({ detail: '无法连接后端服务，请确认后端已启动' }))
+    })
+  }
 
   return {
     plugins: [vue()],
@@ -27,10 +34,12 @@ export default defineConfig(({ mode }) => {
         '/api': {
           target: apiProxyTarget,
           changeOrigin: true,
+          configure: proxyErrorHandler,
         },
         '/static': {
           target: apiProxyTarget,
           changeOrigin: true,
+          configure: proxyErrorHandler,
         },
       },
     },

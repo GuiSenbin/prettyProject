@@ -224,6 +224,7 @@ async function loadCabinetProducts() {
     myProducts.value = res || []
   } catch (err) {
     console.error('获取个人产品库失败:', err)
+    appStore.showToast(err.message || '产品库读取失败，请稍后再试', 'error')
   } finally {
     loadingCabinet.value = false
   }
@@ -258,6 +259,11 @@ async function performSearch(isFirstPage = false) {
     }
   } catch (err) {
     console.error('搜索失败:', err)
+    noMore.value = true
+    if (isFirstPage) {
+      hasSearched.value = false
+    }
+    appStore.showToast(err.message || '搜索失败，请稍后再试', 'error')
   } finally {
     searching.value = false
     loadingMore.value = false

@@ -102,6 +102,7 @@ REGISTRATION_NUMBERS = {
     "黛珂多重防晒乳": "演示待核验-0038",
     "EltaMD清透护肤防晒乳": "演示待核验-0039",
     "自然哲理防晒面霜": "演示待核验-0040",
+    "欧莱雅金致臻颜奢养粉妍防晒乳": "国妆特字G20170937",
     "SK-II前男友面膜": "演示待核验-0041",
     "香缇卡钻石面膜": "演示待核验-0042",
     "菲洛嘉十全大补面膜": "国妆网备进字(京)2019000281",
@@ -165,7 +166,16 @@ def import_seed_data():
             for prod_data in products:
                 # 确定对应本地图片的 URL
                 db_image_url = prod_data['image_url']
-                if global_product_index < len(image_files):
+                if db_image_url.startswith("/static/product/"):
+                    img_filename = os.path.basename(db_image_url)
+                    src_path = os.path.join(source_image_dir, img_filename)
+                    dst_path = os.path.join(target_image_dir, img_filename)
+                    if os.path.exists(src_path):
+                        try:
+                            shutil.copy(src_path, dst_path)
+                        except Exception as copy_err:
+                            print(f"Failed to copy image {img_filename}: {copy_err}")
+                elif global_product_index < len(image_files):
                     img_filename = image_files[global_product_index]
                     src_path = os.path.join(source_image_dir, img_filename)
                     dst_path = os.path.join(target_image_dir, img_filename)
@@ -177,6 +187,8 @@ def import_seed_data():
                         print(f"Failed to copy image {img_filename}: {copy_err}")
 
                     db_image_url = f"/static/product/{img_filename}"
+                    # 递增产品索引以匹配下一张自动编号图片
+                    global_product_index += 1
 
                 # 检查产品是否已存在
                 product = db.query(Product).filter(Product.name == prod_data['name']).first()
@@ -200,9 +212,6 @@ def import_seed_data():
                         product.brand_origin_country = BRAND_ORIGIN_COUNTRIES.get(prod_data['brand'])
                     db.commit()
                     db.refresh(product)
-
-                # 递增产品索引以匹配下一张图片
-                global_product_index += 1
 
                 # 处理成分
                 for idx, ing_data in enumerate(prod_data['ingredients']):

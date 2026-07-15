@@ -326,12 +326,16 @@ SEED_PRODUCTS = [
 BENEFIT_GROUPS = [
     ("保湿", {"moisturizing", "humectant", "保湿"}),
     ("舒缓", {"soothing", "舒缓", "抗炎"}),
-    ("修护", {"barrier", "skin_protecting", "修护", "屏障修护"}),
+    ("修护", {"barrier", "skin_protecting", "修护", "屏障修护", "养肤"}),
     ("抗氧化", {"antioxidant", "抗氧化"}),
     ("美白/提亮", {"brightening", "美白", "提亮"}),
-    ("防晒", {"uv_filter", "防晒"}),
-    ("抗老", {"anti_aging", "retinoid", "抗老", "抗皱"}),
+    ("防晒", {"uv_filter", "防晒", "物理防晒", "化学防晒"}),
+    ("抗老", {"anti_aging", "retinoid", "抗老", "抗皱", "抗衰"}),
     ("控油/祛痘", {"sebum_control", "acne_care", "控油", "祛痘"}),
+    ("清洁", {"surfactant", "清洁", "温和清洁", "起泡"}),
+    ("柔润", {"emollient", "柔润", "柔润剂", "润肤剂", "封闭", "封闭剂", "强效封闭"}),
+    ("成膜/持妆", {"film_forming", "成膜", "成膜剂", "持妆", "增粘剂", "结构剂"}),
+    ("修饰妆效", {"着色", "着色分散", "珠光", "亮片", "柔焦", "遮瑕", "填充", "填充剂", "滑爽", "吸附", "吸油"}),
 ]
 
 BENEFIT_DISPLAY_PRIORITY = {
@@ -342,6 +346,10 @@ BENEFIT_DISPLAY_PRIORITY = {
     "控油/祛痘": 50,
     "舒缓": 60,
     "防晒": 70,
+    "清洁": 75,
+    "柔润": 80,
+    "成膜/持妆": 82,
+    "修饰妆效": 84,
     "保湿": 90,
 }
 
@@ -353,6 +361,19 @@ SAFETY_GROUPS = [
     ("致痘关注", {"comedogenic", "heavy_oil"}),
     ("孕哺慎用", {"retinoid"}),
 ]
+
+PROFILE_FIELD_LABELS = {
+    "skin_type": "肤质",
+    "skin_tone": "肤色",
+    "pregnancy_status": "孕哺状态",
+    "known_allergies": "过敏信息",
+}
+
+SKINCARE_CATEGORIES = {"洁面", "精华", "乳液/面霜", "水乳面霜", "面膜", "防晒"}
+COLOR_CATEGORIES = {"底妆", "彩妆", "唇妆/彩妆"}
+COLOR_NAME_KEYWORDS = {"粉底", "粉霜", "口红", "唇膏", "腮红", "眼影", "高光", "散粉"}
+PREGNANCY_STATUSES = {"备孕中", "怀孕中", "哺乳期"}
+DISTINCTIVE_BENEFITS = {"美白/提亮", "抗氧化", "修护", "控油/祛痘", "防晒", "成膜/持妆", "柔润", "抗老"}
 
 
 class ProductService:
@@ -419,7 +440,7 @@ class ProductService:
         safety_groups = self._ingredient_groups(product, SAFETY_GROUPS)
         risk_tags = [group["name"] for group in safety_groups if group["count"]]
         if not product.ingredients:
-            safety_summary = "缺少完整成分表，无法生成安全提示"
+            safety_summary = "缺少包装成分，无法生成安全提示"
         elif risk_tags:
             safety_summary = f"含有需留意成分：{'、'.join(risk_tags)}"
         else:
@@ -484,6 +505,8 @@ class ProductService:
         category = product.category or ""
         if category in {"精华", "水乳面霜", "乳液/面霜"} and len(tags) > 1:
             tags = [tag for tag in tags if tag != "保湿"]
+        if category in {"洁面", "卸妆"}:
+            tags = [tag for tag in tags if tag != "清洁"]
         if tags == ["保湿"]:
             return []
         return sorted(tags, key=lambda tag: BENEFIT_DISPLAY_PRIORITY.get(tag, 999))[:2]
@@ -510,9 +533,71 @@ class ProductService:
         return {
             "status": "incomplete",
             "summary": "缺少成分，无法分析",
-            "reasons": ["该产品暂未收录完整成分表，不能生成适配结论"],
+            "reasons": ["该产品暂未收录包装成分，不能生成适配结论"],
+            "highlights_text": [],
+            "tips": ["缺少成分，无法分析"],
+            "missing_profile_fields": [],
             "highlights": [],
         }
+
+    def _is_color_product(self, product: Product) -> bool:
+        category = product.category or ""
+        name = product.name or ""
+        return category in COLOR_CATEGORIES or any(keyword in name for keyword in COLOR_NAME_KEYWORDS)
+
+    def _required_profile_fields(self, product: Product, profile: dict | None) -> list[str]:
+        if not profile:
+            if self._is_color_product(product):
+                return ["skin_tone"]
+            if (product.category or "") in SKINCARE_CATEGORIES:
+                return ["skin_type"]
+            return ["skin_type"]
+
+        missing = []
+        category = product.category or ""
+        if category in SKINCARE_CATEGORIES and not profile.get("skin_type"):
+            missing.append("skin_type")
+        if self._is_color_product(product) and not profile.get("skin_tone"):
+            missing.append("skin_tone")
+
+        gender = profile.get("gender")
+        age = profile.get("age")
+        pregnancy_status = profile.get("pregnancy_status")
+        if gender == "female" and isinstance(age, int) and 18 <= age <= 50 and pregnancy_status in {None, "", "不方便透露"}:
+            missing.append("pregnancy_status")
+
+        concerns = profile.get("skin_concerns") or []
+        if (profile.get("skin_type") == "敏感肌" or "敏感" in concerns or "泛红" in concerns) and not profile.get("known_allergies"):
+            missing.append("known_allergies")
+
+        return list(dict.fromkeys(missing))
+
+    def _trait_set(self, ingredient) -> set[str]:
+        return set(ingredient.tags or []) | set(getattr(ingredient, "purposes", None) or [])
+
+    def _analysis_highlight_text(self, product: Product) -> list[str]:
+        groups = self._ingredient_groups(product, BENEFIT_GROUPS)
+        names = [
+            group["name"]
+            for group in groups
+            if group["count"] and group["name"] in DISTINCTIVE_BENEFITS
+        ]
+        category = product.category or ""
+        product_name = product.name or ""
+        if category != "防晒" and "防晒" not in product_name:
+            names = [name for name in names if name != "防晒"]
+        if self._is_color_product(product):
+            color_priority = {"修饰妆效": 10, "成膜/持妆": 20, "柔润": 30}
+            names = sorted(dict.fromkeys(names), key=lambda name: color_priority.get(name, BENEFIT_DISPLAY_PRIORITY.get(name, 999)))
+        else:
+            names = sorted(dict.fromkeys(names), key=lambda name: BENEFIT_DISPLAY_PRIORITY.get(name, 999))
+        return [f"{name}表现突出"[:16] for name in names[:2]]
+
+    def _missing_profile_tip(self, missing_fields: list[str], has_profile: bool) -> str:
+        if not has_profile:
+            return "完善档案后查看适配"
+        labels = [PROFILE_FIELD_LABELS.get(field, field) for field in missing_fields[:2]]
+        return f"补充{'、'.join(labels)}更准确"[:24]
 
     def _analyze_product(self, product: Product, profile: dict | None = None) -> dict:
         ingredients = product.ingredients or []
@@ -520,58 +605,82 @@ class ProductService:
             return self._incomplete_analysis()
 
         reasons: list[str] = []
+        tips: list[str] = []
         highlights = []
         status = "suitable"
+        has_profile = bool(profile)
         profile = profile or {}
+        missing_profile_fields = self._required_profile_fields(product, profile if has_profile else None)
         skin_type = profile.get("skin_type") or ""
         concerns = profile.get("skin_concerns") or []
         allergy_text = profile.get("known_allergies") or ""
+        pregnancy_status = profile.get("pregnancy_status") or ""
+        is_pregnancy_care = pregnancy_status in PREGNANCY_STATUSES
 
         for item in ingredients:
             ingredient = item.ingredient
             tags = set(ingredient.tags or [])
+            traits = self._trait_set(ingredient)
             position = item.position
-            ingredient_text = " ".join([
-                ingredient.zh_name or "",
-                ingredient.inci_name or "",
-                " ".join(ingredient.aliases or []),
-            ]).lower()
             is_high_position = position <= 8
 
             if allergy_text and self._text_matches_allergy(allergy_text, ingredient):
                 status = "avoid"
-                reasons.append(f"个人档案提到{allergy_text}，产品含有{ingredient.display_name()}")
+                reasons.append(f"{allergy_text}命中{ingredient.display_name()}"[:24])
                 highlights.append(ingredient.to_dict(position))
                 continue
 
-            if skin_type == "敏感肌" and is_high_position and tags.intersection({"alcohol", "fragrance", "acid", "retinoid", "irritant"}):
+            if is_pregnancy_care and traits.intersection({"retinoid", "acid", "高活性护理", "去角质"}):
+                if status != "avoid":
+                    status = "caution"
+                reasons.append(f"孕哺期慎用{ingredient.display_name()}")
+                highlights.append(ingredient.to_dict(position))
+
+            if skin_type == "敏感肌" and is_high_position and (
+                tags.intersection({"alcohol", "fragrance", "acid", "retinoid", "irritant"})
+                or traits.intersection({"香精", "香料", "溶剂", "促渗", "去角质"})
+            ):
                 if status != "avoid":
                     status = "caution"
                 reasons.append(f"敏感肌需留意第{position}位成分{ingredient.display_name()}")
                 highlights.append(ingredient.to_dict(position))
 
-            if is_high_position and tags.intersection({"alcohol", "fragrance", "acid", "retinoid"}):
+            if is_high_position and (
+                tags.intersection({"alcohol", "fragrance", "acid", "retinoid"})
+                or traits.intersection({"香精", "香料", "去角质"})
+            ):
                 if status == "suitable":
                     status = "caution"
                 reasons.append(f"{ingredient.display_name()}位置靠前，建议根据耐受情况谨慎使用")
                 highlights.append(ingredient.to_dict(position))
 
-            if any(item in concerns for item in ["痘痘", "闭口"]) and tags.intersection({"comedogenic", "heavy_oil"}):
+            if any(item in concerns for item in ["痘痘", "闭口"]) and (
+                tags.intersection({"comedogenic", "heavy_oil"})
+                or traits.intersection({"封闭", "封闭剂", "强效封闭", "厚重油脂"})
+            ):
                 if status != "avoid":
                     status = "caution"
                 reasons.append(f"痘痘/闭口人群需留意{ingredient.display_name()}的闷痘风险")
                 highlights.append(ingredient.to_dict(position))
 
-            if "brightening" in tags:
+            if "brightening" in tags or "美白" in traits:
                 highlights.append(ingredient.to_dict(position))
 
-            if "uv_filter" in tags:
+            if "uv_filter" in tags or traits.intersection({"物理防晒", "化学防晒"}):
                 highlights.append(ingredient.to_dict(position))
+
+        if missing_profile_fields:
+            tips.append(self._missing_profile_tip(missing_profile_fields, has_profile))
+            if status == "suitable":
+                status = "incomplete"
 
         unique_reasons = list(dict.fromkeys(reasons))
+        tips.extend(unique_reasons)
+        unique_tips = [tip[:24] for tip in list(dict.fromkeys(tips))[:2]]
         unique_highlights = self._unique_highlights(highlights)
         summary_by_status = {
             "suitable": "未发现明显冲突成分",
+            "incomplete": "补全档案后判断",
             "caution": "存在需要留意的成分",
             "avoid": "与个人档案存在明确冲突",
         }
@@ -579,15 +688,20 @@ class ProductService:
             "status": status,
             "summary": summary_by_status[status],
             "reasons": unique_reasons,
+            "highlights_text": self._analysis_highlight_text(product),
+            "tips": unique_tips,
+            "missing_profile_fields": missing_profile_fields,
             "highlights": unique_highlights,
         }
 
     def _text_matches_allergy(self, allergy_text: str, ingredient) -> bool:
         normalized = allergy_text.lower()
         candidates = [ingredient.zh_name, ingredient.inci_name, *(ingredient.aliases or [])]
-        if "酒精" in allergy_text and "alcohol" in (ingredient.tags or []):
+        traits = self._trait_set(ingredient)
+        ingredient_text = " ".join([candidate or "" for candidate in candidates]).lower()
+        if "酒精" in allergy_text and ("alcohol" in (ingredient.tags or []) or "alcohol" in ingredient_text or ingredient.zh_name in {"乙醇", "变性乙醇"}):
             return True
-        if "香精" in allergy_text and "fragrance" in (ingredient.tags or []):
+        if "香精" in allergy_text and ("fragrance" in (ingredient.tags or []) or "parfum" in ingredient_text or "香精" in (ingredient.zh_name or "") or "香料" in traits):
             return True
         return any(candidate and candidate.lower() in normalized for candidate in candidates)
 

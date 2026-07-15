@@ -44,6 +44,9 @@ class ProductAnalysis(BaseModel):
     status: str
     summary: str
     reasons: list[str] = Field(default_factory=list)
+    highlights_text: list[str] = Field(default_factory=list)
+    tips: list[str] = Field(default_factory=list)
+    missing_profile_fields: list[str] = Field(default_factory=list)
     highlights: list[IngredientItem] = Field(default_factory=list)
 
 

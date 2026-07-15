@@ -35,9 +35,14 @@ request.interceptors.response.use(
       }
     }
 
+    const responseMessage = typeof err.response?.data === 'string'
+      ? err.response.data
+      : err.response?.data?.detail || err.response?.data?.message
     const msg = err.code === 'ERR_NETWORK'
       ? '无法连接后端服务，请确认后端已启动，默认端口 8000 可访问'
-      : err.response?.data?.detail || err.message || '请求失败'
+      : err.response?.status >= 500
+        ? responseMessage || '后端服务异常，请稍后再试'
+        : responseMessage || err.message || '请求失败'
     console.error('API Error:', msg)
     const errorObj = new Error(msg)
     errorObj.response = err.response

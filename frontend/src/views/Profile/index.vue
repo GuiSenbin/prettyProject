@@ -239,7 +239,7 @@
 
 <script setup>
 import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
-import { useRouter, onBeforeRouteLeave } from 'vue-router'
+import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 import ConfirmModal from '@/components/confirm-modal.vue'
 import { CalendarDays, Check, ChevronLeft, HelpCircle, NotebookPen, ShieldAlert, ShieldCheck, Sparkles, UserRound } from 'lucide-vue-next'
 import { profileApi } from '@/api/profile'
@@ -253,6 +253,7 @@ import { useUserStore } from '@/stores/user'
 
 const appStore = useAppStore()
 const userStore = useUserStore()
+const route = useRoute()
 const router = useRouter()
 const saving = ref(false)
 const originalFormData = ref('')
@@ -411,8 +412,9 @@ function selectSkinTone(item) {
   form.skin_tone = item.label
 }
 function handleBack() {
-  // 意图：返回统一指向 AI 问答，同时继续交给 onBeforeRouteLeave 处理未完成提示与自动保存。
-  router.replace('/chat')
+  // 意图：支持从产品详情引导补档案后回到原页面，同时继续交给 onBeforeRouteLeave 处理未完成提示与自动保存。
+  const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : ''
+  router.replace(redirect || '/chat')
 }
 function assignProfile(profile) {
   Object.assign(form, {
@@ -496,6 +498,10 @@ async function handleSubmit() {
       appStore.showToast('个人档案保存成功', 'success')
     } else {
       appStore.showToast('已保存，部分信息可随时完善', 'success')
+    }
+    const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : ''
+    if (redirect) {
+      router.replace(redirect)
     }
   } catch (err) {
     appStore.showToast(err.message || '保存失败，请稍后再试', 'error')
@@ -638,7 +644,7 @@ onBeforeRouteLeave(async (to, from, next) => {
     align-items: center;
     min-height: 40px;
     padding: calc(6px + env(safe-area-inset-top)) 20px 6px;
-    background: rgba(221, 247, 248, 0.65);
+    background: linear-gradient(30deg, rgb(209, 243, 246) 35%, rgb(232, 244, 246) 56%);
     backdrop-filter: blur(12px);
     button {
       width: 28px;
@@ -669,8 +675,8 @@ onBeforeRouteLeave(async (to, from, next) => {
   }
   .profile-stage {
     position: relative;
-    margin-top: calc(-40px - env(safe-area-inset-top));
-    padding: calc(40px + env(safe-area-inset-top)) 20px 10px;
+    margin-top: 0;
+    padding: 16px 20px 10px;
     background-color: #ddf7f8;
     background-repeat: no-repeat;
     box-shadow: 0 16px 38px rgba(10, 166, 194, 0.08);

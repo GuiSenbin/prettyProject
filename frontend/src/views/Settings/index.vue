@@ -195,7 +195,9 @@ async function handleSave() {
 <style lang="scss" scoped>
 .settings-page {
   min-height: 100dvh;
-  background: #f4f6f8;
+  background:
+    linear-gradient(180deg, rgba(218, 247, 248, 0.95) 0%, rgba(245, 253, 253, 0.94) 42%, #ffffff 100%),
+    #f4fbfc;
   .settings-nav {
     position: sticky;
     top: 0;
@@ -235,7 +237,7 @@ async function handleSave() {
     }
   }
   .settings-content {
-    padding: 20px;
+    padding: 22px 20px 20px;
     .settings-section {
       margin-bottom: 24px;
       h3 {
