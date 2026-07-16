@@ -4,7 +4,7 @@
     <div v-if="!messages.length" class="chat-welcome">
       <span class="eyebrow">小蜜 AI 顾问</span>
       <h2>今天想聊聊皮肤，还是妆容？</h2>
-      <p>我会结合你的个人档案和产品库，给你更贴近自己的建议。</p>
+      <p>我会结合你的个人档案和产品库，给你专属建议。</p>
       <div class="suggestion-scroll">
         <button
           v-for="item in suggestions"
@@ -135,7 +135,7 @@ async function handleSend() {
   padding-bottom: 72px;
 }
 .chat-welcome {
-  margin-top: 28px;
+  margin-top: 5px;
   padding: 18px;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.78);
