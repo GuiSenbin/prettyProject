@@ -8,6 +8,18 @@ const request = axios.create({
   timeout: 30000,
 })
 
+request.interceptors.request.use((config) => {
+  try {
+    const session = JSON.parse(localStorage.getItem('beauty_login_session') || 'null')
+    if (session?.token) {
+      config.headers.Authorization = `Bearer ${session.token}`
+    }
+  } catch {
+    localStorage.removeItem('beauty_login_session')
+  }
+  return config
+})
+
 request.interceptors.response.use(
   (res) => {
     const responseData = res.data

@@ -18,7 +18,10 @@
           <TextAlignStart :size="28" stroke-width="2.6" />
         </button>
         <h1>{{ routeTitle }}</h1>
-        <button v-if="route.path !== '/chat' && !route.meta.backTo" class="nav-btn right-btn" type="button" aria-label="返回AI问答" @click="goChat">
+        <button v-if="route.path === '/chat'" class="nav-btn right-btn" type="button" aria-label="新话题" @click="startNewChatTopic">
+          <SquarePen :size="25" stroke-width="2.5" />
+        </button>
+        <button v-else-if="!route.meta.backTo" class="nav-btn right-btn" type="button" aria-label="返回AI问答" @click="goChat">
           <MessageCircle :size="26" stroke-width="2.5" />
         </button>
         <span v-else class="header-spacer" aria-hidden="true"></span>
@@ -41,17 +44,19 @@
 <script setup>
 import { computed, onMounted, onBeforeUnmount, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ChevronLeft, MessageCircle, TextAlignStart } from 'lucide-vue-next'
+import { ChevronLeft, MessageCircle, SquarePen, TextAlignStart } from 'lucide-vue-next'
 import AppDrawer from '@/components/AppDrawer.vue'
 import LoginView from '@/views/Login/index.vue'
 import SplashScreen from '@/views/Splash/index.vue'
 import ToastMessage from '@/components/ToastMessage.vue'
+import { useChatStore } from '@/stores/chat'
 import { useUserStore } from '@/stores/user'
 
 const drawerOpen = ref(false)
 const showSplash = ref(true)
 const route = useRoute()
 const router = useRouter()
+const chatStore = useChatStore()
 const userStore = useUserStore()
 const routeTitle = computed(() => route.meta.title || route.meta.label || '智颜')
 
@@ -60,6 +65,7 @@ function openDrawer() {
 }
 
 function handleLoggedIn() {
+  chatStore.startNewTopic()
   router.replace('/chat')
 }
 
@@ -67,11 +73,17 @@ function goChat() {
   router.replace('/chat')
 }
 
+function startNewChatTopic() {
+  window.dispatchEvent(new CustomEvent('chat-new-topic'))
+}
+
 function goRouteBack() {
   router.replace(route.meta.backTo)
 }
 
 function handleLogout() {
+  chatStore.startNewTopic()
+  chatStore.sessions = []
   userStore.logout()
   drawerOpen.value = false
   router.replace('/chat')

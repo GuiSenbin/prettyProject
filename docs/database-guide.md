@@ -19,6 +19,7 @@
 - `20260705_0003_clean_users_baseline.py`：把旧用户档案表迁成最小用户身份表。
 - `20260705_0004_auth_table_split.py`：分离出用户授权凭证表 `user_social_auths` 以解耦多端登录映射，并使 `users.phone` 设为可空。
 - `20260706_0005_user_profiles.py`：新增个人护肤档案表 `user_profiles`，与 `users.id` 一对一关联。
+- `20260715_0011_chat_sessions.py`：新增 AI 问答会话表、消息表和脱敏问答日志表。
 
 ## 当前表与企业级账号体系
 
@@ -58,3 +59,22 @@
 * `skin_type`、`skin_tone`、`face_shape`、`skin_concerns`：肤况和脸型信息。
 * `known_allergies`、`pregnancy_status`、`period_acne`、`last_period_start`、`cycle_length_days`：安全避雷和女性条件字段。
 * `preference_notes`：偏好、禁忌和生活习惯等自由文本。
+
+### 5. `chat_sessions`（AI 问答会话表）
+存放用户 AI 问答会话摘要：
+* `user_id`：关联 `users.id`，历史会话必须按登录用户隔离。
+* `title`、`title_edited`：会话标题和用户是否手动重命名。
+* `deleted_at`：软删除时间，前端历史不展示已删除会话。
+
+### 6. `chat_messages`（AI 问答消息表）
+存放完整对话消息：
+* `session_id`：关联 `chat_sessions.id`。
+* `role`、`content_text`：消息角色与文本内容。
+* `structured_payload`：AI 回答结构化卡片数据，用于历史回看时原样展示。
+* `intent`、`subject_type`：意图和主体归属，供后续提示词与知识库优化。
+
+### 7. `chat_question_logs`（脱敏问答日志表）
+存放后续高频知识库建设所需的脱敏问答线索：
+* `normalized_question`：脱敏后的用户问题。
+* `intent`、`subject_type`、`context_used`：问题分类与上下文使用情况。
+* `source`：回答来源，例如本地规则占位或后续真实大模型。
