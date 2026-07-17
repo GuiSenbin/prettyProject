@@ -1,5 +1,6 @@
 """AI 问答 API 测试：验证多会话、历史回看、重命名和软删除。"""
 import unittest
+from unittest.mock import patch
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -10,6 +11,7 @@ from backend.app.api import api_router
 from backend.app.core.database import Base
 from backend.app.core.deps import get_db
 from backend.app.modules.chat.models import ChatQuestionLog
+from backend.app.modules.profiles.models import UserProfile
 from backend.app.modules.users.models import User
 
 
@@ -44,6 +46,359 @@ def auth_headers(user_id: str) -> dict[str, str]:
 
 
 class ChatApiTest(unittest.TestCase):
+    def setUp(self):
+        class DisabledDeepSeekClient:
+            def is_configured(self):
+                return False
+
+            def generate_json(self, messages):
+                raise AssertionError("普通单元测试不应该调用真实 DeepSeek")
+
+        self.deepseek_patcher = patch("backend.app.modules.chat.service.DeepSeekClient", return_value=DisabledDeepSeekClient())
+        self.deepseek_patcher.start()
+
+    def tearDown(self):
+        self.deepseek_patcher.stop()
+
+    def test_deepseek_config_is_loaded_from_backend_local_env(self):
+        from backend.app.core.config import get_settings
+
+        get_settings.cache_clear()
+        settings = get_settings()
+
+        self.assertEqual(settings.DEEPSEEK_BASE_URL, "https://api.deepseek.com")
+        self.assertEqual(settings.DEEPSEEK_MODEL, "deepseek-v4-flash")
+        self.assertEqual(settings.DEEPSEEK_TIMEOUT_SECONDS, 18)
+
+    def test_prompt_requires_json_and_professional_best_friend_style(self):
+        from backend.app.modules.chat.prompting import build_chat_messages
+
+        messages = build_chat_messages(
+            question="我今天要画一个淡妆，请你给我推荐",
+            rule_payload={
+                "intent": "makeup_look",
+                "subject_type": "self",
+                "answer_level": "daily",
+                "context_policy": {"use_profile": True},
+            },
+            context={"profile": None, "user_products": [], "recent_messages": []},
+        )
+
+        self.assertIn("json", messages[0]["content"].lower())
+        self.assertIn("专业闺蜜型", messages[0]["content"])
+        self.assertIn("高风险", messages[0]["content"])
+        self.assertIn("makeup_look", messages[1]["content"])
+
+    def test_deepseek_client_uses_json_output(self):
+        calls = {}
+
+        class FakeCompletions:
+            def create(self, **kwargs):
+                calls.update(kwargs)
+
+                class Message:
+                    content = '{"title":"ok","summary":"ok","sections":[],"recommended_products":[],"safety_note":"","follow_up_questions":[]}'
+
+                class Choice:
+                    message = Message()
+
+                class Response:
+                    choices = [Choice()]
+
+                return Response()
+
+        class FakeChat:
+            completions = FakeCompletions()
+
+        class FakeOpenAI:
+            chat = FakeChat()
+
+        from backend.app.modules.chat.llm_client import DeepSeekClient
+
+        client = DeepSeekClient(
+            config={
+                "api_key": "test-key",
+                "base_url": "https://api.deepseek.com",
+                "model": "deepseek-v4-flash",
+                "timeout": 18,
+            },
+            openai_client=FakeOpenAI(),
+        )
+
+        result = client.generate_json([{"role": "user", "content": "hi"}])
+
+        self.assertIn('"title"', result)
+        self.assertTrue(client.is_configured())
+        self.assertEqual(calls["model"], "deepseek-v4-flash")
+        self.assertEqual(calls["response_format"], {"type": "json_object"})
+        self.assertEqual(calls["stream"], False)
+
+    def test_model_validator_rejects_high_risk_product_recommendations(self):
+        from backend.app.modules.chat.validator import validate_model_payload
+
+        with self.assertRaises(ValueError):
+            validate_model_payload(
+                '{"title":"建议","summary":"总结","sections":[],"recommended_products":[{"name":"某精华"}],"safety_note":"提醒","follow_up_questions":[]}',
+                {
+                    "intent": "pregnancy_safety",
+                    "subject_type": "self",
+                    "answer_level": "high_risk",
+                    "context_policy": {"use_profile": True},
+                },
+            )
+
+    def test_send_message_uses_model_when_deepseek_returns_valid_json(self):
+        client, session_factory = make_client()
+        with session_factory() as db:
+            user = User(display_name="测试用户", login_type="username")
+            profile = UserProfile(user=user, skin_type="混合偏干", skin_concerns=["暗沉"])
+            db.add_all([user, profile])
+            db.commit()
+            db.refresh(user)
+            user_id = user.id
+
+        class FakeDeepSeekClient:
+            def is_configured(self):
+                return True
+
+            def generate_json(self, messages):
+                self.messages = messages
+                return '{"title":"模型淡妆建议","summary":"模型回答","sections":[],"recommended_products":[],"safety_note":"安全提醒","follow_up_questions":["今天是什么场合？"]}'
+
+        with patch("backend.app.modules.chat.service.DeepSeekClient", return_value=FakeDeepSeekClient()):
+            response = client.post(
+                "/api/chat/messages",
+                headers=auth_headers(user_id),
+                json={"message": "今天面试想画淡妆"},
+            )
+
+        payload = api_data(response)["message"]["structured_payload"]
+        self.assertEqual(payload["source"], "model")
+        self.assertEqual(payload["title"], "模型淡妆建议")
+        self.assertEqual(payload["intent"], "makeup_look")
+        self.assertTrue(payload["context_used"]["profile"])
+        self.assertTrue(payload["context_used"]["products"])
+
+    def test_send_message_uses_model_intent_classification_before_answer(self):
+        client, session_factory = make_client()
+        with session_factory() as db:
+            user = User(display_name="测试用户", login_type="username")
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+            user_id = user.id
+
+        class FakeDeepSeekClient:
+            def __init__(self):
+                self.calls = []
+
+            def is_configured(self):
+                return True
+
+            def generate_json(self, messages):
+                self.calls.append(messages)
+                prompt = str(messages)
+                if "intent_classification" in prompt:
+                    return (
+                        '{"intent":"makeup_look","subject_type":"self","answer_level":"daily",'
+                        '"context_policy":{"use_profile":true,"use_products":true,"reason":"需要结合个人档案和产品库做妆容建议"},'
+                        '"confidence":"high","title":"清透气色妆","reason":"用户想让自己看起来干净有气色，属于妆容需求"}'
+                    )
+                return (
+                    '{"title":"清透气色妆","summary":"模型按妆容需求回答",'
+                    '"sections":[{"type":"steps","heading":"妆容路线","items":["底妆薄一点","唇颊同色系"]}],'
+                    '"recommended_products":[],"safety_note":"如皮肤不适先暂停上妆。","follow_up_questions":[]}'
+                )
+
+        fake_client = FakeDeepSeekClient()
+        with patch("backend.app.modules.chat.service.DeepSeekClient", return_value=fake_client):
+            response = client.post(
+                "/api/chat/messages",
+                headers=auth_headers(user_id),
+                json={"message": "明天见人，想让自己看起来干净有气色"},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        payload = api_data(response)["message"]["structured_payload"]
+        self.assertEqual(len(fake_client.calls), 2)
+        self.assertEqual(payload["source"], "model")
+        self.assertEqual(payload["intent"], "makeup_look")
+        self.assertEqual(payload["answer_level"], "daily")
+        self.assertEqual(api_data(response)["session"]["title"], "清透气色妆")
+
+    def test_model_intent_redirects_unrelated_questions_without_answer_call(self):
+        examples = [
+            ("怎么骑自行车？", "运动技能问题"),
+            ("我想转行做程序员，你觉得怎么样？", "职业规划问题"),
+            ("这只股票现在能买吗？", "投资问题"),
+            ("帮我写一篇数学作业论文", "作业论文问题"),
+        ]
+        for question, title in examples:
+            with self.subTest(question=question):
+                client, session_factory = make_client()
+                with session_factory() as db:
+                    user = User(display_name="测试用户", login_type="username")
+                    db.add(user)
+                    db.commit()
+                    db.refresh(user)
+                    user_id = user.id
+
+                class FakeDeepSeekClient:
+                    def __init__(self):
+                        self.calls = 0
+
+                    def is_configured(self):
+                        return True
+
+                    def generate_json(self, messages):
+                        self.calls += 1
+                        prompt = str(messages)
+                        if "intent_classification" not in prompt:
+                            raise AssertionError("无关问题不应该进入正式回答模型")
+                        return (
+                            '{"intent":"out_of_scope","subject_type":"unknown","answer_level":"refuse",'
+                            '"context_policy":{"use_profile":false,"use_products":false,"reason":"问题不属于护肤彩妆范围"},'
+                            f'"confidence":"high","title":"{title}","reason":"用户问题与产品定位无关"}}'
+                        )
+
+                fake_client = FakeDeepSeekClient()
+                with patch("backend.app.modules.chat.service.DeepSeekClient", return_value=fake_client):
+                    response = client.post(
+                        "/api/chat/messages",
+                        headers=auth_headers(user_id),
+                        json={"message": question},
+                    )
+
+                self.assertEqual(response.status_code, 200)
+                payload = api_data(response)["message"]["structured_payload"]
+                self.assertEqual(fake_client.calls, 1)
+                self.assertEqual(payload["intent"], "out_of_scope")
+                self.assertEqual(payload["answer_level"], "refuse")
+                self.assertFalse(payload["context_policy"]["use_profile"])
+                self.assertFalse(payload["context_policy"]["use_products"])
+                self.assertIn("美妆", payload["summary"])
+
+    def test_send_message_falls_back_to_local_rule_when_model_json_invalid(self):
+        client, session_factory = make_client()
+        with session_factory() as db:
+            user = User(display_name="测试用户", login_type="username")
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+            user_id = user.id
+
+        class FakeDeepSeekClient:
+            def is_configured(self):
+                return True
+
+            def generate_json(self, messages):
+                return "not json"
+
+        with patch("backend.app.modules.chat.service.DeepSeekClient", return_value=FakeDeepSeekClient()):
+            response = client.post(
+                "/api/chat/messages",
+                headers=auth_headers(user_id),
+                json={"message": "今天面试想画淡妆"},
+            )
+
+        payload = api_data(response)["message"]["structured_payload"]
+        self.assertEqual(payload["source"], "local_rule")
+        self.assertEqual(payload["intent"], "makeup_look")
+
+    def test_send_message_falls_back_when_model_payload_has_invalid_types(self):
+        client, session_factory = make_client()
+        with session_factory() as db:
+            user = User(display_name="测试用户", login_type="username")
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+            user_id = user.id
+
+        class FakeDeepSeekClient:
+            def is_configured(self):
+                return True
+
+            def generate_json(self, messages):
+                return '{"title":"模型标题","summary":null,"sections":[null],"recommended_products":[],"safety_note":"安全提醒","follow_up_questions":[]}'
+
+        with patch("backend.app.modules.chat.service.DeepSeekClient", return_value=FakeDeepSeekClient()):
+            response = client.post(
+                "/api/chat/messages",
+                headers=auth_headers(user_id),
+                json={"message": "今天面试想画淡妆"},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        payload = api_data(response)["message"]["structured_payload"]
+        self.assertEqual(payload["source"], "local_rule")
+        self.assertEqual(payload["intent"], "makeup_look")
+
+    def test_model_prompt_sanitizes_current_question_and_recent_history(self):
+        client, session_factory = make_client()
+        with session_factory() as db:
+            user = User(display_name="测试用户", login_type="username")
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+            user_id = user.id
+
+        first = api_data(client.post(
+            "/api/chat/messages",
+            headers=auth_headers(user_id),
+            json={"message": "我的邮箱grace@example.com，最近长痘怎么办？"},
+        ))
+        session_id = first["session"]["id"]
+
+        class FakeDeepSeekClient:
+            def is_configured(self):
+                return True
+
+            def generate_json(self, messages):
+                prompt = str(messages)
+                if "13812345678" in prompt or "grace@example.com" in prompt:
+                    raise AssertionError("敏感信息不应发送给模型")
+                self.prompt = prompt
+                return '{"title":"模型淡妆建议","summary":"模型回答","sections":[],"recommended_products":[],"safety_note":"安全提醒","follow_up_questions":[]}'
+
+        with patch("backend.app.modules.chat.service.DeepSeekClient", return_value=FakeDeepSeekClient()):
+            response = client.post(
+                "/api/chat/messages",
+                headers=auth_headers(user_id),
+                json={"session_id": session_id, "message": "我手机号13812345678，今天面试想画淡妆"},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        payload = api_data(response)["message"]["structured_payload"]
+        self.assertEqual(payload["source"], "model")
+
+    def test_high_risk_question_does_not_call_model(self):
+        client, session_factory = make_client()
+        with session_factory() as db:
+            user = User(display_name="测试用户", login_type="username")
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+            user_id = user.id
+
+        class ExplodingDeepSeekClient:
+            def is_configured(self):
+                return True
+
+            def generate_json(self, messages):
+                raise AssertionError("高风险问题不应该调用模型")
+
+        with patch("backend.app.modules.chat.service.DeepSeekClient", return_value=ExplodingDeepSeekClient()):
+            response = client.post(
+                "/api/chat/messages",
+                headers=auth_headers(user_id),
+                json={"message": "我怀孕了还能用A醇吗？"},
+            )
+
+        self.assertEqual(response.status_code, 200)
+        payload = api_data(response)["message"]["structured_payload"]
+        self.assertEqual(payload["source"], "local_rule")
+        self.assertEqual(payload["answer_level"], "high_risk")
+
     def test_first_message_creates_session_with_title_and_persisted_messages(self):
         client, session_factory = make_client()
         with session_factory() as db:
@@ -254,6 +609,10 @@ class ChatApiTest(unittest.TestCase):
         self.assertIn("护肤", payload["summary"])
         self.assertEqual(payload["sections"][0]["type"], "redirect")
         self.assertFalse(payload["context_used"]["profile"])
+        self.assertEqual(payload["answer_level"], "refuse")
+        self.assertEqual(payload["confidence"], "high")
+        self.assertFalse(payload["context_policy"]["use_profile"])
+        self.assertFalse(payload["context_policy"]["use_products"])
 
     def test_other_person_question_uses_general_advice_not_user_profile(self):
         client, session_factory = make_client()
@@ -297,6 +656,10 @@ class ChatApiTest(unittest.TestCase):
         self.assertEqual(payload["subject_type"], "hypothetical")
         self.assertIn("孕期", payload["title"])
         self.assertIn("视黄醇", payload["safety_note"])
+        self.assertEqual(payload["answer_level"], "high_risk")
+        self.assertEqual(payload["confidence"], "high")
+        self.assertFalse(payload["context_policy"]["use_profile"])
+        self.assertIn("安全", payload["context_policy"]["reason"])
 
     def test_makeup_question_returns_makeup_specific_steps(self):
         client, session_factory = make_client()
@@ -317,6 +680,8 @@ class ChatApiTest(unittest.TestCase):
         payload = api_data(response)["message"]["structured_payload"]
         all_text = str(payload)
         self.assertEqual(payload["intent"], "makeup_look")
+        self.assertEqual(payload["answer_level"], "daily")
+        self.assertEqual(payload["confidence"], "high")
         self.assertIn("底妆", all_text)
         self.assertIn("眉眼", all_text)
         self.assertIn("唇颊", all_text)
@@ -341,6 +706,10 @@ class ChatApiTest(unittest.TestCase):
         title = api_data(response)["session"]["title"]
         headings = [section["heading"] for section in payload["sections"]]
         self.assertEqual(payload["intent"], "product_match")
+        self.assertEqual(payload["answer_level"], "cautious")
+        self.assertEqual(payload["confidence"], "medium")
+        self.assertFalse(payload["context_policy"]["use_products"])
+        self.assertIn("通用成分搭配原则", payload["context_policy"]["reason"])
         self.assertEqual(title, "烟酰胺和酸类搭配")
         self.assertIn("搭配风险", headings)
         self.assertIn("使用顺序", headings)
@@ -397,6 +766,34 @@ class ChatApiTest(unittest.TestCase):
         self.assertEqual([message["role"] for message in history["messages"]], ["user", "assistant", "user", "assistant"])
         self.assertEqual(history["messages"][0]["content_text"], "我最近脸颊泛红刺痛怎么办？")
         self.assertEqual(history["messages"][2]["content_text"], "那今晚还能刷酸吗？")
+
+    def test_v2_payload_marks_cautious_acne_and_logs_policy_for_knowledge_base(self):
+        client, session_factory = make_client()
+        with session_factory() as db:
+            user = User(display_name="测试用户", login_type="username")
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+            user_id = user.id
+
+        response = client.post(
+            "/api/chat/messages",
+            headers=auth_headers(user_id),
+            json={"message": "我最近闭口粉刺反复，还能用酸类吗？"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        payload = api_data(response)["message"]["structured_payload"]
+        self.assertEqual(payload["answer_level"], "cautious")
+        self.assertEqual(payload["confidence"], "medium")
+        self.assertFalse(payload["context_policy"]["use_profile"])
+        self.assertIn("未读取个人档案", payload["context_policy"]["reason"])
+        self.assertGreaterEqual(len(payload["follow_up_questions"]), 1)
+        with session_factory() as db:
+            log = db.query(ChatQuestionLog).one()
+            self.assertEqual(log.context_used["answer_level"], "cautious")
+            self.assertEqual(log.context_used["confidence"], "medium")
+            self.assertFalse(log.context_used["context_policy"]["use_profile"])
 
 
 if __name__ == "__main__":

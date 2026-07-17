@@ -2,8 +2,14 @@
 import re
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
+from backend.app.core.config import get_settings
+from backend.app.modules.chat.context_builder import ChatContextBuilder
+from backend.app.modules.chat.llm_client import DeepSeekClient
+from backend.app.modules.chat.prompting import build_chat_messages, build_intent_messages
+from backend.app.modules.chat.privacy import sanitize_text
 from backend.app.modules.chat.repository import ChatRepository
 from backend.app.modules.chat.schemas import ChatMessageCreate
+from backend.app.modules.chat.validator import validate_intent_payload, validate_model_payload
 from backend.app.modules.users.repository import UserRepository
 
 
@@ -19,6 +25,7 @@ INTENT_KEYWORDS = [
 
 OTHER_PERSON_KEYWORDS = ("老婆", "老公", "女朋友", "男朋友", "朋友", "妹妹", "姐姐", "妈妈", "同事", "她", "他")
 HYPOTHETICAL_KEYWORDS = ("孕妇", "怀孕", "备孕", "哺乳")
+SEVERE_SKIN_KEYWORDS = ("红肿", "疼痛", "破溃", "流脓", "脓包", "大片脱皮", "严重过敏", "呼吸困难")
 
 
 class ChatService:
@@ -65,16 +72,19 @@ class ChatService:
         if not question:
             raise HTTPException(400, "请输入问题")
 
-        intent = self._detect_intent(question)
-        subject_type = self._detect_subject_type(question)
         session = self.chat.get_session(user_id, payload.session_id) if payload.session_id else None
         if payload.session_id and not session:
             raise HTTPException(404, "会话不存在")
+
+        intent_payload = self._resolve_intent_payload(user_id, session, question)
+        intent = intent_payload["intent"]
+        subject_type = intent_payload["subject_type"]
         if not session:
-            session = self.chat.create_session(user_id, self._suggest_title(question, intent))
+            session = self.chat.create_session(user_id, self._suggest_title(question, intent, intent_payload.get("title")))
 
         user_message = self.chat.add_message(session, "user", question, intent=intent, subject_type=subject_type)
-        answer_payload = self._build_structured_answer(question, intent, subject_type)
+        rule_payload = self._build_structured_answer(question, intent_payload)
+        answer_payload = self._build_ai_payload(user_id, session, question, rule_payload)
         answer = self.chat.add_message(
             session,
             "assistant",
@@ -91,7 +101,13 @@ class ChatService:
             "normalized_question": normalized_question,
             "intent": intent,
             "subject_type": subject_type,
-            "context_used": {"profile": False, "products": False},
+            "context_used": {
+                "answer_level": answer_payload["answer_level"],
+                "confidence": answer_payload["confidence"],
+                "context_policy": answer_payload["context_policy"],
+                "intent_source": intent_payload.get("source"),
+                "model_source": answer_payload["source"],
+            },
             "answer_title": answer_payload["title"],
             "source": answer_payload["source"],
         })
@@ -105,6 +121,124 @@ class ChatService:
     def _ensure_user_exists(self, user_id: str) -> None:
         if not self.users.get(user_id):
             raise HTTPException(404, "用户不存在")
+
+    def _resolve_intent_payload(self, user_id: str, session, question: str) -> dict:
+        fallback_payload = self._fallback_intent_payload(question)
+        local_guard = self._local_safety_guard(question, fallback_payload)
+        if local_guard:
+            return local_guard
+        try:
+            client = DeepSeekClient()
+            if not client.is_configured():
+                self._debug_model_io("intent skipped", "DEEPSEEK_API_KEY 未配置，已使用本地意图兜底")
+                return fallback_payload
+            context = ChatContextBuilder(self.chat.db).build(user_id, session)
+            messages = build_intent_messages(sanitize_text(question), context)
+            self._debug_model_io("intent prompt", messages)
+            raw_intent = client.generate_json(messages)
+            self._debug_model_io("intent answer", raw_intent)
+            intent_payload = validate_intent_payload(raw_intent, fallback_payload)
+            return self._enforce_intent_safety(question, intent_payload)
+        except Exception as exc:
+            self._debug_model_io("intent fallback", str(exc))
+            return fallback_payload
+
+    def _fallback_intent_payload(self, question: str) -> dict:
+        intent = self._detect_intent(question)
+        subject_type = self._detect_subject_type(question)
+        answer_level = self._answer_level_for_intent(intent)
+        context_policy = self._context_policy_for(intent, subject_type)
+        return {
+            "source": "local_fallback_intent",
+            "intent": intent,
+            "subject_type": subject_type,
+            "answer_level": answer_level,
+            "context_policy": context_policy,
+            "confidence": self._confidence_for_level(answer_level),
+            "title": self._suggest_title(question, intent),
+            "reason": "模型意图识别不可用时的本地兜底。",
+        }
+
+    def _local_safety_guard(self, question: str, fallback_payload: dict) -> dict | None:
+        if self._is_pregnancy_safety_question(question):
+            return self._guard_payload(question, "pregnancy_safety", "hypothetical", "high_risk", "孕期或备孕高风险成分问题，本地安全护栏直接接管。")
+        if any(keyword in question for keyword in SEVERE_SKIN_KEYWORDS):
+            return self._guard_payload(question, "skin_sensitive", self._detect_subject_type(question), "high_risk", "出现明显严重不适描述，本地安全护栏直接接管。")
+        return None
+
+    def _guard_payload(self, question: str, intent: str, subject_type: str, answer_level: str, reason: str) -> dict:
+        context_policy = self._context_policy_for(intent, subject_type)
+        return {
+            "source": "local_safety_guard",
+            "intent": intent,
+            "subject_type": subject_type,
+            "answer_level": answer_level,
+            "context_policy": context_policy,
+            "confidence": "high",
+            "title": self._suggest_title(question, intent),
+            "reason": reason,
+        }
+
+    def _is_pregnancy_safety_question(self, question: str) -> bool:
+        pregnancy_terms = ("怀孕", "孕妇", "备孕", "哺乳")
+        high_risk_terms = ("视黄醇", "维a醇", "a醇", "水杨酸", "刷酸", "酸类")
+        return any(term in question for term in pregnancy_terms) and any(term in question.lower() for term in high_risk_terms)
+
+    def _enforce_intent_safety(self, question: str, intent_payload: dict) -> dict:
+        if self._is_pregnancy_safety_question(question):
+            return self._guard_payload(question, "pregnancy_safety", "hypothetical", "high_risk", "模型识别后触发孕期安全护栏。")
+        if intent_payload["answer_level"] == "high_risk":
+            policy = dict(intent_payload.get("context_policy") or {})
+            policy["use_products"] = False
+            policy["reason"] = policy.get("reason") or "高风险问题不推荐具体产品。"
+            intent_payload["context_policy"] = policy
+        if intent_payload["intent"] == "out_of_scope":
+            intent_payload["answer_level"] = "refuse"
+            intent_payload["context_policy"] = {
+                "use_profile": False,
+                "use_products": False,
+                "reason": "问题超出美妆护肤范围，不使用个人档案或产品库。",
+            }
+        return intent_payload
+
+    def _build_ai_payload(self, user_id: str, session, question: str, rule_payload: dict) -> dict:
+        if rule_payload.get("answer_level") in ("high_risk", "refuse"):
+            return rule_payload
+        try:
+            client = DeepSeekClient()
+            if not client.is_configured():
+                self._debug_model_io("skipped", "DEEPSEEK_API_KEY 未配置，已使用本地安全兜底")
+                return rule_payload
+            model_rule_payload = self._model_context_payload(rule_payload)
+            context = ChatContextBuilder(self.chat.db).build(user_id, session)
+            messages = build_chat_messages(sanitize_text(question), model_rule_payload, context)
+            self._debug_model_io("prompt", messages)
+            raw_answer = client.generate_json(messages)
+            self._debug_model_io("answer", raw_answer)
+            return validate_model_payload(raw_answer, model_rule_payload)
+        except Exception as exc:
+            self._debug_model_io("fallback", str(exc))
+            return rule_payload
+
+    def _debug_model_io(self, label: str, payload) -> None:
+        if not get_settings().CHAT_MODEL_DEBUG:
+            return
+        print(f"[DeepSeek Chat {label}] {sanitize_text(str(payload))[:2000]}")
+
+    def _model_context_payload(self, rule_payload: dict) -> dict:
+        payload = dict(rule_payload)
+        policy = dict(payload.get("context_policy") or {})
+        subject_type = payload.get("subject_type")
+        if subject_type not in ("other_person", "hypothetical"):
+            policy["use_profile"] = True
+            policy["use_products"] = True
+            policy["reason"] = "本次回答会结合你的个人档案、产品库和最近对话上下文。"
+        payload["context_policy"] = policy
+        payload["context_used"] = {
+            "profile": bool(policy.get("use_profile")),
+            "products": bool(policy.get("use_products")),
+        }
+        return payload
 
     def _detect_intent(self, question: str) -> str:
         for intent, keywords in INTENT_KEYWORDS:
@@ -121,7 +255,11 @@ class ChatService:
             return "self"
         return "unknown"
 
-    def _suggest_title(self, question: str, intent: str) -> str:
+    def _suggest_title(self, question: str, intent: str, suggested_title: str | None = None) -> str:
+        if suggested_title:
+            suggested = self._clean_title(suggested_title)
+            if suggested:
+                return suggested[:14]
         cleaned = self._normalize_question(question)
         cleaned = re.sub(r"\[(手机号|日期)\]", "", cleaned)
         cleaned = re.sub(r"\[邮箱\]", "", cleaned)
@@ -137,12 +275,18 @@ class ChatService:
             return (cleaned[:10] or "其他问题").strip()
         return (cleaned[:14] or "新对话").strip()
 
-    def _normalize_question(self, question: str) -> str:
-        text = re.sub(r"1\d{10}", "[手机号]", question)
-        text = re.sub(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+", "[邮箱]", text)
-        return re.sub(r"\d{4}-\d{1,2}-\d{1,2}", "[日期]", text)
+    def _clean_title(self, title: str) -> str:
+        cleaned = sanitize_text(title)
+        cleaned = re.sub(r"\[(手机号|日期|邮箱)\]", "", cleaned)
+        cleaned = re.sub(r"[，。！？!?、\s]+", "", cleaned)
+        return cleaned.strip()
 
-    def _build_structured_answer(self, question: str, intent: str, subject_type: str) -> dict:
+    def _normalize_question(self, question: str) -> str:
+        return sanitize_text(question)
+
+    def _build_structured_answer(self, question: str, intent_payload: dict) -> dict:
+        intent = intent_payload["intent"]
+        subject_type = intent_payload["subject_type"]
         title_map = {
             "skin_acne": "先按痘痘波动来观察",
             "skin_sensitive": "先按敏感不稳定来处理",
@@ -154,20 +298,84 @@ class ChatService:
         }
         title = title_map.get(intent, "我先帮你理清思路")
         summary = self._summary_for_intent(intent)
+        answer_level = intent_payload.get("answer_level") or self._answer_level_for_intent(intent)
+        context_policy = intent_payload.get("context_policy") or self._context_policy_for(intent, subject_type)
         return {
             "source": "local_rule",
             "intent": intent,
             "subject_type": subject_type,
+            "answer_level": answer_level,
+            "context_policy": context_policy,
+            "confidence": intent_payload.get("confidence") or self._confidence_for_level(answer_level),
             "context_used": {
-                "profile": subject_type == "self" and intent != "out_of_scope",
-                "products": intent == "product_match",
+                "profile": context_policy["use_profile"],
+                "products": context_policy["use_products"],
             },
             "title": title,
             "summary": summary,
             "sections": self._sections_for_intent(intent, subject_type),
             "recommended_products": [],
             "safety_note": self._safety_note_for_intent(intent),
+            "follow_up_questions": self._follow_up_questions_for_intent(intent),
         }
+
+    def _answer_level_for_intent(self, intent: str) -> str:
+        if intent in ("makeup_look", "routine_today"):
+            return "daily"
+        if intent in ("skin_acne", "skin_sensitive", "product_match", "general"):
+            return "cautious"
+        if intent == "pregnancy_safety":
+            return "high_risk"
+        if intent == "out_of_scope":
+            return "refuse"
+        return "cautious"
+
+    def _confidence_for_level(self, answer_level: str) -> str:
+        if answer_level in ("daily", "high_risk", "refuse"):
+            return "high"
+        return "medium"
+
+    def _context_policy_for(self, intent: str, subject_type: str) -> dict:
+        if intent == "out_of_scope":
+            return {
+                "use_profile": False,
+                "use_products": False,
+                "reason": "问题超出美妆护肤范围，不使用个人档案或产品库。",
+            }
+        if intent == "pregnancy_safety":
+            return {
+                "use_profile": False,
+                "use_products": False,
+                "reason": "孕期或高风险成分问题按安全优先处理，不给强个性化结论。",
+            }
+        if subject_type == "other_person":
+            return {
+                "use_profile": False,
+                "use_products": False,
+                "reason": "这是替别人咨询，不套用当前用户档案。",
+            }
+        if intent == "product_match":
+            return {
+                "use_profile": False,
+                "use_products": False,
+                "reason": "当前未读取个人档案或产品库，仅按通用成分搭配原则给谨慎建议。",
+            }
+        return {
+            "use_profile": False,
+            "use_products": False,
+            "reason": "当前未读取个人档案，先按通用美妆护肤原则回答。",
+        }
+
+    def _follow_up_questions_for_intent(self, intent: str) -> list[str]:
+        if intent == "makeup_look":
+            return ["你今天是通勤、约会还是正式场合？", "更想要清透感还是遮瑕力？"]
+        if intent == "product_match":
+            return ["这两个产品的完整名称或成分表是什么？", "你现在使用频率是一周几次？"]
+        if intent in ("skin_acne", "skin_sensitive", "general"):
+            return ["这个情况持续多久了？", "最近有没有新增产品或刷酸？"]
+        if intent == "pregnancy_safety":
+            return ["目前是备孕、孕期还是哺乳期？", "产品成分表里是否明确写了视黄醇或水杨酸？"]
+        return []
 
     def _summary_for_intent(self, intent: str) -> str:
         if intent == "out_of_scope":

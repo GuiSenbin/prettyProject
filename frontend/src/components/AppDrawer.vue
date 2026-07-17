@@ -37,20 +37,17 @@
                 class="btn btn-ghost history-item"
                 :class="{ active: chatStore.currentSessionId === session.id }"
                 type="button"
+                @touchstart.passive="startLongPress(session)"
+                @touchend="endLongPress"
+                @touchcancel="cancelLongPress"
+                @mousedown="startLongPress(session)"
+                @mouseup="endLongPress"
+                @mouseleave="cancelLongPress"
+                @contextmenu.prevent="openActionMenu(session)"
                 @click="openHistory(session.id)"
               >
                 <span class="history-title">{{ session.title }}</span>
-                <span
-                  class="history-menu"
-                  role="button"
-                  tabindex="0"
-                  aria-label="会话操作"
-                  @click.stop="openHistoryMenu(session)"
-                  @keydown.enter.stop.prevent="openHistoryMenu(session)"
-                  @keydown.space.stop.prevent="openHistoryMenu(session)"
-                >
-                  <MoreHorizontal :size="16" />
-                </span>
+                <time class="history-time">{{ formatSessionTime(session.updated_at || session.created_at) }}</time>
               </button>
             </div>
             <p v-else class="history-empty">暂无历史会话</p>
@@ -60,17 +57,53 @@
             <button class="btn btn-ghost" type="button" @click="$emit('logout')">退出登录</button>
           </footer>
         </aside>
+        <div v-if="actionMenuSession" class="history-action-mask" @click.stop="closeActionMenu">
+          <div class="history-action-card" @click.stop>
+            <button type="button" @click="showRenameModal">
+              <PencilLine :size="18" />
+              修改标题
+            </button>
+            <button type="button" class="danger" @click="showDeleteModal">
+              <Trash2 :size="18" />
+              删除
+            </button>
+          </div>
+        </div>
       </div>
     </transition>
+    <InputModal
+      v-model="renameVisible"
+      v-model:inputValue="renameTitle"
+      title="修改标题"
+      content="给这段会话取一个更好找的名字"
+      placeholder="请输入会话标题"
+      :maxlength="40"
+      :saving="savingAction"
+      :errorMessage="renameError"
+      confirmText="保存"
+      @confirm="confirmRename"
+    />
+    <ConfirmModal
+      v-model="deleteVisible"
+      title="删除会话"
+      :content="`确定删除「${actionMenuSession?.title || ''}」吗？删除后不会在历史会话中显示。`"
+      confirmText="删除"
+      cancelText="取消"
+      :showCancel="true"
+      :maskClosable="true"
+      @confirm="confirmDelete"
+    />
   </teleport>
 </template>
 
 <script setup>
-import { computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
-import { ChevronRight, MoreHorizontal } from 'lucide-vue-next'
+import { ChevronRight, PencilLine, Trash2 } from 'lucide-vue-next'
 import { Boxes, UserRound } from 'lucide-vue-next'
+import ConfirmModal from '@/components/confirm-modal.vue'
+import InputModal from '@/components/input-modal.vue'
 import { useAppStore } from '@/stores/app'
 import { useChatStore } from '@/stores/chat'
 import { useUserStore } from '@/stores/user'
@@ -86,6 +119,14 @@ const appStore = useAppStore()
 const chatStore = useChatStore()
 const userStore = useUserStore()
 const { sessions } = storeToRefs(chatStore)
+const actionMenuSession = ref(null)
+const renameVisible = ref(false)
+const deleteVisible = ref(false)
+const renameTitle = ref('')
+const renameError = ref('')
+const savingAction = ref(false)
+const longPressTimer = ref(null)
+const longPressTriggered = ref(false)
 
 const navItems = [
   { path: '/profile', label: '个人档案', icon: UserRound },
@@ -101,6 +142,10 @@ watch(() => props.open, (open) => {
 })
 
 async function openHistory(sessionId) {
+  if (longPressTriggered.value) {
+    longPressTriggered.value = false
+    return
+  }
   try {
     await chatStore.openSession(userStore.userId, sessionId)
     router.replace('/chat')
@@ -110,27 +155,93 @@ async function openHistory(sessionId) {
   }
 }
 
-async function openHistoryMenu(session) {
-  const action = window.prompt('输入 1 重命名，输入 2 删除', '1')
-  if (action === '1') {
-    const title = window.prompt('请输入新的会话标题', session.title)
-    if (!title?.trim()) return
-    try {
-      await chatStore.renameSession(userStore.userId, session.id, title.trim())
-      appStore.showToast('会话标题已更新', 'success')
-    } catch (err) {
-      appStore.showToast(err.message || '重命名失败', 'error')
-    }
+function startLongPress(session) {
+  cancelLongPress()
+  longPressTimer.value = window.setTimeout(() => {
+    longPressTriggered.value = true
+    openActionMenu(session)
+  }, 550)
+}
+
+function endLongPress() {
+  cancelLongPress()
+}
+
+function cancelLongPress() {
+  if (longPressTimer.value) {
+    window.clearTimeout(longPressTimer.value)
+    longPressTimer.value = null
   }
-  if (action === '2') {
-    if (!window.confirm(`确定删除「${session.title}」吗？`)) return
-    try {
-      await chatStore.deleteSession(userStore.userId, session.id)
-      appStore.showToast('会话已删除', 'success')
-    } catch (err) {
-      appStore.showToast(err.message || '删除失败', 'error')
-    }
+}
+
+function openActionMenu(session) {
+  cancelLongPress()
+  actionMenuSession.value = session
+}
+
+function closeActionMenu() {
+  actionMenuSession.value = null
+}
+
+function showRenameModal() {
+  renameTitle.value = actionMenuSession.value?.title || ''
+  renameError.value = ''
+  renameVisible.value = true
+}
+
+function showDeleteModal() {
+  deleteVisible.value = true
+}
+
+async function confirmRename() {
+  const title = renameTitle.value.trim()
+  if (!title) {
+    renameError.value = '请输入会话标题'
+    return
   }
+  if (!actionMenuSession.value) return
+  savingAction.value = true
+  try {
+    await chatStore.renameSession(userStore.userId, actionMenuSession.value.id, title)
+    appStore.showToast('会话标题已更新', 'success')
+    renameVisible.value = false
+    closeActionMenu()
+  } catch (err) {
+    renameError.value = err.message || '重命名失败'
+  } finally {
+    savingAction.value = false
+  }
+}
+
+async function confirmDelete() {
+  if (!actionMenuSession.value) return
+  savingAction.value = true
+  try {
+    await chatStore.deleteSession(userStore.userId, actionMenuSession.value.id)
+    appStore.showToast('会话已删除', 'success')
+    closeActionMenu()
+  } catch (err) {
+    appStore.showToast(err.message || '删除失败', 'error')
+  } finally {
+    savingAction.value = false
+  }
+}
+
+function formatSessionTime(value) {
+  if (!value) return ''
+  const date = new Date(value)
+  const now = new Date()
+  if (date.toDateString() === now.toDateString()) {
+    return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false })
+  }
+  const dayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const targetStart = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+  const diffDays = Math.floor((dayStart - targetStart) / 86400000)
+  if (diffDays >= 0 && diffDays < 7) {
+    const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六']
+    return weekdays[date.getDay()]
+  }
+  return `${date.getMonth() + 1}月${date.getDate()}日`
 }
 </script>
 
@@ -246,10 +357,10 @@ async function openHistoryMenu(session) {
 .history-item {
   min-height: 34px;
   display: grid;
-  grid-template-columns: 1fr 22px;
+  grid-template-columns: 1fr auto;
   align-items: center;
-  gap: 6px;
-  padding: 0 6px 0 10px;
+  gap: 8px;
+  padding: 0 10px;
   border-radius: 12px;
   color: rgba(67, 82, 102, 0.86);
   font-size: 13px;
@@ -262,16 +373,12 @@ async function openHistoryMenu(session) {
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-.history-menu {
-  width: 22px;
-  height: 22px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  svg {
-    color: $text-light;
+  .history-time {
+    color: rgba(67, 82, 102, 0.52);
+    font-size: 10px;
+    font-weight: 800;
+    white-space: nowrap;
   }
-}
   &.active {
     background: rgba(13, 124, 135, 0.1);
     color: $mint-primary;
@@ -284,6 +391,48 @@ async function openHistoryMenu(session) {
 .drawer-footer {
   margin-top: auto;
   padding-top: 20px;
+}
+.history-action-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 3001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(17, 24, 39, 0.18);
+}
+.history-action-card {
+  width: 180px;
+  padding: 8px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(207, 238, 241, 0.86);
+  box-shadow: 0 24px 48px rgba(17, 24, 39, 0.16);
+  backdrop-filter: blur(18px);
+  button {
+    width: 100%;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 14px;
+    background: transparent;
+    color: $text-primary;
+    font-size: 15px;
+    font-weight: 800;
+    text-align: left;
+    + button {
+      border-top: 1px solid rgba(148, 163, 184, 0.14);
+    }
+    svg {
+      color: currentColor;
+    }
+    &.danger {
+      color: #e54862;
+    }
+  }
 }
 .drawer-fade-enter-active,
 .drawer-fade-leave-active {
