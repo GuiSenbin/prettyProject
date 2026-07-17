@@ -46,7 +46,7 @@ class ProfileApiTest(unittest.TestCase):
 
         empty_response = client.get(f"/api/profiles/{user_id}")
         self.assertEqual(empty_response.status_code, 200)
-        self.assertIsNone(empty_response.json())
+        self.assertIsNone(empty_response.json()["data"])
 
         payload = {
             "gender": "female",
@@ -65,14 +65,14 @@ class ProfileApiTest(unittest.TestCase):
 
         save_response = client.put(f"/api/profiles/{user_id}", json=payload)
         self.assertEqual(save_response.status_code, 200)
-        saved = save_response.json()
+        saved = save_response.json()["data"]
         self.assertEqual(saved["user_id"], user_id)
         self.assertEqual(saved["face_shape"], "鹅蛋脸")
         self.assertEqual(saved["skin_concerns"], ["痘痘", "泛红"])
 
         read_response = client.get(f"/api/profiles/{user_id}")
         self.assertEqual(read_response.status_code, 200)
-        self.assertEqual(read_response.json()["preference_notes"], "讨厌浓香精味，最近熬夜较多")
+        self.assertEqual(read_response.json()["data"]["preference_notes"], "讨厌浓香精味，最近熬夜较多")
 
 
 if __name__ == "__main__":

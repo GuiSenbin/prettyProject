@@ -10,12 +10,14 @@ export const useChatStore = defineStore('chat', () => {
   const loadingSessions = ref(false)
   const loadingMessages = ref(false)
   const sending = ref(false)
+  const showGuide = ref(true)
 
   const currentSessionId = computed(() => currentSession.value?.id || null)
 
   function startNewTopic() {
     currentSession.value = null
     messages.value = []
+    showGuide.value = true
   }
 
   async function fetchSessions(userId) {
@@ -35,6 +37,7 @@ export const useChatStore = defineStore('chat', () => {
       const detail = await chatApi.getSession(sessionId)
       currentSession.value = detail.session
       messages.value = detail.messages || []
+      showGuide.value = false
       await fetchSessions(userId)
     } finally {
       loadingMessages.value = false
@@ -94,6 +97,7 @@ export const useChatStore = defineStore('chat', () => {
     loadingSessions,
     loadingMessages,
     sending,
+    showGuide,
     currentSessionId,
     startNewTopic,
     fetchSessions,

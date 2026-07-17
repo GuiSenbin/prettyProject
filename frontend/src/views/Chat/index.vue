@@ -1,7 +1,7 @@
 <!-- AI 问答：专业闺蜜型美妆护肤顾问，多会话入口。 -->
 <template>
   <section class="chat-page">
-    <div v-if="!messages.length" class="chat-welcome">
+    <div v-if="chatStore.showGuide" class="chat-welcome">
       <span class="eyebrow">小蜜 AI 顾问</span>
       <h2>今天想聊聊皮肤，还是妆容？</h2>
       <p>我会结合你的个人档案和产品库，给你专属建议。</p>
@@ -18,18 +18,23 @@
       </div>
     </div>
 
-    <div v-else class="message-list">
+    <div v-if="messages.length" class="message-list">
       <article
         v-for="item in messages"
         :key="item.id"
         class="message"
         :class="item.role"
       >
+        <time class="message-time">{{ formatMessageTime(item.created_at) }}</time>
         <p v-if="item.role === 'user'" class="bubble">{{ item.content_text }}</p>
         <div v-else class="answer-card">
           <template v-if="item.structured_payload">
             <header>
-              <span>小蜜建议</span>
+              <div class="answer-meta">
+                <span>{{ sourceLabel(item.structured_payload.source) }}</span>
+                <span>{{ levelLabel(item.structured_payload.answer_level) }}</span>
+                <span>{{ contextLabel(item.structured_payload.context_policy) }}</span>
+              </div>
               <h3>{{ item.structured_payload.title }}</h3>
               <p>{{ item.structured_payload.summary }}</p>
             </header>
@@ -54,6 +59,12 @@
               <h4>安全提醒</h4>
               <p>{{ item.structured_payload.safety_note }}</p>
             </section>
+            <section v-if="item.structured_payload.follow_up_questions?.length" class="answer-section follow-up">
+              <h4>我还想确认</h4>
+              <ul>
+                <li v-for="question in item.structured_payload.follow_up_questions" :key="question">{{ question }}</li>
+              </ul>
+            </section>
           </template>
           <p v-else>{{ item.content_text }}</p>
         </div>
@@ -64,7 +75,7 @@
       <input
         v-model.trim="draft"
         type="text"
-        placeholder="告诉小蜜你的皮肤状态或今天想画什么妆"
+        placeholder="对话内容以开启隐私保护"
         :disabled="chatStore.sending"
       />
       <button class="btn btn-primary" type="submit" :disabled="chatStore.sending || !draft">
@@ -87,10 +98,9 @@ const userStore = useUserStore()
 const draft = ref('')
 const { messages } = storeToRefs(chatStore)
 const suggestions = [
-  '我最近长痘怎么办？',
-  '今天早上怎么护肤？',
-  '帮我画一个淡妆',
-  '我的产品能一起用吗？',
+  '我最近总长痘痘为什么?',
+  '早上护肤涂什么?',
+  '我想化一个淡妆',
 ]
 
 onMounted(() => {
@@ -105,6 +115,53 @@ onBeforeUnmount(() => {
 function handleNewTopic() {
   chatStore.startNewTopic()
   draft.value = ''
+}
+
+function levelLabel(level) {
+  const labels = {
+    daily: '日常建议',
+    cautious: '谨慎建议',
+    high_risk: '高风险',
+    refuse: '范围外',
+  }
+  return labels[level] || '建议'
+}
+
+function contextLabel(policy) {
+  if (!policy) return '未使用档案'
+  if (policy.use_profile && policy.use_products) return '参考档案和产品库'
+  if (policy.use_profile) return '参考个人档案'
+  if (policy.use_products) return '参考产品库'
+  return '通用建议'
+}
+
+function sourceLabel(source) {
+  const labels = {
+    model: 'AI 生成',
+    local_rule: '安全兜底',
+    fallback: '安全兜底',
+  }
+  return labels[source] || 'AI 建议'
+}
+
+function formatMessageTime(value) {
+  const date = value ? new Date(value) : new Date()
+  const now = new Date()
+  const sameDay = date.toDateString() === now.toDateString()
+  const time = date.toLocaleTimeString('zh-CN', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  })
+  if (sameDay) return time
+  const dayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const targetStart = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+  const diffDays = Math.floor((dayStart - targetStart) / 86400000)
+  if (diffDays >= 0 && diffDays < 7) {
+    const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六']
+    return `${weekdays[date.getDay()]} ${time}`
+  }
+  return `${date.getMonth() + 1}月${date.getDate()}日 ${time}`
 }
 
 function sendSuggested(text) {
@@ -179,12 +236,20 @@ async function handleSend() {
 }
 .message {
   display: flex;
+  flex-direction: column;
+  gap: 6px;
   &.user {
-    justify-content: flex-end;
+    align-items: flex-end;
   }
   &.assistant {
-    justify-content: flex-start;
+    align-items: flex-start;
   }
+}
+.message-time {
+  align-self: center;
+  color: rgba(67, 82, 102, 0.56);
+  font-size: 11px;
+  font-weight: 700;
 }
 .bubble {
   max-width: 82%;
@@ -205,7 +270,21 @@ async function handleSend() {
   border: 1px solid rgba(207, 238, 241, 0.78);
   box-shadow: 0 12px 28px rgba(20, 82, 91, 0.06);
   header {
-    span {
+    .answer-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      span {
+        padding: 3px 7px;
+        border-radius: 8px;
+        background: rgba(13, 124, 135, 0.08);
+        border: 1px solid rgba(13, 124, 135, 0.12);
+        color: $mint-primary;
+        font-size: 10px;
+        font-weight: 900;
+      }
+    }
+    > span {
       color: $mint-primary;
       font-size: 11px;
       font-weight: 900;
