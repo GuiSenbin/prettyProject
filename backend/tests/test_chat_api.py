@@ -1,4 +1,5 @@
 """AI 问答 API 测试：验证多会话、历史回看、重命名和软删除。"""
+import json
 import unittest
 from unittest.mock import patch
 from fastapi import FastAPI
@@ -47,18 +48,85 @@ def auth_headers(user_id: str) -> dict[str, str]:
 
 class ChatApiTest(unittest.TestCase):
     def setUp(self):
-        class DisabledDeepSeekClient:
+        class FakeSemanticDeepSeekClient:
             def is_configured(self):
-                return False
+                return True
 
             def generate_json(self, messages):
-                raise AssertionError("普通单元测试不应该调用真实 DeepSeek")
+                prompt = str(messages)
+                if "intent_classification" in prompt:
+                    return self._intent_json(messages)
+                return (
+                    '{"title":"模型回答","summary":"模型根据语义分类生成回答",'
+                    '"sections":[{"type":"insight","heading":"判断","body":"这是模型生成的结构化建议。"}],'
+                    '"recommended_products":[],"safety_note":"如不适明显，请咨询专业医生。","follow_up_questions":[]}'
+                )
 
-        self.deepseek_patcher = patch("backend.app.modules.chat.service.DeepSeekClient", return_value=DisabledDeepSeekClient())
+            def _intent_json(self, prompt):
+                question = self._question_from_messages(prompt)
+                if "转行" in question or "股票" in question or "数学作业" in question or "骑自行车" in question:
+                    return (
+                        '{"intent":"out_of_scope","subject_type":"unknown","answer_level":"refuse",'
+                        '"context_policy":{"use_profile":false,"use_products":false,"reason":"问题不属于护肤彩妆范围"},'
+                        '"confidence":"high","title":"其他问题","reason":"语义判断为无关问题"}'
+                    )
+                if "妈妈" in question:
+                    return (
+                        '{"intent":"skin_sensitive","subject_type":"other_person","answer_level":"cautious",'
+                        '"context_policy":{"use_profile":false,"use_products":false,"reason":"替别人咨询，不套用当前用户档案"},'
+                        '"confidence":"medium","title":"泛红刺痛咨询","reason":"语义判断为替别人咨询肤况"}'
+                    )
+                if "怀孕" in question or "孕期" in question or "备孕" in question:
+                    return (
+                        '{"intent":"pregnancy_safety","subject_type":"hypothetical","answer_level":"high_risk",'
+                        '"context_policy":{"use_profile":false,"use_products":false,"reason":"孕期成分问题按安全优先处理"},'
+                        '"confidence":"high","title":"孕期成分安全","reason":"语义判断为孕期高风险成分问题"}'
+                    )
+                if "淡妆" in question or "气色" in question:
+                    return (
+                        '{"intent":"makeup_look","subject_type":"self","answer_level":"daily",'
+                        '"context_policy":{"use_profile":true,"use_products":true,"reason":"需要结合个人档案和产品库做妆容建议"},'
+                        '"confidence":"high","title":"清透淡妆","reason":"语义判断为妆容需求"}'
+                    )
+                if "烟酰胺" in question or "酸类" in question or "一起用" in question:
+                    return (
+                        '{"intent":"product_match","subject_type":"self","answer_level":"cautious",'
+                        '"context_policy":{"use_profile":true,"use_products":true,"reason":"需要结合产品库判断搭配风险"},'
+                        '"confidence":"medium","title":"产品搭配判断","reason":"语义判断为产品搭配问题"}'
+                    )
+                if "痘" in question or "闭口" in question or "粉刺" in question or "泛红" in question or "刺痛" in question:
+                    return (
+                        '{"intent":"skin_acne","subject_type":"self","answer_level":"cautious",'
+                        '"context_policy":{"use_profile":true,"use_products":true,"reason":"需要结合肤况和产品库分析反复长痘"},'
+                        '"confidence":"medium","title":"长痘闭口分析","reason":"语义判断为痘痘肤况问题"}'
+                    )
+                return (
+                    '{"intent":"general","subject_type":"unknown","answer_level":"cautious",'
+                    '"context_policy":{"use_profile":false,"use_products":false,"reason":"先按通用问题处理"},'
+                    '"confidence":"medium","title":"新对话","reason":"语义判断为一般咨询"}'
+                )
+
+            def _question_from_messages(self, messages):
+                payload = json.loads(messages[1]["content"])
+                return payload["question"]
+
+        self.deepseek_patcher = patch("backend.app.modules.chat.service.DeepSeekClient", return_value=FakeSemanticDeepSeekClient())
         self.deepseek_patcher.start()
 
     def tearDown(self):
         self.deepseek_patcher.stop()
+
+    def test_chat_service_does_not_use_keyword_intent_router(self):
+        from pathlib import Path
+
+        service_source = Path("backend/app/modules/chat/service.py").read_text(encoding="utf-8")
+
+        self.assertNotIn("INTENT_KEYWORDS", service_source)
+        self.assertNotIn("OTHER_PERSON_KEYWORDS", service_source)
+        self.assertNotIn("HYPOTHETICAL_KEYWORDS", service_source)
+        self.assertNotIn("SEVERE_SKIN_KEYWORDS", service_source)
+        self.assertNotIn("def _detect_intent", service_source)
+        self.assertNotIn("def _detect_subject_type", service_source)
 
     def test_deepseek_config_is_loaded_from_backend_local_env(self):
         from backend.app.core.config import get_settings
@@ -158,14 +226,24 @@ class ChatApiTest(unittest.TestCase):
             user_id = user.id
 
         class FakeDeepSeekClient:
+            def __init__(self):
+                self.calls = 0
+
             def is_configured(self):
                 return True
 
             def generate_json(self, messages):
-                self.messages = messages
+                self.calls += 1
+                if "intent_classification" in str(messages):
+                    return (
+                        '{"intent":"makeup_look","subject_type":"self","answer_level":"daily",'
+                        '"context_policy":{"use_profile":true,"use_products":true,"reason":"需要结合个人档案和产品库"},'
+                        '"confidence":"high","title":"模型淡妆建议","reason":"语义判断为淡妆需求"}'
+                    )
                 return '{"title":"模型淡妆建议","summary":"模型回答","sections":[],"recommended_products":[],"safety_note":"安全提醒","follow_up_questions":["今天是什么场合？"]}'
 
-        with patch("backend.app.modules.chat.service.DeepSeekClient", return_value=FakeDeepSeekClient()):
+        fake_client = FakeDeepSeekClient()
+        with patch("backend.app.modules.chat.service.DeepSeekClient", return_value=fake_client):
             response = client.post(
                 "/api/chat/messages",
                 headers=auth_headers(user_id),
@@ -173,6 +251,7 @@ class ChatApiTest(unittest.TestCase):
             )
 
         payload = api_data(response)["message"]["structured_payload"]
+        self.assertEqual(fake_client.calls, 2)
         self.assertEqual(payload["source"], "model")
         self.assertEqual(payload["title"], "模型淡妆建议")
         self.assertEqual(payload["intent"], "makeup_look")
@@ -303,7 +382,7 @@ class ChatApiTest(unittest.TestCase):
 
         payload = api_data(response)["message"]["structured_payload"]
         self.assertEqual(payload["source"], "local_rule")
-        self.assertEqual(payload["intent"], "makeup_look")
+        self.assertEqual(payload["intent"], "general")
 
     def test_send_message_falls_back_when_model_payload_has_invalid_types(self):
         client, session_factory = make_client()
@@ -331,7 +410,7 @@ class ChatApiTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         payload = api_data(response)["message"]["structured_payload"]
         self.assertEqual(payload["source"], "local_rule")
-        self.assertEqual(payload["intent"], "makeup_look")
+        self.assertEqual(payload["intent"], "general")
 
     def test_model_prompt_sanitizes_current_question_and_recent_history(self):
         client, session_factory = make_client()
@@ -371,7 +450,7 @@ class ChatApiTest(unittest.TestCase):
         payload = api_data(response)["message"]["structured_payload"]
         self.assertEqual(payload["source"], "model")
 
-    def test_high_risk_question_does_not_call_model(self):
+    def test_high_risk_question_uses_classifier_but_skips_answer_model(self):
         client, session_factory = make_client()
         with session_factory() as db:
             user = User(display_name="测试用户", login_type="username")
@@ -380,14 +459,25 @@ class ChatApiTest(unittest.TestCase):
             db.refresh(user)
             user_id = user.id
 
-        class ExplodingDeepSeekClient:
+        class FakeDeepSeekClient:
+            def __init__(self):
+                self.calls = 0
+
             def is_configured(self):
                 return True
 
             def generate_json(self, messages):
-                raise AssertionError("高风险问题不应该调用模型")
+                self.calls += 1
+                if "intent_classification" not in str(messages):
+                    raise AssertionError("高风险问题不应该调用正式回答模型")
+                return (
+                    '{"intent":"pregnancy_safety","subject_type":"hypothetical","answer_level":"high_risk",'
+                    '"context_policy":{"use_profile":false,"use_products":false,"reason":"孕期成分问题按安全优先处理"},'
+                    '"confidence":"high","title":"孕期成分安全","reason":"模型语义判断为高风险问题"}'
+                )
 
-        with patch("backend.app.modules.chat.service.DeepSeekClient", return_value=ExplodingDeepSeekClient()):
+        fake_client = FakeDeepSeekClient()
+        with patch("backend.app.modules.chat.service.DeepSeekClient", return_value=fake_client):
             response = client.post(
                 "/api/chat/messages",
                 headers=auth_headers(user_id),
@@ -396,6 +486,7 @@ class ChatApiTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         payload = api_data(response)["message"]["structured_payload"]
+        self.assertEqual(fake_client.calls, 1)
         self.assertEqual(payload["source"], "local_rule")
         self.assertEqual(payload["answer_level"], "high_risk")
 
@@ -416,11 +507,11 @@ class ChatApiTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         data = api_data(response)
-        self.assertEqual(data["session"]["title"], "额头长痘怎么办")
+        self.assertEqual(data["session"]["title"], "长痘闭口分析")
         self.assertEqual(data["session"]["title_edited"], False)
         self.assertEqual(data["message"]["role"], "assistant")
         self.assertEqual(data["user_message"]["role"], "user")
-        self.assertEqual(data["message"]["structured_payload"]["source"], "local_rule")
+        self.assertEqual(data["message"]["structured_payload"]["source"], "model")
         self.assertGreaterEqual(len(data["message"]["structured_payload"]["sections"]), 1)
 
         detail = client.get(f"/api/chat/sessions/{data['session']['id']}", headers=auth_headers(user_id))
@@ -556,7 +647,7 @@ class ChatApiTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         data = api_data(response)
         self.assertNotIn("13812345678", data["session"]["title"])
-        self.assertEqual(data["session"]["title"], "今天想画一个淡妆")
+        self.assertEqual(data["session"]["title"], "清透淡妆")
         self.assertEqual(data["message"]["intent"], "makeup_look")
 
     def test_chat_history_uses_authenticated_user_not_client_user_id(self):
@@ -633,7 +724,7 @@ class ChatApiTest(unittest.TestCase):
         payload = api_data(response)["message"]["structured_payload"]
         self.assertEqual(payload["subject_type"], "other_person")
         self.assertTrue(payload["context_used"]["profile"] is False)
-        self.assertIn("不套用你的个人档案", payload["sections"][0]["body"])
+        self.assertIn("替别人咨询", payload["context_policy"]["reason"])
 
     def test_pregnancy_question_gets_safety_first_answer(self):
         client, session_factory = make_client()
@@ -678,13 +769,12 @@ class ChatApiTest(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         payload = api_data(response)["message"]["structured_payload"]
-        all_text = str(payload)
         self.assertEqual(payload["intent"], "makeup_look")
         self.assertEqual(payload["answer_level"], "daily")
         self.assertEqual(payload["confidence"], "high")
-        self.assertIn("底妆", all_text)
-        self.assertIn("眉眼", all_text)
-        self.assertIn("唇颊", all_text)
+        self.assertEqual(payload["source"], "model")
+        self.assertTrue(payload["context_policy"]["use_profile"])
+        self.assertTrue(payload["context_policy"]["use_products"])
 
     def test_product_match_question_returns_risk_and_order_sections(self):
         client, session_factory = make_client()
@@ -704,15 +794,12 @@ class ChatApiTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         payload = api_data(response)["message"]["structured_payload"]
         title = api_data(response)["session"]["title"]
-        headings = [section["heading"] for section in payload["sections"]]
         self.assertEqual(payload["intent"], "product_match")
         self.assertEqual(payload["answer_level"], "cautious")
         self.assertEqual(payload["confidence"], "medium")
-        self.assertFalse(payload["context_policy"]["use_products"])
-        self.assertIn("通用成分搭配原则", payload["context_policy"]["reason"])
-        self.assertEqual(title, "烟酰胺和酸类搭配")
-        self.assertIn("搭配风险", headings)
-        self.assertIn("使用顺序", headings)
+        self.assertTrue(payload["context_policy"]["use_profile"])
+        self.assertTrue(payload["context_policy"]["use_products"])
+        self.assertEqual(title, "产品搭配判断")
 
     def test_sensitive_title_removes_phone_email_and_long_noise(self):
         client, session_factory = make_client()
@@ -762,7 +849,7 @@ class ChatApiTest(unittest.TestCase):
         history = api_data(client.get(f"/api/chat/sessions/{session_id}", headers=auth_headers(user_id)))
 
         self.assertEqual(second["session"]["id"], session_id)
-        self.assertEqual(history["session"]["title"], "脸颊泛红刺痛怎么办")
+        self.assertEqual(history["session"]["title"], "长痘闭口分析")
         self.assertEqual([message["role"] for message in history["messages"]], ["user", "assistant", "user", "assistant"])
         self.assertEqual(history["messages"][0]["content_text"], "我最近脸颊泛红刺痛怎么办？")
         self.assertEqual(history["messages"][2]["content_text"], "那今晚还能刷酸吗？")
@@ -786,14 +873,13 @@ class ChatApiTest(unittest.TestCase):
         payload = api_data(response)["message"]["structured_payload"]
         self.assertEqual(payload["answer_level"], "cautious")
         self.assertEqual(payload["confidence"], "medium")
-        self.assertFalse(payload["context_policy"]["use_profile"])
-        self.assertIn("未读取个人档案", payload["context_policy"]["reason"])
-        self.assertGreaterEqual(len(payload["follow_up_questions"]), 1)
+        self.assertTrue(payload["context_policy"]["use_profile"])
+        self.assertTrue(payload["context_policy"]["use_products"])
         with session_factory() as db:
             log = db.query(ChatQuestionLog).one()
             self.assertEqual(log.context_used["answer_level"], "cautious")
             self.assertEqual(log.context_used["confidence"], "medium")
-            self.assertFalse(log.context_used["context_policy"]["use_profile"])
+            self.assertTrue(log.context_used["context_policy"]["use_profile"])
 
 
 if __name__ == "__main__":
