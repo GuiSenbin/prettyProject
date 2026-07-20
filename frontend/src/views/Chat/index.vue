@@ -23,10 +23,27 @@
         v-for="item in messages"
         :key="item.id"
         class="message"
-        :class="item.role"
+        :class="[item.role, { thinking: item.loading, failed: item.error }]"
       >
         <time class="message-time">{{ formatMessageTime(item.created_at) }}</time>
         <p v-if="item.role === 'user'" class="bubble">{{ item.content_text }}</p>
+        <div v-else-if="item.loading" class="thinking-card">
+          <div class="thinking-copy">
+            <span>小蜜正在结合你的档案和产品库思考</span>
+            <small>正在整理更适合你的建议</small>
+          </div>
+          <span class="thinking-dots" aria-hidden="true">
+            <i></i>
+            <i></i>
+            <i></i>
+          </span>
+        </div>
+        <div v-else-if="item.error" class="thinking-card error-card">
+          <div class="thinking-copy">
+            <span>{{ item.content_text }}</span>
+            <small>网络或模型暂时没有回应</small>
+          </div>
+        </div>
         <div v-else class="answer-card">
           <template v-if="item.structured_payload">
             <header>
@@ -86,7 +103,7 @@
 </template>
 
 <script setup>
-import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useAppStore } from '@/stores/app'
 import { useChatStore } from '@/stores/chat'
@@ -111,6 +128,14 @@ onMounted(() => {
 onBeforeUnmount(() => {
   window.removeEventListener('chat-new-topic', handleNewTopic)
 })
+
+watch(
+  () => messages.value.length,
+  async () => {
+    await nextTick()
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
+  }
+)
 
 function handleNewTopic() {
   chatStore.startNewTopic()
@@ -175,8 +200,6 @@ async function handleSend() {
   draft.value = ''
   try {
     await chatStore.sendMessage(userStore.userId, message)
-    await nextTick()
-    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
   } catch (err) {
     appStore.showToast(err.message || '小蜜暂时没有回应，请稍后再试', 'error')
   }
@@ -302,6 +325,58 @@ async function handleSend() {
     }
   }
 }
+.thinking-card {
+  width: min(86%, 360px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 14px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(207, 238, 241, 0.78);
+  box-shadow: 0 12px 28px rgba(20, 82, 91, 0.06);
+}
+.thinking-copy {
+  display: grid;
+  gap: 4px;
+  span {
+    color: $text-primary;
+    font-size: 13px;
+    font-weight: 900;
+  }
+  small {
+    color: rgba(67, 82, 102, 0.62);
+    font-size: 11px;
+    font-weight: 700;
+  }
+}
+.thinking-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: 0 0 auto;
+  i {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: $mint-primary;
+    animation: thinkingPulse 1.1s ease-in-out infinite;
+    &:nth-child(2) {
+      animation-delay: 0.16s;
+    }
+    &:nth-child(3) {
+      animation-delay: 0.32s;
+    }
+  }
+}
+.error-card {
+  border-color: rgba(245, 158, 11, 0.22);
+  background: rgba(255, 251, 235, 0.88);
+  .thinking-copy span {
+    color: #9a5d00;
+  }
+}
 .answer-section {
   padding: 10px;
   border-radius: 8px;
@@ -365,6 +440,18 @@ async function handleSend() {
     min-height: var(--btn-height) !important;
     padding: 0 12px;
     font-size: 13px;
+  }
+}
+@keyframes thinkingPulse {
+  0%,
+  80%,
+  100% {
+    opacity: 0.28;
+    transform: translateY(0);
+  }
+  40% {
+    opacity: 1;
+    transform: translateY(-3px);
   }
 }
 </style>

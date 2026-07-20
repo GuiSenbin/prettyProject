@@ -47,13 +47,24 @@ export const useChatStore = defineStore('chat', () => {
   async function sendMessage(userId, text) {
     const message = text.trim()
     if (!userId || !message || sending.value) return null
+    const createdAt = new Date().toISOString()
     const userMessage = {
       id: `local-${Date.now()}`,
       role: 'user',
       content_text: message,
       structured_payload: null,
+      created_at: createdAt,
+      local: true,
     }
-    messages.value.push(userMessage)
+    const thinkingMessage = {
+      id: `thinking-${Date.now()}`,
+      role: 'assistant',
+      content_text: '小蜜正在结合你的档案和产品库思考',
+      structured_payload: null,
+      created_at: createdAt,
+      loading: true,
+    }
+    messages.value.push(userMessage, thinkingMessage)
     sending.value = true
     try {
       const result = await chatApi.sendMessage({
@@ -61,12 +72,20 @@ export const useChatStore = defineStore('chat', () => {
         message,
       })
       currentSession.value = result.session
-      messages.value = messages.value.filter(item => item.id !== userMessage.id)
+      messages.value = messages.value.filter(item => item.id !== userMessage.id && item.id !== thinkingMessage.id)
       messages.value.push(result.user_message, result.message)
       await fetchSessions(userId)
       return result
     } catch (err) {
-      messages.value = messages.value.filter(item => item.id !== userMessage.id)
+      messages.value = messages.value.map(item => {
+        if (item.id !== thinkingMessage.id) return item
+        return {
+          ...item,
+          loading: false,
+          error: true,
+          content_text: '这次没有连接成功，可以再发一次。',
+        }
+      })
       throw err
     } finally {
       sending.value = false
