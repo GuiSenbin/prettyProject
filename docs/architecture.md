@@ -1,29 +1,37 @@
 # 项目架构规范
 
-智颜当前处于 Clean App Baseline。项目只保留开屏、登录、基础身份、核心路由和空业务页面，后续功能从清晰模块边界中逐步添加。
+智颜当前处于 2.0 阶段。项目已经完成个人档案、产品库与成分事实、产品适配分析、AI 问答多会话和 DeepSeek 结构化生成的基础闭环。后续扩展必须继续遵守清晰模块边界，避免把产品事实、用户档案、AI 记忆和页面展示混在一起。
 
 ## 核心模块
 
 - `Splash`：开屏页，保持现有视觉。
 - `Login`：登录页、社交登录入口、用户协议和隐私政策，保持现有视觉。
 - `Profile`：个人档案入口，采集护肤推荐所需的肤况、脸型、安全避雷和偏好信息。
-- `Product`：产品库入口，URL 继续使用 `/cabinet`，当前显示“暂无数据”。
-- `Chat`：AI 问答主入口，支持登录用户的多会话问答、历史回看、重命名和软删除。侧边栏不展示 Chat 导航入口，但展示最近 10 条历史会话用于主动切换。
+- `Product`：产品库入口，URL 继续使用 `/cabinet`，负责产品搜索、个人产品库、产品详情、完整成分表、功效分组、安全提示和个人适配分析。产品库进入详情再返回时，必须保留搜索词、分页/懒加载进度和滚动位置。
+- `Chat`：AI 问答主入口，支持登录用户的多会话问答、历史回看、重命名和软删除。侧边栏不展示 Chat 导航入口，但展示最近 10 条历史会话用于主动切换。当前已接入 DeepSeek 生成层，并保留本地结构化兜底。
 - `Settings`：设置中心，负责用户基础资料的展示与修改（含上传头像）、核心鉴权认证凭据（绑定手机号、更改登录用户名），为全站安全与账号打通提供入口。
 
 ## 前端边界
 
-页面放在 `frontend/src/views/<Module>/index.vue`。当前业务页面只保留空状态，不挂载旧表单、旧产品分析、旧聊天消息或旧模拟数据。
+页面放在 `frontend/src/views/<Module>/index.vue`。详情页、设置页等模块子页面可以放在对应模块目录内，例如 `frontend/src/views/Product/Detail.vue`。
 
 全局组件只放跨模块复用组件。所有按钮必须收口到全局 `.btn`、`.btn-primary`、`.btn-secondary`、`.btn-ghost`、`.btn-icon` 体系。
 
+产品库页面状态由 `frontend/src/stores/product.js` 维护，负责在产品列表和详情页之间保留搜索、分页和滚动位置。Chat 页面状态由 `frontend/src/stores/chat.js` 维护，负责当前会话、历史会话和消息流。
+
 ## 后端边界
 
-后端使用模块化单体。已恢复的业务能力必须按模块挂载 API，并遵守 router、schemas、models、service、repository 的分层边界。AI 问答历史属于用户隐私数据，接口必须从登录态解析当前用户，不允许信任客户端传入任意用户 ID。
+后端使用模块化单体。业务能力必须按模块挂载 API，并遵守 router、schemas、models、service、repository 的分层边界。AI 问答历史、个人档案和个人产品库属于用户隐私数据，接口必须从登录态解析当前用户，不允许信任客户端传入任意用户 ID。
+
+AI 问答链路由 `chat` 模块统一编排：本地意图/风险策略先确定边界，再由 DeepSeek 在结构化契约内生成答案；模型不可用、JSON 异常或安全校验失败时，必须回退到本地结构化答案，不能让页面出现 500。
+
+当前模型上下文只读取当前会话最近 8 条消息。V3 需要新增长期摘要/压缩历史会话能力，把早期对话中的关键肤况、禁忌、产品和目标压缩为结构化摘要，再与最近消息、用户档案和产品库一起进入模型上下文。
 
 ## 数据库边界
 
-数据库结构变化必须通过 Alembic migration。当前账号数据由 `users` 和 `user_social_auths` 承载；个人档案详情由独立 `user_profiles` 表承载；AI 问答由 `chat_sessions`、`chat_messages`、`chat_question_logs` 承载。
+数据库结构变化必须通过 Alembic migration。当前账号数据由 `users` 和 `user_social_auths` 承载；个人档案详情由独立 `user_profiles` 表承载；产品与成分由 `products`、`ingredients`、`product_ingredients`、`user_products` 承载；AI 问答由 `chat_sessions`、`chat_messages`、`chat_question_logs` 承载。
+
+后续如果新增长期摘要，需要单独设计表或字段保存会话摘要，并明确摘要来源、更新时间、覆盖范围和用户可删除/可修正策略。
 
 ## 安全认证架构
 

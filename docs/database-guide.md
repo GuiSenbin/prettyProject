@@ -12,6 +12,10 @@
 ./.venv/bin/alembic -c backend/alembic.ini upgrade head
 ```
 
+`backend/alembic/versions/*.py` 是数据库结构的迁移历史，属于项目代码，需要进入版本控制。即使某个迁移来自早期迭代，只要它仍在 `down_revision` 链上，就不能单独删除，否则新环境无法从空库升级到当前表结构。
+
+不要提交的是本地数据库文件、WAL/SHM 文件、`__pycache__/`、`*.pyc` 等运行缓存。
+
 当前迁移链：
 
 - `20260705_0001_initial_schema.py`：创建最小 `users` 表和索引。
@@ -19,7 +23,13 @@
 - `20260705_0003_clean_users_baseline.py`：把旧用户档案表迁成最小用户身份表。
 - `20260705_0004_auth_table_split.py`：分离出用户授权凭证表 `user_social_auths` 以解耦多端登录映射，并使 `users.phone` 设为可空。
 - `20260706_0005_user_profiles.py`：新增个人护肤档案表 `user_profiles`，与 `users.id` 一对一关联。
+- `20260712_0006_products.py`：新增产品主表、成分表、产品-成分关联表和个人产品库表。
+- `20260712_0007_product_source_url.py`：为产品表增加来源链接字段。
+- `e947615dbf1b_add_safety_level_and_purposes.py`：为成分补充安全等级和使用目的。
+- `20260713_0009_drop_product_import_candidates.py`：清理早期产品导入候选表。
+- `20260713_0010_product_compliance_fields.py`：为产品表增加备案号和品牌起源国家字段。
 - `20260715_0011_chat_sessions.py`：新增 AI 问答会话表、消息表和脱敏问答日志表。
+- `96b5381de25e_add_avatar_url.py`：为用户表增加头像地址字段。
 
 ## 当前表与企业级账号体系
 
@@ -50,8 +60,6 @@
 
 产品库、AI 问答、个人档案详情都必须通过新 migration 单独建表。应用启动时禁止隐式 `DROP TABLE`。废弃表、字段清理必须通过 migration 明确执行。
 
-产品库、AI 问答、个人档案详情都必须通过新 migration 单独建表。应用启动时禁止隐式 `DROP TABLE`。废弃表、字段清理必须通过 migration 明确执行。
-
 ### 4. `user_profiles`（个人护肤档案表）
 存放护肤推荐所需的结构化档案，与账号体系解耦：
 * `user_id`：关联 `users.id`，每个用户最多一份档案。
@@ -77,4 +85,19 @@
 存放后续高频知识库建设所需的脱敏问答线索：
 * `normalized_question`：脱敏后的用户问题。
 * `intent`、`subject_type`、`context_used`：问题分类与上下文使用情况。
-* `source`：回答来源，例如本地规则占位或后续真实大模型。
+* `source`：回答来源，例如 `model`、`local_rule` 或模型不可用时的兜底来源。
+
+### 8. 产品与成分相关表
+产品库由产品事实、成分事实和用户个人产品库组成：
+* `products`：产品主表，包含品牌、名称、分类、图片、来源链接、备案号、品牌起源国家等产品级事实。
+* `ingredients`：成分主表，包含中文名、INCI 名、安全等级、使用目的和标签等成分级事实。
+* `product_ingredients`：产品与成分的顺序关联表，用于还原完整成分表。
+* `user_products`：用户个人产品库，关联当前用户和产品主库；历史数据必须按登录用户隔离。
+
+### 9. V3 长期摘要规划
+当前 AI 模型上下文只取当前会话最近 8 条消息，完整消息仍保存于 `chat_messages`。如果 V3 新增长期摘要/压缩历史会话能力，需要新增独立表或字段保存结构化摘要，例如：
+* 摘要覆盖的会话 ID 和消息范围。
+* 近期肤况、过敏/禁忌、正在使用的产品、用户目标和待确认问题。
+* 摘要更新时间、生成来源和失效策略。
+
+长期摘要不能替代个人档案。稳定且需要长期使用的信息，应由用户确认后写入 `user_profiles` 或专门的长期记忆结构。
