@@ -24,6 +24,7 @@ export default defineConfig(({ mode }) => {
     css: {
       preprocessorOptions: {
         scss: {
+          api: 'modern',
           additionalData: `@use "@/assets/styles/_variables.scss" as *;`,
         },
       },
