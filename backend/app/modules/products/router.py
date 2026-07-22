@@ -1,7 +1,7 @@
 """产品库路由：提供本地主库搜索、个人产品库和产品详情入口。"""
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from backend.app.core.deps import get_db
+from backend.app.core.deps import get_current_user_id, get_db
 from backend.app.modules.products.schemas import (
     ProductAnalysis,
     ProductDetail,
@@ -29,8 +29,8 @@ def search_products(
         "data": items
     }
 
-@router.get("/my/{user_id}", response_model=StandardResponse[list[UserProductResponse]])
-def list_my_products(user_id: str, db: Session = Depends(get_db)):
+@router.get("/my", response_model=StandardResponse[list[UserProductResponse]])
+def list_my_products(user_id: str = Depends(get_current_user_id), db: Session = Depends(get_db)):
     """读取用户自己的产品库。"""
     items = ProductService(db).list_my_products(user_id)
     return {
@@ -40,8 +40,12 @@ def list_my_products(user_id: str, db: Session = Depends(get_db)):
     }
 
 
-@router.post("/my/{user_id}", response_model=StandardResponse[UserProductResponse])
-def add_my_product(user_id: str, payload: UserProductCreate, db: Session = Depends(get_db)):
+@router.post("/my", response_model=StandardResponse[UserProductResponse])
+def add_my_product(
+    payload: UserProductCreate,
+    user_id: str = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+):
     """加入主库产品，或保存一条待完善产品。"""
     item = ProductService(db).add_my_product(user_id, payload)
     return {
@@ -51,8 +55,12 @@ def add_my_product(user_id: str, payload: UserProductCreate, db: Session = Depen
     }
 
 
-@router.delete("/my/{user_id}/{user_product_id}", response_model=StandardResponse[dict])
-def delete_my_product(user_id: str, user_product_id: int, db: Session = Depends(get_db)):
+@router.delete("/my/{user_product_id}", response_model=StandardResponse[dict])
+def delete_my_product(
+    user_product_id: int,
+    user_id: str = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+):
     """从用户自己的产品库移除一条产品记录，不删除主产品库产品。"""
     ProductService(db).delete_my_product(user_id, user_product_id)
     return {
@@ -63,7 +71,11 @@ def delete_my_product(user_id: str, user_product_id: int, db: Session = Depends(
 
 
 @router.get("/{product_id}", response_model=StandardResponse[ProductDetail])
-def get_product_detail(product_id: int, user_id: str | None = None, db: Session = Depends(get_db)):
+def get_product_detail(
+    product_id: int,
+    user_id: str = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+):
     """读取产品详情：产品事实、成分功效分组、安全提示和个人适配分析。"""
     detail = ProductService(db).get_detail(product_id, user_id)
     return {
@@ -74,7 +86,11 @@ def get_product_detail(product_id: int, user_id: str | None = None, db: Session 
 
 
 @router.get("/{product_id}/analysis", response_model=StandardResponse[ProductAnalysis])
-def analyze_product(product_id: int, user_id: str | None = None, db: Session = Depends(get_db)):
+def analyze_product(
+    product_id: int,
+    user_id: str = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+):
     """结合用户个人档案返回轻量成分匹配结论。"""
     analysis = ProductService(db).analyze(product_id, user_id)
     return {

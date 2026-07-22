@@ -452,7 +452,7 @@ function buildPayload() {
 async function loadProfile() {
   if (!userStore.userId) return
   try {
-    const profile = await profileApi.getProfile(userStore.userId)
+    const profile = await profileApi.getProfile()
     if (profile) {
       assignProfile(profile)
     } else {
@@ -488,7 +488,7 @@ async function handleSubmit() {
   }
   saving.value = true
   try {
-    const profile = await profileApi.saveProfile(userStore.userId, buildPayload())
+    const profile = await profileApi.saveProfile(buildPayload())
     assignProfile(profile)
     takeSnapshot()
     
@@ -600,7 +600,7 @@ onBeforeRouteLeave(async (to, from, next) => {
     saving.value = true
     try {
       if (userStore.userId) {
-        await profileApi.saveProfile(userStore.userId, buildPayload())
+        await profileApi.saveProfile(buildPayload())
         takeSnapshot()
         appStore.showToast('档案已自动保存', 'success')
       }

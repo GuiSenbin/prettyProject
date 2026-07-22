@@ -17,6 +17,9 @@
 ehthumbs.db
 Thumbs.db
 
+# 本地预览文件
+pm_readme.html
+
 # Python 编译和虚拟环境文件
 __pycache__/
 *.py[cod]

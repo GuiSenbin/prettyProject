@@ -132,8 +132,8 @@ async function handleFileChange(e) {
 
   loadingAvatar.value = true
   try {
-    const res = await userApi.uploadAvatar(userStore.userId, file)
-    userStore.session.avatar_url = res.data.avatar_url
+    const res = await userApi.uploadAvatar(file)
+    userStore.session.avatar_url = res.avatar_url
     userStore.saveSession()
   } catch (err) {
     console.error(err)
@@ -174,7 +174,7 @@ async function handleSave() {
   errorMessage.value = ''
   try {
     const payload = modalType.value === 'username' ? { display_name: val } : { phone: val }
-    const res = await userApi.updateUser(userStore.userId, payload)
+    const res = await userApi.updateUser(payload)
     
     // 更新本地 state
     if (modalType.value === 'username') {

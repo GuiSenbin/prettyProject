@@ -2,24 +2,24 @@
 import request from '@/utils/request'
 
 export const productApi = {
-  getProductDetail(productId, userId) {
-    return request.get(`/products/${productId}`, { params: { user_id: userId } })
+  getProductDetail(productId) {
+    return request.get(`/products/${productId}`)
   },
 
-  listMyProducts(userId) {
-    return request.get(`/products/my/${userId}`)
+  listMyProducts() {
+    return request.get('/products/my')
   },
 
-  addMyProduct(userId, payload) {
-    return request.post(`/products/my/${userId}`, payload)
+  addMyProduct(payload) {
+    return request.post('/products/my', payload)
   },
 
-  deleteMyProduct(userId, userProductId) {
-    return request.delete(`/products/my/${userId}/${userProductId}`)
+  deleteMyProduct(userProductId) {
+    return request.delete(`/products/my/${userProductId}`)
   },
 
-  analyzeProduct(productId, userId) {
-    return request.get(`/products/${productId}/analysis`, { params: { user_id: userId } })
+  analyzeProduct(productId) {
+    return request.get(`/products/${productId}/analysis`)
   },
   searchProducts(q = '', page = 1, size = 12) {
     return request.get('/products/search', { params: { q, page, size } })
