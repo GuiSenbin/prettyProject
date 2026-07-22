@@ -14,6 +14,10 @@ from backend.app.modules.users.models import User
 from backend.app.modules.profiles.models import UserProfile
 
 
+def auth_headers(user_id: str) -> dict[str, str]:
+    return {"Authorization": f"Bearer token-{user_id}-123456"}
+
+
 def make_client():
     engine = create_engine(
         "sqlite://",
@@ -61,7 +65,13 @@ class ProductApiTest(unittest.TestCase):
         self.assertEqual(api_data(miss_response), [])
 
     def test_product_search_returns_official_niacinamide_with_analysis_highlight(self):
-        client, _ = make_client()
+        client, session_factory = make_client()
+        with session_factory() as db:
+            user = User(display_name="测试用户", login_type="username")
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+            user_id = user.id
 
         search_response = client.get("/api/products/search", params={"q": "The Ordinary Niacinamide"})
 
@@ -71,7 +81,7 @@ class ProductApiTest(unittest.TestCase):
         self.assertEqual(product["status"], "verified")
         self.assertTrue(product["has_ingredients"])
 
-        analysis = client.get(f"/api/products/{product['id']}/analysis")
+        analysis = client.get(f"/api/products/{product['id']}/analysis", headers=auth_headers(user_id))
         self.assertEqual(analysis.status_code, 200)
         highlight_names = [item["inci_name"] for item in api_data(analysis)["highlights"]]
         self.assertIn("NIACINAMIDE", highlight_names)
@@ -253,7 +263,7 @@ class ProductApiTest(unittest.TestCase):
             user_id = user.id
 
         product_id = api_data(client.get("/api/products/search", params={"q": "修丽可 CE"}))[0]["id"]
-        response = client.get(f"/api/products/{product_id}", params={"user_id": user_id})
+        response = client.get(f"/api/products/{product_id}", headers=auth_headers(user_id))
 
         self.assertEqual(response.status_code, 200)
         detail = api_data(response)
@@ -279,20 +289,20 @@ class ProductApiTest(unittest.TestCase):
         search_response = client.get("/api/products/search", params={"q": "Anthelios Melt-In Milk"})
         product_id = api_data(search_response)[0]["id"]
 
-        add_master = client.post(f"/api/products/my/{user_id}", json={"product_id": product_id})
+        add_master = client.post("/api/products/my", headers=auth_headers(user_id), json={"product_id": product_id})
         self.assertEqual(add_master.status_code, 200)
         added_master = api_data(add_master)
         self.assertEqual(added_master["product"]["id"], product_id)
         self.assertGreater(len(added_master["product"]["ingredients"]), 0)
         self.assertEqual(added_master["analysis"]["status"], "caution")
 
-        add_pending = client.post(f"/api/products/my/{user_id}", json={"name": "我新买的未知精华"})
+        add_pending = client.post("/api/products/my", headers=auth_headers(user_id), json={"name": "我新买的未知精华"})
         self.assertEqual(add_pending.status_code, 200)
         added_pending = api_data(add_pending)
         self.assertEqual(added_pending["status"], "pending")
         self.assertEqual(added_pending["analysis"]["status"], "incomplete")
 
-        my_products = client.get(f"/api/products/my/{user_id}")
+        my_products = client.get("/api/products/my", headers=auth_headers(user_id))
         self.assertEqual(my_products.status_code, 200)
         self.assertEqual(len(api_data(my_products)), 2)
 
@@ -306,15 +316,15 @@ class ProductApiTest(unittest.TestCase):
             user_id = user.id
 
         product_id = api_data(client.get("/api/products/search", params={"q": "Anthelios Melt-In Milk"}))[0]["id"]
-        added = api_data(client.post(f"/api/products/my/{user_id}", json={"product_id": product_id}))
+        added = api_data(client.post("/api/products/my", headers=auth_headers(user_id), json={"product_id": product_id}))
 
-        delete_response = client.delete(f"/api/products/my/{user_id}/{added['id']}")
+        delete_response = client.delete(f"/api/products/my/{added['id']}", headers=auth_headers(user_id))
 
         self.assertEqual(delete_response.status_code, 200)
         self.assertTrue(api_data(delete_response)["deleted"])
-        my_products = client.get(f"/api/products/my/{user_id}")
+        my_products = client.get("/api/products/my", headers=auth_headers(user_id))
         self.assertEqual(api_data(my_products), [])
-        product_detail = client.get(f"/api/products/{product_id}")
+        product_detail = client.get(f"/api/products/{product_id}", headers=auth_headers(user_id))
         self.assertEqual(product_detail.status_code, 200)
 
     def test_sensitive_profile_flags_high_position_alcohol_as_caution(self):
@@ -338,7 +348,7 @@ class ProductApiTest(unittest.TestCase):
             user_id = user.id
 
         product_id = api_data(client.get("/api/products/search", params={"q": "Anthelios Melt-In Milk"}))[0]["id"]
-        analysis = client.get(f"/api/products/{product_id}/analysis", params={"user_id": user_id})
+        analysis = client.get(f"/api/products/{product_id}/analysis", headers=auth_headers(user_id))
 
         self.assertEqual(analysis.status_code, 200)
         data = api_data(analysis)
@@ -365,7 +375,7 @@ class ProductApiTest(unittest.TestCase):
             user_id = user.id
 
         product_id = api_data(client.get("/api/products/search", params={"q": "Retinol 0.2"}))[0]["id"]
-        analysis = client.get(f"/api/products/{product_id}/analysis", params={"user_id": user_id})
+        analysis = client.get(f"/api/products/{product_id}/analysis", headers=auth_headers(user_id))
 
         self.assertEqual(analysis.status_code, 200)
         data = api_data(analysis)
@@ -381,11 +391,33 @@ class ProductApiTest(unittest.TestCase):
             db.refresh(user)
             user_id = user.id
 
-        add_pending = client.post(f"/api/products/my/{user_id}", json={"name": "未知面霜"})
+        add_pending = client.post("/api/products/my", headers=auth_headers(user_id), json={"name": "未知面霜"})
         analysis = api_data(add_pending)["analysis"]
 
         self.assertEqual(analysis["status"], "incomplete")
         self.assertEqual(analysis["summary"], "缺少成分，无法分析")
+
+    def test_my_products_uses_authenticated_user_not_path_user_id(self):
+        client, session_factory = make_client()
+        with session_factory() as db:
+            owner = User(display_name="本人", login_type="username")
+            other = User(display_name="其他人", login_type="username")
+            db.add_all([owner, other])
+            db.commit()
+            db.refresh(owner)
+            db.refresh(other)
+            owner_id = owner.id
+            other_id = other.id
+
+        product_id = api_data(client.get("/api/products/search", params={"q": "Anthelios Melt-In Milk"}))[0]["id"]
+        add_response = client.post("/api/products/my", headers=auth_headers(owner_id), json={"product_id": product_id})
+        self.assertEqual(add_response.status_code, 200)
+
+        owner_products = client.get("/api/products/my", headers=auth_headers(owner_id))
+        other_products = client.get("/api/products/my", headers=auth_headers(other_id))
+
+        self.assertEqual(len(api_data(owner_products)), 1)
+        self.assertEqual(api_data(other_products), [])
 
 if __name__ == "__main__":
     unittest.main()

@@ -174,7 +174,7 @@ onMounted(loadDetail)
 async function loadDetail() {
   loading.value = true
   try {
-    detail.value = await productApi.getProductDetail(route.params.id, userStore.userId)
+    detail.value = await productApi.getProductDetail(route.params.id)
   } catch (err) {
     appStore.showToast(err.message || '产品详情读取失败', 'error')
     router.replace('/cabinet')
@@ -185,7 +185,7 @@ async function loadDetail() {
 
 async function addProduct() {
   try {
-    await productApi.addMyProduct(userStore.userId, { product_id: product.value.id })
+    await productApi.addMyProduct({ product_id: product.value.id })
     appStore.showToast('已加入我的产品库', 'success')
   } catch (err) {
     appStore.showToast(err.message || '添加失败', 'error')

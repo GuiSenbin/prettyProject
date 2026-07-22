@@ -3,7 +3,7 @@ import os
 import uuid
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
 from sqlalchemy.orm import Session
-from backend.app.core.deps import get_db
+from backend.app.core.deps import get_current_user_id, get_db
 from backend.app.modules.users.schemas import UserCreate, UserResponse, UserRegister, UserLogin, UserUpdate
 from backend.app.modules.users.service import UserService
 from backend.app.core.schemas import StandardResponse
@@ -52,6 +52,47 @@ def create_user(data: UserCreate, db: Session = Depends(get_db)):
     }
 
 
+@router.get("/me", response_model=StandardResponse[UserResponse])
+def get_current_user(user_id: str = Depends(get_current_user_id), db: Session = Depends(get_db)):
+    return {
+        "code": 200,
+        "message": "success",
+        "data": UserService(db).get_or_404(user_id).to_dict()
+    }
+
+
+@router.put("/me", response_model=StandardResponse[UserResponse])
+def update_current_user(
+    data: UserUpdate,
+    user_id: str = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+):
+    return {
+        "code": 200,
+        "message": "success",
+        "data": UserService(db).update(user_id, data.model_dump(exclude_unset=True)).to_dict()
+    }
+
+
+@router.post("/me/avatar", response_model=StandardResponse[UserResponse])
+async def upload_current_user_avatar(
+    file: UploadFile = File(...),
+    user_id: str = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+):
+    return await _upload_avatar_for_user(user_id, file, db)
+
+
+@router.delete("/me", response_model=StandardResponse[dict])
+def delete_current_user(user_id: str = Depends(get_current_user_id), db: Session = Depends(get_db)):
+    UserService(db).delete(user_id)
+    return {
+        "code": 200,
+        "message": "success",
+        "data": {"ok": True}
+    }
+
+
 @router.put("/{user_id}", response_model=StandardResponse[UserResponse])
 def update_user(user_id: str, data: UserUpdate, db: Session = Depends(get_db)):
     return {
@@ -72,8 +113,12 @@ def get_user(user_id: str, db: Session = Depends(get_db)):
 
 @router.post("/{user_id}/avatar", response_model=StandardResponse[UserResponse])
 async def upload_avatar(user_id: str, file: UploadFile = File(...), db: Session = Depends(get_db)):
+    return await _upload_avatar_for_user(user_id, file, db)
+
+
+async def _upload_avatar_for_user(user_id: str, file: UploadFile, db: Session):
     service = UserService(db)
-    user = service.get_or_404(user_id)
+    service.get_or_404(user_id)
     
     if not file.filename:
         raise HTTPException(status_code=400, detail="未上传文件")
@@ -105,4 +150,3 @@ def delete_user(user_id: str, db: Session = Depends(get_db)):
         "message": "success",
         "data": {"ok": True}
     }
-

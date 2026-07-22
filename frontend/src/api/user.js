@@ -10,25 +10,25 @@ export const userApi = {
     return request.post('/users/register', payload)
   },
 
-  getUser(id) {
-    return request.get(`/users/${id}`)
+  getUser() {
+    return request.get('/users/me')
   },
 
   createUser(payload) {
     return request.post('/users/', payload)
   },
 
-  updateUser(id, payload) {
-    return request.put(`/users/${id}`, payload)
+  updateUser(payload) {
+    return request.put('/users/me', payload)
   },
 
-  deleteUser(id) {
-    return request.delete(`/users/${id}`)
+  deleteUser() {
+    return request.delete('/users/me')
   },
 
-  uploadAvatar(id, file) {
+  uploadAvatar(file) {
     const formData = new FormData()
     formData.append('file', file)
-    return request.post(`/users/${id}/avatar`, formData)
+    return request.post('/users/me/avatar', formData)
   },
 }

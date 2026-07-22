@@ -2,11 +2,11 @@
 import request from '@/utils/request'
 
 export const profileApi = {
-  getProfile(userId) {
-    return request.get(`/profiles/${userId}`)
+  getProfile() {
+    return request.get('/profiles/me')
   },
 
-  saveProfile(userId, payload) {
-    return request.put(`/profiles/${userId}`, payload)
+  saveProfile(payload) {
+    return request.put('/profiles/me', payload)
   },
 }

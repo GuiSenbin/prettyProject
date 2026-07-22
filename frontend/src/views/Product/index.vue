@@ -188,7 +188,7 @@ async function addCabinetProduct(productId) {
     return
   }
   try {
-    await productApi.addMyProduct(userStore.userId, { product_id: productId })
+    await productApi.addMyProduct({ product_id: productId })
     await loadCabinetProducts()
     appStore.showToast('已加入我的产品库', 'success')
   } catch (err) {
@@ -203,7 +203,7 @@ async function deleteCabinetProduct(item) {
   if (!window.confirm(`确定从产品库删除「${productName}」吗？`)) return
   deletingProductId.value = item.id
   try {
-    await productApi.deleteMyProduct(userStore.userId, item.id)
+    await productApi.deleteMyProduct(item.id)
     myProducts.value = myProducts.value.filter(product => product.id !== item.id)
     appStore.showToast('已从产品库删除', 'success')
   } catch (err) {
@@ -220,7 +220,7 @@ async function loadCabinetProducts() {
   if (!userStore.userId) return
   loadingCabinet.value = true
   try {
-    const res = await productApi.listMyProducts(userStore.userId)
+    const res = await productApi.listMyProducts()
     myProducts.value = res || []
   } catch (err) {
     console.error('获取个人产品库失败:', err)
