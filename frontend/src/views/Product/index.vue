@@ -128,6 +128,17 @@
         <p class="desc-tips">点击搜索 添加你的私有产品吧</p>
       </div>
     </div>
+    <ConfirmModal
+      v-model="deleteModalVisible"
+      title="删除产品"
+      :content="`确定从产品库删除「${pendingDeleteProductName}」吗？`"
+      confirmText="删除"
+      cancelText="取消"
+      :showCancel="true"
+      :maskClosable="true"
+      @confirm="confirmDeleteCabinetProduct"
+      @cancel="clearPendingDeleteProduct"
+    />
   </section>
 </template>
 
@@ -138,9 +149,11 @@ import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 import { Search, Sparkles, Package, PackageSearch, Trash2 } from 'lucide-vue-next'
 import { productApi } from '@/api/product'
+import ConfirmModal from '@/components/confirm-modal.vue'
 import { useAppStore } from '@/stores/app'
 import { useProductStore } from '@/stores/product'
 import { useUserStore } from '@/stores/user'
+import { buildCabinetCategoryFilters, filterCabinetProducts } from '@/utils/productCategories'
 
 const userStore = useUserStore()
 const appStore = useAppStore()
@@ -156,23 +169,21 @@ const {
   currentPage,
 } = storeToRefs(productStore)
 const searching = ref(false)
-const CATEGORIES = ['洁面', '精华', '乳液/面霜', '防晒', '面膜', '底妆', '唇妆/彩妆']
 const loadMoreTrigger = ref(null)
 const pageSize = 12
 
 const myProducts = ref([])
 const loadingCabinet = ref(false)
 const deletingProductId = ref(null)
+const deleteModalVisible = ref(false)
+const pendingDeleteProduct = ref(null)
+const pendingDeleteProductName = computed(() => (
+  pendingDeleteProduct.value?.product?.name || pendingDeleteProduct.value?.custom_name || '这个产品'
+))
 const filteredMyProducts = computed(() => {
-  if (!activeCabinetCategory.value) return myProducts.value
-  return myProducts.value.filter(item => item.product?.category === activeCabinetCategory.value)
+  return filterCabinetProducts(myProducts.value, activeCabinetCategory.value)
 })
-const cabinetCategoryFilters = computed(() => CATEGORIES
-  .map(name => ({
-    name,
-    count: myProducts.value.filter(item => item.product?.category === name).length,
-  }))
-)
+const cabinetCategoryFilters = computed(() => buildCabinetCategoryFilters(myProducts.value))
 
 function isAdded(productId) {
   return myProducts.value.some(item => (item.product?.id || item.product_id) === productId)
@@ -199,8 +210,17 @@ async function addCabinetProduct(productId) {
 
 async function deleteCabinetProduct(item) {
   if (!userStore.userId || !item?.id) return
-  const productName = item.product?.name || item.custom_name || '这个产品'
-  if (!window.confirm(`确定从产品库删除「${productName}」吗？`)) return
+  pendingDeleteProduct.value = item
+  deleteModalVisible.value = true
+}
+
+function clearPendingDeleteProduct() {
+  pendingDeleteProduct.value = null
+}
+
+async function confirmDeleteCabinetProduct() {
+  const item = pendingDeleteProduct.value
+  if (!userStore.userId || !item?.id) return
   deletingProductId.value = item.id
   try {
     await productApi.deleteMyProduct(item.id)
@@ -211,6 +231,7 @@ async function deleteCabinetProduct(item) {
     appStore.showToast(err.message || '删除失败，请稍后再试', 'error')
   } finally {
     deletingProductId.value = null
+    clearPendingDeleteProduct()
   }
 }
 

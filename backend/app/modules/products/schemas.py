@@ -43,6 +43,7 @@ class IngredientGroup(BaseModel):
 class ProductAnalysis(BaseModel):
     status: str
     summary: str
+    has_profile: bool = False
     reasons: list[str] = Field(default_factory=list)
     highlights_text: list[str] = Field(default_factory=list)
     tips: list[str] = Field(default_factory=list)
@@ -56,6 +57,7 @@ class ProductDetail(BaseModel):
     benefit_groups: list[IngredientGroup] = Field(default_factory=list)
     safety_groups: list[IngredientGroup] = Field(default_factory=list)
     safety_summary: str
+    in_my_cabinet: bool = False
 
 
 class UserProductCreate(BaseModel):
