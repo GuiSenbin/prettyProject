@@ -400,6 +400,9 @@ class ProductService:
             product = self.products.get_product(payload.product_id)
             if not product:
                 raise HTTPException(404, "产品不存在")
+            existing = self.products.get_user_product_by_product_id(user_id, product.id)
+            if existing:
+                return self._serialize_user_product(existing, user_id)
             item = self.products.create_user_product({
                 "user_id": user_id,
                 "product_id": product.id,
@@ -438,6 +441,7 @@ class ProductService:
             raise HTTPException(404, "产品不存在")
         profile = self.profiles.get_by_user_id(user_id) if user_id else None
         safety_groups = self._ingredient_groups(product, SAFETY_GROUPS)
+        in_my_cabinet = bool(self.products.get_user_product_by_product_id(user_id, product_id)) if user_id else False
         risk_tags = [group["name"] for group in safety_groups if group["count"]]
         if not product.ingredients:
             safety_summary = "缺少包装成分，无法生成安全提示"
@@ -451,6 +455,7 @@ class ProductService:
             "benefit_groups": self._ingredient_groups(product, BENEFIT_GROUPS),
             "safety_groups": safety_groups,
             "safety_summary": safety_summary,
+            "in_my_cabinet": in_my_cabinet,
         }
 
     def _ensure_user_exists(self, user_id: str) -> None:
@@ -533,6 +538,7 @@ class ProductService:
         return {
             "status": "incomplete",
             "summary": "缺少成分，无法分析",
+            "has_profile": False,
             "reasons": ["该产品暂未收录包装成分，不能生成适配结论"],
             "highlights_text": [],
             "tips": ["缺少成分，无法分析"],
@@ -563,7 +569,7 @@ class ProductService:
         gender = profile.get("gender")
         age = profile.get("age")
         pregnancy_status = profile.get("pregnancy_status")
-        if gender == "female" and isinstance(age, int) and 18 <= age <= 50 and pregnancy_status in {None, "", "不方便透露"}:
+        if gender == "female" and isinstance(age, int) and 18 <= age <= 50 and pregnancy_status in {None, ""}:
             missing.append("pregnancy_status")
 
         concerns = profile.get("skin_concerns") or []
@@ -598,6 +604,59 @@ class ProductService:
             return "完善档案后查看适配"
         labels = [PROFILE_FIELD_LABELS.get(field, field) for field in missing_fields[:2]]
         return f"补充{'、'.join(labels)}更准确"[:24]
+
+    def _profile_context_tips(self, product: Product, profile: dict, missing_fields: list[str]) -> list[str]:
+        tips = []
+        skin_type = profile.get("skin_type") or ""
+        concerns = profile.get("skin_concerns") or []
+        pregnancy_status = profile.get("pregnancy_status") or ""
+        category = product.category or ""
+        for item in product.ingredients or []:
+            ingredient = item.ingredient
+            if not ingredient:
+                continue
+            name = ingredient.display_name()
+            tags = set(ingredient.tags or [])
+            traits = self._trait_set(ingredient)
+            position = item.position or 99
+            if skin_type == "敏感肌" and position <= 8 and (
+                tags.intersection({"alcohol", "fragrance", "acid", "retinoid", "irritant"})
+                or traits.intersection({"香精", "香料", "溶剂", "促渗", "去角质"})
+            ):
+                tips.append(f"{name}靠前，敏感肌先局部试用")
+            if skin_type in {"混合偏油", "油性"} and position <= 8 and (
+                tags.intersection({"alcohol", "acid", "sebum_control"})
+                or traits.intersection({"溶剂", "促渗", "控油", "清爽"})
+            ):
+                tips.append(f"{name}靠前，{skin_type}先观察拔干")
+            if any(concern in concerns for concern in ["痘痘", "闭口"]) and (
+                tags.intersection({"comedogenic", "heavy_oil"})
+                or traits.intersection({"封闭", "封闭剂", "强效封闭", "厚重油脂"})
+            ):
+                tips.append(f"{name}偏厚重，痘痘闭口期少量用")
+            if any(concern in concerns for concern in ["泛红", "敏感"]) and position <= 8 and (
+                tags.intersection({"alcohol", "fragrance", "acid", "retinoid", "irritant"})
+                or traits.intersection({"香精", "香料", "溶剂", "促渗", "去角质"})
+            ):
+                tips.append(f"{name}需留意，泛红期先避开叠加")
+            if pregnancy_status in PREGNANCY_STATUSES and (
+                tags.intersection({"retinoid", "acid"})
+                or traits.intersection({"高活性护理", "去角质"})
+            ):
+                tips.append(f"{name}属高活性，{pregnancy_status}慎用")
+        if not tips:
+            benefit_names = self._analysis_highlight_text(product)
+            if benefit_names and skin_type:
+                tips.append(f"{benefit_names[0].replace('表现突出', '')}方向适合{skin_type}按需搭配")
+            elif benefit_names and concerns:
+                tips.append(f"{benefit_names[0].replace('表现突出', '')}方向可结合{concerns[0]}观察")
+        if pregnancy_status in PREGNANCY_STATUSES:
+            tips.append(f"{pregnancy_status}阶段先避开强功效叠加")
+        if not tips and missing_fields:
+            tips.append(self._missing_profile_tip(missing_fields, True))
+        if not tips and category:
+            tips.append(f"已结合档案判断{category}适配")
+        return [tip[:24] for tip in tips]
 
     def _analyze_product(self, product: Product, profile: dict | None = None) -> dict:
         ingredients = product.ingredients or []
@@ -675,6 +734,9 @@ class ProductService:
                 status = "incomplete"
 
         unique_reasons = list(dict.fromkeys(reasons))
+        if has_profile:
+            tips = [tip for tip in tips if tip != "完善档案后查看适配"]
+            tips.extend(self._profile_context_tips(product, profile, missing_profile_fields))
         tips.extend(unique_reasons)
         unique_tips = [tip[:24] for tip in list(dict.fromkeys(tips))[:2]]
         unique_highlights = self._unique_highlights(highlights)
@@ -687,6 +749,7 @@ class ProductService:
         return {
             "status": status,
             "summary": summary_by_status[status],
+            "has_profile": has_profile,
             "reasons": unique_reasons,
             "highlights_text": self._analysis_highlight_text(product),
             "tips": unique_tips,

@@ -26,9 +26,10 @@
           </div>
         </div>
         <div class="summary-actions">
-          <button class="btn btn-primary" type="button" @click="addProduct">
-            <Plus :size="16" />
-            加入我的产品库
+          <button class="btn btn-primary" type="button" :disabled="isInMyCabinet" @click="addProduct">
+            <Check v-if="isInMyCabinet" :size="16" />
+            <Plus v-else :size="16" />
+            {{ isInMyCabinet ? '已加入产品库' : '加入我的产品库' }}
           </button>
           <a v-if="product.source_url" :href="product.source_url" target="_blank" rel="noreferrer">
             <ExternalLink :size="15" />
@@ -88,7 +89,7 @@
             </article>
             <article class="fit-copy-block">
               <h4>Tips</h4>
-              <p v-if="missingProfileFields.length">
+              <p v-if="shouldShowProfilePrompt">
                 去
                 <button class="fit-profile-text-link" type="button" @click="goProfile">个人档案</button>
                 生成专属方案推荐
@@ -135,6 +136,7 @@ import { useRoute, useRouter } from 'vue-router'
 import {
   AlertTriangle,
   Brush,
+  Check,
   ChessQueen,
   CloudSunRain,
   Droplets,
@@ -166,6 +168,9 @@ const visibleSafetyGroups = computed(() => (detail.value?.safety_groups || []).f
 const analysisHighlights = computed(() => analysis.value.highlights_text || [])
 const analysisTips = computed(() => analysis.value.tips || analysis.value.reasons || [])
 const missingProfileFields = computed(() => analysis.value.missing_profile_fields || [])
+const hasProfile = computed(() => Boolean(analysis.value.has_profile))
+const shouldShowProfilePrompt = computed(() => !hasProfile.value && missingProfileFields.value.length > 0)
+const isInMyCabinet = computed(() => Boolean(detail.value?.in_my_cabinet))
 const registrationText = computed(() => product.value.registration_number ? `备案号:${product.value.registration_number}` : '备案号待核验')
 const originText = computed(() => product.value.brand_origin_country ? `品牌起源:${product.value.brand_origin_country}` : '品牌起源待核验')
 
@@ -184,8 +189,13 @@ async function loadDetail() {
 }
 
 async function addProduct() {
+  if (isInMyCabinet.value) return
   try {
     await productApi.addMyProduct({ product_id: product.value.id })
+    detail.value = {
+      ...detail.value,
+      in_my_cabinet: true,
+    }
     appStore.showToast('已加入我的产品库', 'success')
   } catch (err) {
     appStore.showToast(err.message || '添加失败', 'error')
@@ -371,6 +381,17 @@ function hideBrokenImage(event) {
     align-items: center;
     justify-content: center;
     gap: 6px;
+    &:disabled {
+      cursor: default;
+      transform: none;
+      background: linear-gradient(135deg, rgba(146, 204, 205, 0.72), rgba(117, 190, 185, 0.72));
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.34);
+      opacity: 0.92;
+    }
+    &:disabled:hover {
+      transform: none;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.34);
+    }
   }
   a {
     min-height: 34px;

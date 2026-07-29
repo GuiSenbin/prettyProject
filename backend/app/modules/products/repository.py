@@ -118,6 +118,11 @@ class ProductRepository:
             select(UserProduct).where(UserProduct.user_id == user_id, UserProduct.id == user_product_id)
         ).scalar_one_or_none()
 
+    def get_user_product_by_product_id(self, user_id: str, product_id: int) -> UserProduct | None:
+        return self.db.execute(
+            select(UserProduct).where(UserProduct.user_id == user_id, UserProduct.product_id == product_id)
+        ).scalar_one_or_none()
+
     def create_user_product(self, payload: dict) -> UserProduct:
         item = UserProduct(**payload)
         self.db.add(item)

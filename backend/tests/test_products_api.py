@@ -276,6 +276,100 @@ class ProductApiTest(unittest.TestCase):
         self.assertIn("酸类/高活性", [group["name"] for group in detail["safety_groups"]])
         self.assertEqual(detail["analysis"]["status"], "caution")
         self.assertIn("敏感肌", "".join(detail["analysis"]["reasons"]))
+        self.assertTrue(detail["analysis"]["has_profile"])
+        self.assertIn("敏感肌", "".join(detail["analysis"]["tips"]))
+
+    def test_product_analysis_distinguishes_missing_profile_from_partial_profile(self):
+        client, session_factory = make_client()
+        with session_factory() as db:
+            no_profile_user = User(display_name="无档案用户", login_type="username")
+            partial_profile_user = User(display_name="已有档案用户", login_type="username")
+            db.add_all([no_profile_user, partial_profile_user])
+            db.commit()
+            db.refresh(no_profile_user)
+            db.refresh(partial_profile_user)
+            db.add(
+                UserProfile(
+                    user_id=partial_profile_user.id,
+                    gender="female",
+                    age=29,
+                    skin_concerns=["泛红"],
+                )
+            )
+            db.commit()
+            no_profile_user_id = no_profile_user.id
+            partial_profile_user_id = partial_profile_user.id
+
+        product_id = api_data(client.get("/api/products/search", params={"q": "Anthelios Melt-In Milk"}))[0]["id"]
+
+        no_profile_analysis = api_data(client.get(
+            f"/api/products/{product_id}/analysis",
+            headers=auth_headers(no_profile_user_id),
+        ))
+        partial_profile_analysis = api_data(client.get(
+            f"/api/products/{product_id}/analysis",
+            headers=auth_headers(partial_profile_user_id),
+        ))
+
+        self.assertFalse(no_profile_analysis["has_profile"])
+        self.assertIn("完善档案后查看适配", no_profile_analysis["tips"])
+        self.assertTrue(partial_profile_analysis["has_profile"])
+        self.assertNotIn("完善档案后查看适配", partial_profile_analysis["tips"])
+        self.assertIn("泛红", "".join(partial_profile_analysis["tips"]))
+
+    def test_private_pregnancy_status_is_not_missing_in_product_analysis(self):
+        client, session_factory = make_client()
+        with session_factory() as db:
+            user = User(display_name="默认孕哺状态用户", login_type="username")
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+            db.add(
+                UserProfile(
+                    user_id=user.id,
+                    gender="female",
+                    age=29,
+                    skin_type="混合性",
+                    skin_concerns=[],
+                    pregnancy_status="不方便透露",
+                )
+            )
+            db.commit()
+            user_id = user.id
+
+        product_id = api_data(client.get("/api/products/search", params={"q": "Anthelios Melt-In Milk"}))[0]["id"]
+        analysis = api_data(client.get(f"/api/products/{product_id}/analysis", headers=auth_headers(user_id)))
+
+        self.assertTrue(analysis["has_profile"])
+        self.assertNotIn("pregnancy_status", analysis["missing_profile_fields"])
+        self.assertNotIn("孕哺状态", "".join(analysis["tips"]))
+
+    def test_product_tips_combine_ingredients_and_profile(self):
+        client, session_factory = make_client()
+        with session_factory() as db:
+            user = User(display_name="混油痘肌用户", login_type="username")
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+            db.add(
+                UserProfile(
+                    user_id=user.id,
+                    gender="female",
+                    age=26,
+                    skin_type="混合偏油",
+                    skin_concerns=["痘痘"],
+                    pregnancy_status="不方便透露",
+                )
+            )
+            db.commit()
+            user_id = user.id
+
+        product_id = api_data(client.get("/api/products/search", params={"q": "Anthelios Melt-In Milk"}))[0]["id"]
+        analysis = api_data(client.get(f"/api/products/{product_id}/analysis", headers=auth_headers(user_id)))
+        tips_text = "".join(analysis["tips"])
+
+        self.assertIn("变性乙醇", tips_text)
+        self.assertTrue("混合偏油" in tips_text or "痘痘" in tips_text)
 
     def test_user_can_add_master_product_and_pending_product(self):
         client, session_factory = make_client()
@@ -305,6 +399,33 @@ class ProductApiTest(unittest.TestCase):
         my_products = client.get("/api/products/my", headers=auth_headers(user_id))
         self.assertEqual(my_products.status_code, 200)
         self.assertEqual(len(api_data(my_products)), 2)
+
+    def test_product_detail_marks_added_product_and_duplicate_add_is_idempotent(self):
+        client, session_factory = make_client()
+        with session_factory() as db:
+            user = User(display_name="测试用户", login_type="username")
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+            user_id = user.id
+
+        product_id = api_data(client.get("/api/products/search", params={"q": "Anthelios Melt-In Milk"}))[0]["id"]
+
+        detail_before = client.get(f"/api/products/{product_id}", headers=auth_headers(user_id))
+        self.assertEqual(detail_before.status_code, 200)
+        self.assertFalse(api_data(detail_before)["in_my_cabinet"])
+
+        first_add = client.post("/api/products/my", headers=auth_headers(user_id), json={"product_id": product_id})
+        second_add = client.post("/api/products/my", headers=auth_headers(user_id), json={"product_id": product_id})
+        self.assertEqual(first_add.status_code, 200)
+        self.assertEqual(second_add.status_code, 200)
+        self.assertEqual(api_data(first_add)["id"], api_data(second_add)["id"])
+
+        my_products = client.get("/api/products/my", headers=auth_headers(user_id))
+        self.assertEqual(len(api_data(my_products)), 1)
+
+        detail_after = client.get(f"/api/products/{product_id}", headers=auth_headers(user_id))
+        self.assertTrue(api_data(detail_after)["in_my_cabinet"])
 
     def test_user_can_delete_product_from_personal_cabinet(self):
         client, session_factory = make_client()
